@@ -1,9 +1,10 @@
-
-function dx = dymModelFlight(t,x,parms)
+function dx = dymModelFlightDimensionless(t, x, parms)
+% Get parameters
 g = parms.g;
+% Evalute dimensionless EOMs
 yd = x(2);
 ydd = -g;
 
-dx = [yd;ydd];
+dx = [yd; ydd];
 
 end

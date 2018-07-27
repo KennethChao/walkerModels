@@ -1,0 +1,55 @@
+close all;
+clc;
+figure();
+hold on
+
+for k = 1:1
+    
+    trauncatedUnstableSolution = removeRepeatedFixedPoints(unstableSolution(:, :,k));
+    trauncatedStableSolution = removeRepeatedFixedPoints(stableSolution(:, :,k));
+    for i = 1: size(trauncatedUnstableSolution,1)
+        h1 = plot(kVec, trauncatedUnstableSolution(i, :), 'ro','MarkerSize',5,'MarkerFaceColor' , [1 0 0] );
+    end
+    for i = 1: size(trauncatedStableSolution,1)
+        h2 = plot(kVec, trauncatedStableSolution(i, :), 'bo','MarkerSize',5,'MarkerFaceColor' , [0 0 1] );
+    end
+    
+    
+end
+reshapedFixedPoints  = reshapeFixedPoints(trauncatedStableSolution,trauncatedUnstableSolution,kVec)
+
+ax = gca;
+ax.ColorOrderIndex = 1;
+
+plot(reshapedFixedPoints(2,:),reshapedFixedPoints(1,:))
+%     
+% %     [~,maxIndex] = max(combinedKvec);
+% %     maxIndex = 6+5*k;
+% %       DeltaShift = 0.005;
+% 
+% % g0.46 delta beta72
+% %     [~,maxIndex] = max(combinedDelta);
+% %     DeltaShift = 0;
+% 
+% % g0.46 delta beta72
+%     maxIndex = 2+3*k;
+%     DeltaShift = 0;
+% % eigenValue
+% %    [~,maxIndex] = max(combinedKvec);
+% %       DeltaShift = 0.005;
+% 
+%     msg = sprintf('\\beta = %d^o',betaVec(k));
+% %     msg = sprintf('g'' = %.02f',gVec(k));
+%     text(combinedKvec(maxIndex)-1,combinedDelta(maxIndex)+DeltaShift,msg,'FontName','Times');
+%     
+% 
+% % end
+    xlabel('$\tilde{k}$','Interpreter','latex')
+    ylabel('$\delta*$','Interpreter','latex')
+%     ylabel('$\lambda_2$','Interpreter','latex')
+    
+%   set(h,'DefaultTextFontName','Times','DefaultTextFontSize',18,...
+%        'DefaultAxesFontName','Times','DefaultAxesFontSize',18,...
+%     'DefaultLineLineWidth',1,'DefaultLineMarkerSize',7.75)
+    axis([kMinFig, kMaxFig, deltaMinFig, deltaMaxFig])
+%     

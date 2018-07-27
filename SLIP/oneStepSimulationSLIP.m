@@ -7,9 +7,9 @@ beta = parms.beta;
 delta = delta0;
 
 % Ode solver setup
-    optionsStance = odeset('Event', @liftOffEventFcn);
+    optionsStance = odeset('Event', @liftOffEventFcn,'RelTol',1.e-6);
     dymStance = @(t, x) dymModelStanceDimensionless(t, x, parms); %dymModelStanceDimensionless
-    optionsFlight = odeset('Event', @(t, x)touchDownEventFcn(t, x, beta));
+    optionsFlight = odeset('Event', @(t, x)touchDownEventFcn(t, x, beta),'RelTol',1.e-6);
     dymFlight = @(t, a) dymModelFlightDimensionless(t, a, parms);
 
 
@@ -17,10 +17,10 @@ if strcmp(mode, 'fixedPointOpt')
     iterNumb = 1;
 elseif strcmp(mode, 'perturbedSimulation')
     perturbation = 1e-3;
-    iterNumb = 3;
+    iterNumb = 2;
 end
 
-tspan = 0:0.01:5;
+tspan = 0:0.01:20;
 
 for i = 1:iterNumb
     %% Update initial conditions
@@ -32,7 +32,7 @@ for i = 1:iterNumb
     if strcmp(mode, 'perturbedSimulation') && i == iterNumb
         delta = perturbedDeltaPlus;
     elseif strcmp(mode, 'perturbedSimulation') && i == iterNumb - 1
-        newDelta0 = deltaNew;
+        newDelta0 = delta0;%deltaNew;
         perturbedDeltaPlus = newDelta0 + perturbation;
         perturbedDeltaMinus = newDelta0 - perturbation;
         delta = perturbedDeltaMinus;

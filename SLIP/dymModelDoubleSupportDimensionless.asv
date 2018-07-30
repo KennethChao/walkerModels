@@ -1,0 +1,25 @@
+function dx = dymModelDoubleSupportDimensionless(t, xVec, parms)
+% Get parameters
+g = parms.g;
+k = parms.k;
+leadingFootPos = parms.leadingFootPos;
+trailingFootPos = parms.trailingFootPos;
+
+% Get state variables
+x = xVec(1);
+xd = xVec(2);
+y = xVec(3);
+yd = xVec(4);
+% Evalute dimensionless EOMs of the SLIP model
+deltaSpring1 = norm[x,y]-trailingFootPos;
+deltaSpring2 = [x,y]-leadingFootPos;
+theta1 = atan2(deltaSpring1(2),deltaSpring1(1));
+theta2 = atan2(deltaSpring2(2),deltaSpring2(1));
+
+
+xdd = -deltaSpring1(1)*k*cos(theta1)-deltaSpring1(2)*k*sin(theta2);
+ydd = -deltaSpring1(1)*k*sin(theta1)-deltaSpring1(2)*k*cos(theta2)-g;
+
+dx = [xd; xdd; yd; ydd];
+
+end

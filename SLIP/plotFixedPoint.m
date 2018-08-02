@@ -12,10 +12,11 @@ elseif( strcmp(    storedQuantity,'lambda'))
 end
 hold on
 
-for k = 1:4
+for k = 1:1
     
     trauncatedUnstableSolution = removeRepeatedFixedPoints(unstableSolution(:, :,k));
     trauncatedStableSolution = removeRepeatedFixedPoints(stableSolution(:, :,k));
+    
     plot(kVec, trauncatedUnstableSolution(1, :), 'ro','MarkerSize',5,'MarkerFaceColor' , [1 0 0] );
     plot(kVec, trauncatedStableSolution(1, :), 'bo','MarkerSize',5,'MarkerFaceColor' , [0 0 1] );
     

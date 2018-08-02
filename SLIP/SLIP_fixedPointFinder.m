@@ -13,8 +13,9 @@ hold on
 % betaVec = linspace(66,74,5)/180*pi
 % gVec = 0.025;
 
-gVec = [0.21 0.46 0.66 0.86 1.11 1.31 1.51]
+% gVec = [0.21 0.46 0.66 0.86 1.11 1.31 1.51]
 betaVec = 72/ 180*pi;
+gVec = 0.46;
 % gVec = [0.025 0.05 0.1 0.21 0.46 0.66]
 
 % mph2msVec = (1:5)*4.4704; % g from 10 to 50 mph
@@ -29,8 +30,8 @@ betaVec = 72/ 180*pi;
 
 %     g = gVec(k);
     
-%     storedQuantity='delta';
-    storedQuantity='lambda';
+    storedQuantity='delta';
+%     storedQuantity='lambda';
     
     %% Sampling number and range 
     kMin = 1;

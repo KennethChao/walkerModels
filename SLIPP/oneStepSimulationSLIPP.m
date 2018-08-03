@@ -1,32 +1,37 @@
-% function result = oneStepSimulationSLIPP(delta0, parms)
+function result = oneStepSimulationSLIPP(xVec, parms)
 %ToDo change perturbed simulation
-clc;
-clear;
-close all;
+% clc;
+% clear;
+% close all;
 
-parms.g = 0.12;
-parms.k = 16;
+%% For reusing the liftoff event function from SLIP model
+% addpath('../SLIP')
 
-beta = 72/180*pi;%parms.beta;
-delta = 0.1;
-mf = 0.2;
+%%
 
-parms.mf = mf;
-parms.beta = beta;
+% delta0 = xVec(1);
+phi0 = xVec(1);
+phid0 = xVec(2);
+delta0 = parms.delta0;
 
-mode = 'fixedPointOpt';
+%%
+beta = parms.beta;
+rc = parms.rc;
+mf = parms.mf;
 
-rc = 0.2;
-parms.rc = rc;
+delta = delta0;
+% mode = 'fixedPointOpt';
+% mode = 'simulationCheck';
+mode = parms.mode;
 
 % Ode solver setup
-    optionsStance = odeset('Event', @liftOffEventFcn);%,'RelTol',1.e-6
+    optionsStance = odeset('Event', @liftOffEventFcn, 'RelTol',1.e-6);%,'
     dymStance = @(t, x) dymModelStanceSLIPPendulum(t, x, parms); %dymModelStanceDimensionless
     optionsFlight = odeset('Event', @(t, x)touchDownSLIPPendulumEventFcn(t, x, parms),'RelTol',1.e-6);
     dymFlight = @(t, a) dymModelFlightSLIPPendulum(t, a, parms);
 
 
-if strcmp(mode, 'fixedPointOpt')
+if strcmp(mode, 'fixedPointOpt')|| strcmp(mode, 'simulationCheck')
     iterNumb = 1;
 elseif strcmp(mode, 'perturbedSimulation')
     perturbation = 1e-3;
@@ -54,15 +59,20 @@ for i = 1:iterNumb
     %%  Simulation in stance phase
     
     % Prep initial conditions
-    x0 = [1, -normVel * cos(beta-delta), beta, normVel * sin(beta-delta), pi/2, 0];
+    x0 = [1, -normVel * cos(beta-delta), beta, normVel * sin(beta-delta), phi0, phid0];
 
     % Solve ode
     [t, x, te, xe, ie] = ode45(dymStance, tspan, x0, optionsStance); % Runge-Kutta 4th/5th order ODE solver
     
     %%  Simulation in flight phase
-    plot(x(:,5))
+%     plot(x(:,5))
     % Convert states to Cartesian space
     % position and velocity of mf
+    
+    
+    if  isempty(te)
+            xe = x(end,:);
+    end
     zf0 = xe(1) * sin(xe(3));
     zfd0 = xe(2) * sin(xe(3)) + xe(1) * xe(4) * cos(xe(3));
     xf0 = -xe(1) * cos(xe(3)); 
@@ -77,29 +87,13 @@ for i = 1:iterNumb
     % position and velocity of COM
     xc0 = 1/(1+mf)*x0 + mf/(1+mf)*xf0;
     xcd0 = 1/(1+mf)*xd0 + mf/(1+mf)*xfd0;
-    
     zc0 = 1/(1+mf)*z0 + mf/(1+mf)*zf0;
     zcd0 = 1/(1+mf)*zd0 + mf/(1+mf)*zfd0;
     
-%     rfc = [x0-xf0,0,z0-zf0];
-%     omega = [0,xe(6),0];
-%     cross(omega,rfc)+[xfd0,0,zfd0]
-%     vc = [xd0,0, zd0];
-%     vc-cross(omega,rfc)-[xfd0,0,zfd0]
     
     % angular momentum of body around COM
     rcb = [x0-xc0,0,z0-zc0];
-    
-    
-    
     vb = [xd0,0, zd0];
-    
-    rfc = [x0-xc0,0,z0-zc0];
-    omega = [0,xe(6),0];
-    cross(omega,rfc)+[xfd0,0,zfd0]
-    vc = [xd0,0, zd0];
-    vc-cross(omega,rfc)-[xfd0,0,zfd0]
-    
     rcdCrossVb = cross(rcb,vb);
     Lbody = rcdCrossVb;
     
@@ -111,54 +105,43 @@ for i = 1:iterNumb
     
     % angular velocity of COM 
     I = mf/(1+mf)*rc^2;
-    phid0 = Lframe+Lbody / I;
-    
-    
-    phi0 = xe(5);
+    omega = (Lframe+Lbody) / I;
+%     phid0 = omega(2);
+%     
+%     phi0 = xe(5);
     % Initial condition of flight phase
-    x20 = [zc0,zcd0,phi0,phid0];
-    % Solve ode
-    if zd0<0
-        x2 = x0*1e3;
+    x20 = [zc0,zcd0,xe(5),omega(2)];
+    
+    if zd0<0 
+
+    x2 = ones(1,4)*1e3;
     else
-        [t2, x2, te2, ae2, ie2] = ode45(dymFlight, tspan, x20, optionsFlight); % Runge-Kutta 4th/5th order ODE solver
+% Solve ode
+    [t2, x2, te2, xe2, ie2] = ode45(dymFlight, tspan, x20, optionsFlight); % Runge-Kutta 4th/5th order ODE solver
     end
+
     
     %%
-    xc = xf0*mf/(mf+1) + x0/(mf+1);
-    xdc = xfd0*mf/(mf+1) + xd0/(mf+1);
+%     xc20 = xf0*mf/(mf+1) + x0/(mf+1);
+    xdc20 = xfd0*mf/(mf+1) + xd0/(mf+1);
     
     rc2f = 1/(1+mf);
-    rc2b = mf/(1+mf);
+%     rc2b = mf/(1+mf);
     
-    zfendFlight = x2(end,1) + rc*rc2f*sin(x2(end,3));
+%     zfendFlight = x2(end,1) + rc*rc2f*sin(x2(end,3));
+    try
     zdfendFlight = x2(end,2) + rc*rc2f*cos(x2(end,3))*x2(end,4);
-    xfendFlight = xc + xdc*t2(end) - rc*rc2f*cos(x2(end,3)); 
-    xdfendFlight =  xdc + rc*rc2f*sin(x2(end,3))*x2(end,4); 
-    
-    % position and velocity of m
-    zendFlight = x2(end,1) - rc*rc2b*sin(x2(end,3));
-    zdendFlight = x2(end,2) - rc*rc2b*cos(x2(end,3))*x2(end,4);
-    xendFlight = xc + xdc*t2(end) + rc*rc2b*cos(x2(end,3)); 
-    xdendFlight = xdc - rc*rc2b*sin(x2(end,3))*x2(end,4); 
-    
-    posd = [xendFlight; 0 ; zendFlight];
-    posfd = [xfendFlight; 0 ; zfendFlight];
-    
-    
-    vd = [xdendFlight; 0 ; zdendFlight];
-    vfd = [xdfendFlight; 0 ; zdfendFlight];
-    
-    (vd-vfd)./(posd-posfd)
+    catch
+        te2
+    end
+%     xfendFlight = xc20 + xdc20*t2(end) - rc*rc2f*cos(x2(end,3)); 
+    xdfendFlight =  xdc20 + rc*rc2f*sin(x2(end,3))*x2(end,4); 
     
     
     %%
     
-    te2
-    figure()
-    plot(x2(:,1));
     % Get states of the next step
-    velVec = [xd0, -x2(end, 2)];
+    velVec = [xdfendFlight, zdfendFlight];
     deltaNew = atan2(velVec(2), velVec(1));
     
     if strcmp(mode, 'perturbedSimulation') && i == iterNumb
@@ -168,15 +151,26 @@ for i = 1:iterNumb
     end
     
 end
+% 
+if strcmp(mode, 'fixedPointOpt')
+    % Return cost
+    diffDelta = deltaNew - delta;
+    diffVel = 1 - norm(velVec);
+    diffPhi = norm([phi0;phid0]-[x2(end,3);x2(end,4)]);
+    result = diffDelta^2 + diffVel^2 + diffPhi^2;
+elseif strcmp(mode, 'perturbedSimulation')
+    % Return second eigen value
+    result = (deltaNewPlus - deltaNewMinus) / 2 / perturbation;
+elseif strcmp(mode, 'simulationCheck')
+    % Return second eigen value
+    result.x = x;
+    result.t = t;
+    result.te = te;
+    result.xe = xe;
+    result.x2 = x2;
+    result.xe2 = xe2;
+    result.t2 = t2;
+    result.te2 = te2;
+end
 
-% if strcmp(mode, 'fixedPointOpt')
-%     % Return cost
-%     diffDelta = deltaNew - delta;
-%     diffBeta = 1 - norm(velVec);
-%     result = (diffDelta)^2 + (diffBeta)^2;
-% elseif strcmp(mode, 'perturbedSimulation')
-%     % Return second eigen value
-%     result = (deltaNewPlus - deltaNewMinus) / 2 / perturbation;
-% end
-
-% end
+end

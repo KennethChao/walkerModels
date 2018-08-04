@@ -1,6 +1,7 @@
   parms={};
-        parms.g = 0.1;
+        parms.g = 0.46;
         parms.beta = 72/180*pi; 
-        parms.k = 9.2428;
-    parms.mode = 'perturbedSimulation';
-result = oneStepSimulationSLIP(0.82731, parms)
+        parms.k = 16.03;
+%     parms.mode = 'perturbedSimulation';
+    parms.mode = 'fixedPointOpt';
+result = oneStepSimulationSLIP(0.09331, parms)

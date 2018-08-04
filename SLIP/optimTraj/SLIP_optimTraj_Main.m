@@ -14,45 +14,42 @@ clc; clear;
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                  Parameters for the dynamics function                   %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-beta = betaVec(k)/180*pi;
-% beta = 66/180*pi;
-g = 0.46;
 
 %% Parameter Set
 
-parms.g = g;
-parms.beta = beta;
-parms.k = k;
-parms.delta = delta;
+parms.g = 0.05;
+parms.beta = 72/180*pi;
+parms.k = 12;
+% parms.delta = delta;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                       Set up function handles                           %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
-problem.func.dynamics = @(t,x,u)( dymModelFlight(x,u,param.dyn) );
+problem.func.dynamics = @(t,x,u)( dymModelStanceDimensionless(t, x,u,parms) );
 
-problem.func.pathObj = @(t,x,u)( costFun(u) );
+problem.func.pathObj = @(t,x,u)( costFun(x) );
 
-problem.func.bndCst = @(t0,x0,tF,xF)( periodicGait(xF,x0,param.dyn) );
+problem.func.bndCst = @(t0,x0,tF,xF)( periodicGait(xF,x0,parms) );
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %               Set up bounds on time, state, and control                 %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-t0 = 0;  tF = 1;
+t0 = 0;  tF = 0.5;
 problem.bounds.initialTime.low = t0;
 problem.bounds.initialTime.upp = t0;
 problem.bounds.finalTime.low = tF;
-problem.bounds.finalTime.upp = tF;
+problem.bounds.finalTime.upp = tF+1;
 
 % State: [q1;q2;dq1;dq2];
 
-problem.bounds.state.low = [-pi/3; -pi/3; -inf(2,1)];
-problem.bounds.state.upp = [ pi/3;  pi/3;  inf(2,1)];
+problem.bounds.state.low = [0.01 ;-inf;parms.beta-0.1; -inf];
+problem.bounds.state.upp = [1.01; inf;  pi;  inf];
 
-stepAngle = 0.2;
-problem.bounds.initialState.low = [stepAngle; -stepAngle; -inf(2,1)];
-problem.bounds.initialState.upp = [stepAngle; -stepAngle;  inf(2,1)];
+% stepAngle = 0.2;
+problem.bounds.initialState.low = [1;-inf; parms.beta; -inf];
+problem.bounds.initialState.upp = [1;inf; parms.beta;  inf];
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %              Create an initial guess for the trajectory                 %
@@ -62,9 +59,9 @@ problem.bounds.initialState.upp = [stepAngle; -stepAngle;  inf(2,1)];
 
 problem.guess.time = [t0, tF];
 
-stepRate = (2*stepAngle)/(tF-t0);
-x0 = [stepAngle; -stepAngle; -stepRate; stepRate];
-xF = [-stepAngle; stepAngle; -stepRate; stepRate];
+% stepRate = (2*stepAngle)/(tF-t0);
+x0 = [1; -1;  parms.beta; 0.1];
+xF = [1; 1;  parms.beta*2; 0.1];
 problem.guess.state = [x0, xF];
 
 problem.guess.control = [0, 0];
@@ -175,8 +172,8 @@ soln = optimTraj(problem);
 % Transcription Grid points:
 t = soln(end).grid.time;
 q1 = soln(end).grid.state(1,:);
-q2 = soln(end).grid.state(2,:);
-dq1 = soln(end).grid.state(3,:);
+q2 = soln(end).grid.state(3,:);
+dq1 = soln(end).grid.state(2,:);
 dq2 = soln(end).grid.state(4,:);
 u = soln(end).grid.control;
 
@@ -184,10 +181,19 @@ u = soln(end).grid.control;
 tInt = linspace(t(1),t(end),10*length(t)+1);
 xInt = soln(end).interp.state(tInt);
 q1Int = xInt(1,:);
-q2Int = xInt(2,:);
-dq1Int = xInt(3,:);
+q2Int = xInt(3,:);
+dq1Int = xInt(2,:);
 dq2Int = xInt(4,:);
 uInt = soln(end).interp.control(tInt);
+
+xS = [q1Int(1),dq1Int(1),q2Int(1),q2Int(1)];
+    yS0 = xS( 1) * sin(xS( 3));
+    ySd0 = xS( 2) * sin(xS( 3)) + xS( 1) * xS( 4) * cos(xS( 3));
+    xS0 = -xS( 1) * cos(xS( 3)); %#ok<NASGU>
+    xSd0 = -xS( 2) * cos(xS( 3)) + xS( 1) * xS( 4) * sin(xS( 3));
+
+    velVec = [xSd0, -ySd0];
+    deltaOld = atan2(velVec(2), velVec(1));    
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                     Plot the solution                                   %

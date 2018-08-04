@@ -1,4 +1,4 @@
-function [c, ceq] = periodicGait(xF,x0,parm)
+function [c, ceq] = periodicGait(xF,x0,parms)
 %[c, ceq] = periodicGait(zBefore,zAfter,p)
 %
 % Puts a periodic constraint on the gait, including the heel-strike and
@@ -28,11 +28,14 @@ function [c, ceq] = periodicGait(xF,x0,parm)
 %   angles: measured from negative j axis with positive convention
 %
 
+[velVec,deltaNew, deltaOld] = dymFlightDimensionless(x0,xF,parms);
 
-y0 = xF(1)*sin(xF(3));
-yd0 = xF(2)*cos(xF(3)-pi/2) - xF(1)*xF(4)*sin(xF(3)-pi/2);
 
 c = [];
-ceq = 
+ceq = [x0(1)-1;
+        xF(1)-1;
+       x0(3)-parms.beta;
+    norm(velVec)-1;
+      deltaNew-deltaOld];
 
 end

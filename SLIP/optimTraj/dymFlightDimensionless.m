@@ -1,4 +1,4 @@
-function [velVec,deltaNew, deltaOld] = dymFlightDimensionless(xS,xF,parms)
+function [velVecF,deltaNew, deltaOld,costFly] = dymFlightDimensionless(xS,xF,dt,parms)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
     % Convert states to Cartesian space
@@ -25,6 +25,8 @@ function [velVec,deltaNew, deltaOld] = dymFlightDimensionless(xS,xF,parms)
     if yFd0<0
         xFd0 = 1e1;
         yFdEnd = -1e1;
+
+            te2 = 20;        
     else
 %         [t, x2, te2, ae2, ie2] = ode45(dymFlight, tspan, xF0, optionsFlight); %#ok<ASGLU> % Runge-Kutta 4th/5th order ODE solver
         p = [-0.5*g +yFd0 yF0-sin(beta)];
@@ -35,22 +37,23 @@ function [velVec,deltaNew, deltaOld] = dymFlightDimensionless(xS,xF,parms)
         elseif r(2)>0 && isreal(r(2))
             te2 = r(2);
         else
-            te2 = 20;
+            te2 = 50;
         end
         yFdEnd = yFd0 - g*te2;
 
     end
-    velVec = [xSd0, -ySd0];
-    deltaOld = atan2(velVec(2), velVec(1));    
+    velVecS = [xSd0, -ySd0];
+    deltaOld = atan2(velVecS(2), velVecS(1));    
     
     % Get states of the next step
-    try
-    velVec = [xFd0, -yFdEnd];
-    catch
-        qq=0;
-    end
-    deltaNew = atan2(velVec(2), velVec(1));
+    velVecF = [xFd0, -yFdEnd];
+    deltaNew = atan2(velVecF(2), velVecF(1));
+    
+    tVec = linspace(0,te2,round(te2/dt));
+    xdFlight = ones(1,length(tVec))*xFd0;
+    ydFlight = yFd0 - g*tVec ;
     
     
+    costFly =sum(xdFlight.^2 + ydFlight.^2);
 end
 

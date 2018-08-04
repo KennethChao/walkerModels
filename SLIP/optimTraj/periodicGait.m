@@ -28,14 +28,19 @@ function [c, ceq] = periodicGait(xF,x0,parms)
 %   angles: measured from negative j axis with positive convention
 %
 
-[velVec,deltaNew, deltaOld] = dymFlightDimensionless(x0,xF,parms);
+[velVec,deltaNew, deltaOld,costFly] = dymFlightDimensionless(x0,xF,1,parms);
 
 
 c = [];
-ceq = [x0(1)-1;
-        xF(1)-1;
-       x0(3)-parms.beta;
-    norm(velVec)-1;
-      deltaNew-deltaOld];
+% ceq = [x0(1)-1;
+%         xF(1)-1;
+%        x0(3)-parms.beta;
+%     norm(velVec)-1;
+%       deltaNew-deltaOld];
 
+ceq = [xF(1)-1;
+       norm(velVec)-1;
+      deltaNew-deltaOld];
+  
+  
 end

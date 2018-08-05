@@ -90,7 +90,7 @@ gVec = 0.46;
 %%
  
 for k = 1:searchingVarLength
-    parfor i = 1:samplingNumbK
+    for i = 1:samplingNumbK
         parms={};
         parms.g = g(k);
         parms.beta = beta(k);   

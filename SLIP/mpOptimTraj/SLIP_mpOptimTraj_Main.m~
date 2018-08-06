@@ -32,7 +32,7 @@ parms.phase(1).knotNumber = 20;
 parms.phase(2).knotNumber = 10;
 
 totalKnotNumber = 0;
-for i = 1:length(parms.phase)
+for i = length(parms.phase)
    totalKnotNumber = totalKnotNumber + parms.phase(i).knotNumber; 
 end
 parms.totalKnotNumber = totalKnotNumber;
@@ -64,7 +64,7 @@ parms.phase(2).ddxub = [inf,inf];
 parms.phase(2).hub = 10;
 
 
-[lb, ub] = inputBounds(parms)
+
 qq=0;
 
 
@@ -290,20 +290,13 @@ ub = ones(1,parms.totalVarNumber)*inf;
 shiftIndex= 0;
 for i = 1:length(parms.phase)
     for j = 1:parms.phase(i).knotNumber
-        lb(1, (1:parms.ndof) +(j-1)*parms.nVarSeg +shiftIndex) = parms.phase(i).xlb;
-        lb(1, (1:parms.ndof) +(j-1)*parms.nVarSeg + parms.ndof +shiftIndex) = parms.phase(i).dxlb;
-        lb(1, (1:parms.ndof) +(j-1)*parms.nVarSeg + parms.ndof*2 +shiftIndex) = parms.phase(i).ddxlb;
-        
-        ub(1, (1:parms.ndof) +(j-1)*parms.nVarSeg +shiftIndex) = parms.phase(i).xub;
-        ub(1, (1:parms.ndof) +(j-1)*parms.nVarSeg + parms.ndof +shiftIndex) = parms.phase(i).dxub;
-        ub(1, (1:parms.ndof) +(j-1)*parms.nVarSeg + parms.ndof*2 +shiftIndex) = parms.phase(i).ddxub;
+        ub(1, (1:parms.ndof) +(i-1)*parms.nVarSeg ) = parms.phase(i).xlb;
+        ub(1, (1:parms.ndof) +(i-1)*parms.nVarSeg ) = parms.phase(i).dxlb;
+        ub(1, (1:parms.ndof) +(i-1)*parms.nVarSeg ) = parms.phase(i).ddxlb;
     end
-    shiftIndex = shiftIndex + parms.phase(i).knotNumber*parms.nVarSeg;
 end
-for i = (1:length(parms.phase))
-    lb(1,end-i+1) = parms.phase(i).hlb;
-    ub(1,end-i+1) = parms.phase(i).hub;
-end
+
+
 
 
 end %function end

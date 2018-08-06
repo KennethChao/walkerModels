@@ -1,4 +1,4 @@
-function c = constDym(x,dx,ddx,h,parms)
+function c = constDym(x,dx,ddx,parms)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 

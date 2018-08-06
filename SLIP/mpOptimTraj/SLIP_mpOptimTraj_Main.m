@@ -11,12 +11,23 @@
 clc; clear;
 % addpath ../../
 
+% ToDO:
+% Check vector flatten or unflatten
+% Pola2Cartesin (Vector or Matrix)
+% Cartesin2BetaDelta
+% Gradient
+% - Numerical
+% - cnst (Kine)
+% - cnst (Dym)
+% - cnst (Periodic)(low priority)
+% - cost (low priority)
+
+
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                  Parameters for the dynamics function                   %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 %% Parameter Set
-
 parms.g = 0.05;
 parms.beta = 72/180*pi;
 parms.k = 12;
@@ -26,6 +37,7 @@ parms.delta0 = 0.1;
 %% Sys
 parms.ndof = 2;
 parms.nVarSeg = parms.ndof *3 ; 
+parms.nPeriodicConst = 10;
 
 %% Opt
 parms.phase(1).knotNumber = 20;
@@ -63,37 +75,53 @@ parms.phase(2).dxub = [inf,inf];
 parms.phase(2).ddxub = [inf,inf];
 parms.phase(2).hub = 10;
 
-
-[lb, ub] = inputBounds(parms)
-qq=0;
-
-
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                       Set up function handles                           %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-% cost = @(x)costK(x,dataInd,optPars); %chk
+cost = @(x)costFunction(x,dataInd,optPars); %chk
 % gCost = @(x)gcostK(x,dataInd,optPars); %chk
 % 
-% cnst = @(x)constAll(x, dataInd, optPars);
+cnst = @(x)constAll(x, dataInd, optPars);
 % gCnst = @(x)gconstAll(x, dataInd, optPars);
 % 
 % cnstPattern = @()GP(optPars);
+
 % Assign Function Handle for IPOPT
 funcs = {};
 funcs.objective = cost;
-funcs.gradient = gCost;
+% funcs.gradient = gCost;
 funcs.constraints = cnst;
-funcs.jacobian = gCnst;
+% funcs.jacobian = gCnst;
 funcs.jacobianstructure =cnstPattern;
 
 
-problem.func.dynamics = @(t,x,u)( dymModelStanceDimensionless(t, x,u,parms) );
-
-problem.func.pathObj = @(t,x,u)( cost(t,x) );
-
-problem.func.bndCst = @(t0,x0,tF,xF)( periodicGait(xF,x0,parms) );
+% problem.func.dynamics = @(t,x,u)( dymModelStanceDimensionless(t, x,u,parms) );
+% 
+% problem.func.pathObj = @(t,x,u)( cost(t,x) );
+% 
+% problem.func.bndCst = @(t0,x0,tF,xF)( periodicGait(xF,x0,parms) );
 
 %%
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+%               Set up bounds on time, state, and control                 %
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+[lb, ub] = inputBounds(parms);
+[clb, cub] = constBounds(parms);
+
+options.lb = lb;
+options.ub = ub;
+options.cl = clb;
+options.cu = cub;
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+%              Create an initial guess for the trajectory                 %
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+xVec = initialGuess(parms);
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
+%                           Options:                                      %
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 options.ipopt.hessian_approximation = 'limited-memory';
 options.ipopt.tol=1e-4;
 options.ipopt.mu_strategy      = 'adaptive';
@@ -103,110 +131,13 @@ options.ipopt.linear_solver = 'ma57';
 options.ipopt.honor_original_bounds = 'no';
 % options.ipopt.derivative_test       = 'first-order';
 % options.ipopt.max_iter = 100;
-%%
-
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-%               Set up bounds on time, state, and control                 %
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-t0 = 0;  tF = 0.5;
-problem.bounds.initialTime.low = t0;
-problem.bounds.initialTime.upp = t0;
-problem.bounds.finalTime.low = tF;
-problem.bounds.finalTime.upp = tF+1;
-
-% State: [q1;q2;dq1;dq2];
-
-problem.bounds.state.low = [0.01 ;-inf;parms.beta-0.1; -inf];
-problem.bounds.state.upp = [1.01; inf;  pi;  inf];
-
-% stepAngle = 0.2;
-problem.bounds.initialState.low = [1;-inf; parms.beta; -inf];
-problem.bounds.initialState.upp = [1;inf; parms.beta;  inf];
-
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-%              Create an initial guess for the trajectory                 %
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-
-% For now, just assume a linear trajectory between boundary values
-
-problem.guess.time = [t0, tF];
-
-% stepRate = (2*stepAngle)/(tF-t0);
-x0 = [1; -1;  parms.beta; 0.1];
-xF = [1; 1;  parms.beta*2; 0.1];
-problem.guess.state = [x0, xF];
-
-problem.guess.control = [0, 0];
-
-
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-%                           Options:                                      %
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-
-
-%NOTE:  Here I choose to run the optimization twice, mostly to demonstrate
-%   functionality, although this can be important on harder problems. I've
-%   explicitly written out many options below, but the solver will fill in
-%   almost all defaults for you if they are ommitted.
-
-% method = 'trapezoid';
-method = 'hermiteSimpson';
-% method = 'chebyshev';
-% method = 'rungeKutta';
-% method = 'gpops';
-
-switch method
-    case 'trapezoid'
-        
-        % First iteration: get a more reasonable guess
-        problem.options(1).nlpOpt = optimset(...
-            'Display','iter',...   % {'iter','final','off'}
-            'TolFun',1e-3,...
-            'MaxFunEvals',1e4);   %options for fmincon
-        problem.options(1).verbose = 3; % How much to print out?
-        problem.options(1).method = 'trapezoid'; % Select the transcription method
-        problem.options(1).trapezoid.nGrid = 10;  %method-specific options
-        
-        
-        % Second iteration: refine guess to get precise soln
-        problem.options(2).nlpOpt = optimset(...
-            'Display','iter',...   % {'iter','final','off'}
-            'TolFun',1e-6,...
-            'MaxFunEvals',5e4);   %options for fmincon
-        problem.options(2).verbose = 3; % How much to print out?
-        problem.options(2).method = 'trapezoid'; % Select the transcription method
-        problem.options(2).trapezoid.nGrid = 25;  %method-specific options
-        
-    case 'hermiteSimpson'
-        
-        % First iteration: get a more reasonable guess
-        problem.options(1).nlpOpt = optimset(...
-            'Display','iter',...   % {'iter','final','off'}
-            'TolFun',1e-3,...
-            'MaxFunEvals',1e4);   %options for fmincon
-        problem.options(1).verbose = 3; % How much to print out?
-        problem.options(1).method = 'hermiteSimpson'; % Select the transcription method
-        problem.options(1).hermiteSimpson.nSegment = 6;  %method-specific options
-        
-        
-        % Second iteration: refine guess to get precise soln
-        problem.options(2).nlpOpt = optimset(...
-            'Display','iter',...   % {'iter','final','off'}
-            'TolFun',1e-6,...
-            'MaxFunEvals',5e4);   %options for fmincon
-        problem.options(2).verbose = 3; % How much to print out?
-        problem.options(2).method = 'hermiteSimpson'; % Select the transcription method
-        problem.options(2).hermiteSimpson.nSegment = 15;  %method-specific options
-        
-
-end
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                           Solve!                                        %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 %%%%% THE KEY LINE:
-soln = optimTraj(problem);
+% soln = optimTraj(problem);
 % 
 % % Transcription Grid points:
 % t = soln(end).grid.time;
@@ -262,19 +193,15 @@ soln = optimTraj(problem);
 % xlabel('time (sec)')
 % ylabel('torque (Nm)')
 % title('Hip Torque')
-function c = cost(xVec, parms)
-
-%%
+function c = costFunction(xVec, parms)
 [x,dx,ddx,h]= extractState(xVec,parms); 
-%%
+%
 c = costFun(h,dx);
 end %function end
 
 function c = constAll(xVec, parms)
-
-%%
 [x,dx,ddx,h]= extractState(xVec,parms);
-%%
+
 c0=constKineHSM(x,dx,ddx,h, parms);
 c1=constDym(x,dx,ddx,  parms);
 c2=constPeriodic(x,dx,  parms);
@@ -307,6 +234,30 @@ end
 
 
 end %function end
+
+function [clb, cub] = constBounds(parms)
+
+%%
+% Bounds of Kinematic Constraints
+nHSM = 2;
+relativeDegree = 2;
+clbKine = zeros(parms.totalKnotNumber*parms.ndof*nHSM*relativeDegree,1);
+cubKine = zeros(parms.totalKnotNumber*parms.ndof*nHSM*relativeDegree,1);
+
+% Bounds of Dynamic Constraints
+clbDym = zeros(parms.totalKnotNumber*parms.ndof,1);
+cubDym = zeros(parms.totalKnotNumber*parms.ndof,1);
+
+% Bounds of Periodic Constraints
+clbPeriodic = zeros(parms.nPeriodicConst,1);
+cubPeriodic = zeros(parms.nPeriodicConst,1);
+
+clb = [clbKine;clbDym;clbPeriodic];
+cub = [cubKine;cubDym;cubPeriodic];
+end %function end
+
+
+
 % function g = gconstAll(aVec, aInd,cfg)
 % g0=gKineHSM(aVec, aInd, cfg);
 % g1=gDymHSM(aVec, aInd, cfg);
@@ -352,4 +303,29 @@ end
 
 h(1) = aVec(end);
 h(2) = aVec(end-1);
+end
+
+function xVec = initialGuess(parms)
+% h  
+h = [1,1];  
+% x
+x1 = [linspace(1,1,parms.phase(1).knotNumber);...
+      linspace(parms.beta,parms.beta*2,parms.phase(1).knotNumber);];
+  
+  
+% t2 = linspace(1,h(2),parms.phase(2).knotNumber);
+  
+x2 = [linspace(1,1,parms.phase(2).knotNumber);...
+      linspace(parms.beta,parms.beta*2,parms.phase(2).knotNumber);];
+  
+x = [x1, x2];  
+
+% dx
+dx = zeros(parms.ndof,parms.totalKnotNumber);    
+% ddx
+ddx = zeros(parms.ndof,parms.totalKnotNumber);  
+
+
+xVec= state2FreeVariableVector(x,dx,ddx,h,parms);
+  
 end

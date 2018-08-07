@@ -35,7 +35,7 @@ if strcmp(mode, 'fixedPointOpt')|| strcmp(mode, 'simulationCheck')
     iterNumb = 1;
 elseif strcmp(mode, 'perturbedSimulation')
     perturbation = 1e-3;
-    iterNumb = 2;
+    iterNumb = 4;
 end
 
 tspan = 0:0.01:20;
@@ -50,10 +50,18 @@ for i = 1:iterNumb
     if strcmp(mode, 'perturbedSimulation') && i == iterNumb
         delta = perturbedDeltaPlus;
     elseif strcmp(mode, 'perturbedSimulation') && i == iterNumb - 1
+        delta = perturbedDeltaMinus;
+    elseif strcmp(mode, 'perturbedSimulation') && i == iterNumb - 2        
+        phi0 = perturbedPhiPlus;        
+    elseif strcmp(mode, 'perturbedSimulation') && i == iterNumb - 3
         newDelta0 = delta0;%deltaNew;
         perturbedDeltaPlus = newDelta0 + perturbation;
         perturbedDeltaMinus = newDelta0 - perturbation;
-        delta = perturbedDeltaMinus;
+        newPhi0 = phi0;%deltaNew;
+        perturbedPhiPlus = newPhi0 + perturbation;
+        perturbedPhiMinus = newPhi0 - perturbation;        
+        %
+        phi0 = perturbedPhiMinus;
     end
     
     %%  Simulation in stance phase
@@ -145,9 +153,13 @@ for i = 1:iterNumb
     deltaNew = atan2(velVec(2), velVec(1));
     
     if strcmp(mode, 'perturbedSimulation') && i == iterNumb
-        deltaNewPlus = deltaNew;
+        deltaNewPlus = [deltaNew; x2(end,3)];
     elseif strcmp(mode, 'perturbedSimulation') && i == iterNumb - 1
-        deltaNewMinus = deltaNew;
+        deltaNewMinus = [deltaNew; x2(end,3)];
+    elseif strcmp(mode, 'perturbedSimulation') && i == iterNumb - 2
+        phiNewPlus = [deltaNew; x2(end,3)];
+    elseif strcmp(mode, 'perturbedSimulation') && i == iterNumb - 3
+        phiNewMinus = [deltaNew; x2(end,3)];
     end
     
 end
@@ -160,7 +172,9 @@ if strcmp(mode, 'fixedPointOpt')
     result = diffDelta^2 + diffVel^2 + diffPhi^2;
 elseif strcmp(mode, 'perturbedSimulation')
     % Return second eigen value
-    result = (deltaNewPlus - deltaNewMinus) / 2 / perturbation;
+    result = [(deltaNewPlus - deltaNewMinus) / 2 / perturbation,...
+              (phiNewPlus - phiNewMinus) / 2 / perturbation;
+             ];
 elseif strcmp(mode, 'simulationCheck')
     % Return second eigen value
     result.x = x;

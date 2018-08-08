@@ -5,20 +5,29 @@ addpath('./SLIPPER')
 addpath('./SLIP')
 warning off;
 
+%%
+
+%ToDo
+% Better result saving
+% Save seperate plots
+% Comparison to SLIP model
+% Energy (optional)
+
+
 %% Initial Condition (Guessed)
-betaVec = 72 / 180 * pi;
-% betaVec = 66:4:74;
+betaVec = 70 / 180 * pi;
+% betaVec = (66:2:74)/180*pi;
 % betaVec = 60:5:80;
 % gVec = [0.025 0.05 0.1 0.21 0.46 0.66]
-gVec = linspace(0.1, 0.4, 4);
-% gVec = 0.2;
+gVec = linspace(0.1, 0.4, 6);
+% gVec = 0.25;
 
 %% Sampling number and range
-sampledNumber1 = 20;
-sampledNumber2 = 20;
+sampledNumberK = 40;
+sampledNumberDelta = 40;
 
 kMin = 0.25;
-kMax = 20;
+kMax = 10;
 kMinPlot = kMin;
 kMaxPlot = kMax;
 
@@ -29,8 +38,8 @@ deltaMinPlot = deltaMin;
 deltaMaxPlot = deltaMax;
 
 %% User Options
-storedQuantity = 'fval';
-%     storedQuantity='lambda';
+% storedQuantity = 'fval';
+    storedQuantity='maxlambda';
 useTicToc = true;
 
 %% Opt set
@@ -58,16 +67,16 @@ else
 end
 
 %% Result buffer
-x = linspace(kMin, kMax, sampledNumber1);
-y = linspace(deltaMin, deltaMax, sampledNumber2);
+x = linspace(kMin, kMax, sampledNumberK);
+y = linspace(deltaMin, deltaMax, sampledNumberDelta);
 [X, Y] = meshgrid(x, y);
 
 F = nan * X;
 
-stablePhiStack = nan(2, sampledNumber2, sampledNumber1, searchingVarLength);
-unstablePhiStack = nan(2, sampledNumber2, sampledNumber1, searchingVarLength);
-stableDataStack = nan(sampledNumber2, sampledNumber1, searchingVarLength);
-unstableDataStack = nan(sampledNumber2, sampledNumber1, searchingVarLength);
+stablePhiStack = nan(2, sampledNumberDelta, sampledNumberK, searchingVarLength);
+unstablePhiStack = nan(2, sampledNumberDelta, sampledNumberK, searchingVarLength);
+stableDataStack = nan(sampledNumberDelta, sampledNumberK, searchingVarLength);
+unstableDataStack = nan(sampledNumberDelta, sampledNumberK, searchingVarLength);
 
 %%
 if useTicToc
@@ -75,14 +84,14 @@ if useTicToc
 end
 
 for k = 1:searchingVarLength
-    stablePhiStackBuf = nan(2, sampledNumber2, sampledNumber1);
-    unstablePhiStackBuf = nan(2, sampledNumber2, sampledNumber1);
+    stablePhiStackBuf = nan(2, sampledNumberDelta, sampledNumberK);
+    unstablePhiStackBuf = nan(2, sampledNumberDelta, sampledNumberK);
     unstableDataBuf = nan(size(X));
     stableDataBuf = nan(size(X));
-    parfor i = 1:sampledNumber1
+    for i = 1:sampledNumberK
         
         %         dataStackBuf = nan(1, sampledNumber2);
-        for j = 1:sampledNumber2
+        parfor j = 1:sampledNumberDelta
             
             
             parms = {};
@@ -91,7 +100,7 @@ for k = 1:searchingVarLength
             parms.k = X(j, i);
             
             parms.mf = 0.2;
-            parms.rc = 0.2;
+            parms.rc = 0.8;
             
             %     delta0 =  -0.005;
             parms.delta0 = Y(j, i);
@@ -106,7 +115,8 @@ for k = 1:searchingVarLength
                 
                 parms.mode = 'simulationCheck';
                 ret = oneStepSimulationSLIPP(x, parms);
-                if (ret.te2 / ret.te) < 3
+
+                if ~isempty(ret.te2)&& ~isempty(ret.te) &&(ret.te2 / ret.te) < 3
                     F(j, i) = fval;
                     fprintf('suceed! %dth phi and %dth phid\n', i, j)
                     %                     phiStackBuf(:, j, i) = x;
@@ -134,6 +144,7 @@ for k = 1:searchingVarLength
                 else
                     fprintf('failed! %dth phi and %dth phid\n', i, j)
                 end
+
             else
                 fprintf('failed! %dth phi and %dth phid\n', i, j)
             end

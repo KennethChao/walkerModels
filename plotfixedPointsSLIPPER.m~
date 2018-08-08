@@ -33,6 +33,7 @@ ylabel('$\delta*$','Interpreter','latex')
 
 % Parameters for animated gif
 if strcmp(searchingVar,'g')
+titleString = sprintf('$\tilde g $')
 filename = 'SLIPPER_FixedPointAnimation_VaryingG.gif'; % Specify the output file name
 else
 filename = 'SLIPPER_FixedPointAnimation_VaryingBeta.gif'; % Specify the output file name    

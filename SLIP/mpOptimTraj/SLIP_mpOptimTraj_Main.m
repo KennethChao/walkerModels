@@ -52,6 +52,8 @@ end
 parms.totalKnotNumber = totalKnotNumber;
 parms.totalVarNumber = parms.totalKnotNumber * parms.nVarSeg + length(parms.phase);
 
+
+
 % Dym
 parms.phase(1).dymFunc = @dymModelStanceDimensionless;
 parms.phase(2).dymFunc = @dymFlightDimensionless;
@@ -261,7 +263,7 @@ end %function end
 
 function g = gconstAll(xVec, parms)
 [x, dx, ddx, h] = extractState(xVec, parms);
-g0=gKineHSM(aVec, aInd, cfg);
+g0=gconstKineHSM(x, dx, ddx, h, parms);
 % g1=gDymHSM(aVec, aInd, cfg);
 % g2=gContact(aVec, aInd, cfg);
 % g3=gPeriodic(aVec, aInd, cfg);

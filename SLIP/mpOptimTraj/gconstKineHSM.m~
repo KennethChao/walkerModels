@@ -17,7 +17,7 @@ function g = gconstKineHSM( parms) %x, dx, ddx, h,
     % ddx
     ddx = zeros(parms.ndof, parms.totalKnotNumber);
 
-    h  = [1;2];
+    h  = [1;1];
 
     iter = 1;
 
@@ -50,14 +50,25 @@ function g = gconstKineHSM( parms) %x, dx, ddx, h,
                  zeros(2),       eye(2),         zeros(2),... 
                  zeros(2),  -1/2*eye(2),  1/8*h(i)*eye(2),];   
              
-        gSeg1h = -1/6*dx(:,j)-4/6*dx(:,j+1)-1/6*dx(:,j+2);
+        gSeg1h = [-1/6*dx(:,j)                  -4/6*dx(:,j+1);
+                  -1/6*dx(:,j+2);
+                 ];
              
-        gSeg2h = -1/6*ddx(:,j)-4/6*ddx(:,j+1)-1/6*ddx(:,j+2);
+        gSeg2h = [-1/6*ddx(:,j);
+                  -4/6*ddx(:,j+1);
+                  -1/6*ddx(:,j+2);
+                 ];
              
-        gSeg3h = -1/8*dx(:,j)+ zeros(2,1)+1/8*dx(:,j+2);             
+        gSeg3h = [-1/8*dx(:,j);
+                  zeros(2,1);
+                   1/8*dx(:,j+2);
+                 ];             
              
 
-        gSeg4h = -1/8*ddx(:,j)+zeros(2,1)+1/8*ddx(:,j+2);                          
+        gSeg4h = [-1/8*ddx(:,j);
+                  zeros(2,1);
+                   1/8*ddx(:,j+2);
+                 ];                          
 
      
 

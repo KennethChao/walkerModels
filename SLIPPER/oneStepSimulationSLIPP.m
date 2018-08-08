@@ -20,17 +20,14 @@ rc = parms.rc;
 mf = parms.mf;
 
 delta = delta0;
-% mode = 'fixedPointOpt';
-% mode = 'simulationCheck';
 mode = parms.mode;
-
-% Ode solver setup
+%% Solver setup
+    % ode45 solver option
     optionsStance = odeset('Event', @liftOffEventFcn, 'RelTol',1.e-6);%,'
     dymStance = @(t, x) dymModelStanceSLIPPendulum(t, x, parms); %dymModelStanceDimensionless
     optionsFlight = odeset('Event', @(t, x)touchDownSLIPPendulumEventFcn(t, x, parms),'RelTol',1.e-6);
     dymFlight = @(t, a) dymModelFlightSLIPPendulum(t, a, parms);
-
-
+    
 if strcmp(mode, 'fixedPointOpt')|| strcmp(mode, 'simulationCheck')
     iterNumb = 1;
 elseif strcmp(mode, 'perturbedSimulation')

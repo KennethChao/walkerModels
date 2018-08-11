@@ -12,21 +12,10 @@ thetad = x(4);
 phi = x(5);
 phid = x(6);
 
-% l = 1;
-% ld = 0;
-% theta = pi/2;
-% thetad = 0;
-% phi = x(5);
-% phid = x(6);
-
-
-
 M = [1+mf,                0,                   rc*sin(phi-theta);
      0                    (1+mf)*l^2,          -rc*cos(phi-theta);
      rc*sin(phi-theta)    -rc*cos(phi-theta)   rc^2              ];
 
-%  M = zeros(3,3);
-%  M(3,3) = rc^2;
 % Evalute dimensionless EOMs of the SLIP model
 b = zeros(3,1);
 
@@ -35,7 +24,7 @@ b(2) = -2*(1+mf)*l*ld*thetad + rc*phid*ld*cos(phi-theta)-rc*phid*l*sin(phi-theta
 b(3) = -rc*ld*cos(phi-theta)*(phid-thetad)+rc*(ld*thetad*cos(phi-theta)-l*thetad*sin(phi-theta)*(phid-thetad))  ...
        + g*rc*cos(phi)+rc*phid*(ld*cos(phi-theta)+l*thetad*sin(phi-theta));
 
-xdd = M^-1*b;
+xdd = M^(-1)*b;
 
 ldd = xdd(1);
 thetadd = xdd(2);

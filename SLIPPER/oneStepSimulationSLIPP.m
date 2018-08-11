@@ -23,15 +23,17 @@ delta = delta0;
 mode = parms.mode;
 %% Solver setup
     % ode45 solver option
-    optionsStance = odeset('Event', @liftOffEventFcn, 'RelTol',1.e-6);%,'
+    optionsStance = odeset('Event', @liftOffEventFcn);%, 'RelTol',1.e-6
     dymStance = @(t, x) dymModelStanceSLIPPendulum(t, x, parms); %dymModelStanceDimensionless
-    optionsFlight = odeset('Event', @(t, x)touchDownSLIPPendulumEventFcn(t, x, parms),'RelTol',1.e-6);
+    optionsFlight = odeset('Event', @(t, x)touchDownSLIPPendulumEventFcn(t, x, parms)); %,'RelTol',1.e-6
     dymFlight = @(t, a) dymModelFlightSLIPPendulum(t, a, parms);
     
-if strcmp(mode, 'fixedPointOpt')|| strcmp(mode, 'simulationCheck')
+if strcmp(mode, 'fixedPointOpt')
+    iterNumb = 1;
+elseif strcmp(mode, 'simulationCheck')    
     iterNumb = 1;
 elseif strcmp(mode, 'perturbedSimulation')
-    perturbation = 1e-3;
+    perturbation = 1e-2;
     iterNumb = 4;
 end
 
@@ -42,7 +44,10 @@ for i = 1:iterNumb
     normVel = 1;
     
     if i > 1
+%         normVel = norm(velVec);
         delta = deltaNew;
+        phi0 =  x2(end,3);
+        phid0 =  x2(end,4);
     end
     if strcmp(mode, 'perturbedSimulation') && i == iterNumb
         delta = perturbedDeltaPlus;
@@ -67,7 +72,7 @@ for i = 1:iterNumb
     x0 = [1, -normVel * cos(beta-delta), beta, normVel * sin(beta-delta), phi0, phid0];
 
     % Solve ode
-    [t, x, te, xe, ie] = ode45(dymStance, tspan, x0, optionsStance); % Runge-Kutta 4th/5th order ODE solver
+    [t, x, te, xe, ~] = ode45(dymStance, tspan, x0, optionsStance); % Runge-Kutta 4th/5th order ODE solver
     
     %%  Simulation in flight phase
 %     plot(x(:,5))
@@ -96,57 +101,83 @@ for i = 1:iterNumb
     zcd0 = 1/(1+mf)*zd0 + mf/(1+mf)*zfd0;
     
     
-    % angular momentum of body around COM
-    rcb = [x0-xc0,0,z0-zc0];
-    vb = [xd0,0, zd0];
-    rcdCrossVb = cross(rcb,vb);
-    Lbody = rcdCrossVb;
-    
-    % angular momentum of frame around COM
-    rcf = [xf0-xc0,0,zf0-zc0];
-    vf = [xfd0,0, zfd0];
-    rcfCrossVf = cross(rcf,vf);
-    Lframe = rcfCrossVf*mf;    
-    
-    % angular velocity of COM 
-    I = mf/(1+mf)*rc^2;
-    omega = (Lframe+Lbody) / I;
+%     % angular momentum of body around COM
+%     rcb = [x0-xc0,0,z0-zc0];
+%     vb = [xd0,0, zd0];
+%     rcdCrossVb = cross(rcb,vb);
+%     Lbody = rcdCrossVb;
+%     
+%     % angular momentum of frame around COM
+%     rcf = [xf0-xc0,0,zf0-zc0];
+%     vf = [xfd0,0, zfd0];
+%     rcfCrossVf = cross(rcf,vf);
+%     Lframe = rcfCrossVf*mf;    
+%     
+%     % angular velocity of COM 
+%     I = mf/(1+mf)*rc^2;
+%     omega = (Lframe+Lbody) / I;
 %     phid0 = omega(2);
 %     
 %     phi0 = xe(5);
     % Initial condition of flight phase
-    x20 = [zc0,zcd0,xe(5),omega(2)];
+    x20 = [zc0,zcd0,xe(5),xe(6)];
     
     if zd0<0 
 
     x2 = ones(1,4)*1e3;
     else
 % Solve ode
-    [t2, x2, te2, xe2, ie2] = ode45(dymFlight, tspan, x20, optionsFlight); % Runge-Kutta 4th/5th order ODE solver
+    [t2, x2, te2, xe2, ~] = ode45(dymFlight, tspan, x20, optionsFlight); % Runge-Kutta 4th/5th order ODE solver
     end
 
     
     %%
-%     xc20 = xf0*mf/(mf+1) + x0/(mf+1);
-    xdc20 = xfd0*mf/(mf+1) + xd0/(mf+1);
+%     % angular momentum of body around COM
+%     rcb = [x0-xc0,0,z0-zc0];
+%     vb = [xd0,0, zd0];
+%     rcdCrossVb = cross(rcb,vb);
+%     Lbody = rcdCrossVb;
+%     
+%     % angular momentum of frame around COM
+%     rcf = [xf0-xc0,0,zf0-zc0];
+%     vf = [xfd0,0, zfd0];
+%     rcfCrossVf = cross(rcf,vf);
+%     Lframe = rcfCrossVf*mf;    
+%     
+%     % angular velocity of COM 
+%     I = mf/(1+mf)*rc^2;
+%     omega = (Lframe+Lbody) / I;
+%     phid0 = omega(2);
+%     
+%     phi0 = xe(5); 
+%     xcEnd = xc0 + xcd0*te2;
+    xdcEnd = xcd0;
+%     zcEnd = x2(end,1);
+    zdcEnd = x2(end,2);
+
+    rc2f = 1/(1+mf);    
+    rVec = [-rc*rc2f*cos(x2(end,3)), 0 ,rc*rc2f*sin(x2(end,3))];
+    omega = [0, x2(end,4),0];
     
-    rc2f = 1/(1+mf);
-%     rc2b = mf/(1+mf);
+    vRotation = cross(omega,rVec);
+    
+    xdfendFlight =  xdcEnd + vRotation(1); 
+    zdfendFlight = zdcEnd + vRotation(3);    
     
 %     zfendFlight = x2(end,1) + rc*rc2f*sin(x2(end,3));
     try
-    zdfendFlight = x2(end,2) + rc*rc2f*cos(x2(end,3))*x2(end,4);
+%     zdfendFlight = x2(end,2) + rc*rc2f*cos(x2(end,3))*x2(end,4);
     catch
         te2
     end
 %     xfendFlight = xc20 + xdc20*t2(end) - rc*rc2f*cos(x2(end,3)); 
-    xdfendFlight =  xdc20 + rc*rc2f*sin(x2(end,3))*x2(end,4); 
+%     xdfendFlight =  xdc0 + rc*rc2f*sin(x2(end,3))*x2(end,4); 
     
     
     %%
     
     % Get states of the next step
-    velVec = [xdfendFlight, zdfendFlight];
+    velVec = [xdfendFlight, -zdfendFlight];
     deltaNew = atan2(velVec(2), velVec(1));
     
     if strcmp(mode, 'perturbedSimulation') && i == iterNumb

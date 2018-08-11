@@ -1,5 +1,5 @@
-clc; 
-close all
+% clc; 
+% close all
 
 %%
 x = ret.x;
@@ -63,6 +63,7 @@ tvec = [t;t2(2:end)+t(end)];
 
 
 phivec = [x(:,5);x2(2:end,3)];
+dphivec = [x(:,6);x2(2:end,4)];
 
 vecCheck = [xfvecFlight-xvecFlight zfvecFlight-zvecFlight];
 for i = 1:size(vecCheck,1)
@@ -72,6 +73,9 @@ for i = 1:size(vecCheck,1)
 end
 
 
+c = parula(21);
+
+a = round((tvec(end) - 1.0)/0.3*21);
 %% Figures
 
 % plot([tvec; tvec],[xvec; yvec])
@@ -90,58 +94,62 @@ end
 % plot(tvec,zvec)
 % plot(tvec,xfvec)
 % hold on
-plot(tvec,phivec)
-
-%% Anime
-xPosVec = [xlegvec(1),xfvec(1),xvec(1)];
-yPosVec = [zlegvec(1),zfvec(1),zvec(1)];
-
-% xPosVec = [xfvec(1),xvec(1)];
-% yPosVec = [zfvec(1),zvec(1)];
-
-xPosLegVec = [xlegvec(1),xfvec(1)];
-yPosLegVec = [zlegvec(1),zfvec(1)];
-
-h0 = figure;
-h = plot(xPosVec,yPosVec,'-o');
+% plot(tvec,phivec)
+% plot3(zvec,phivec,dphivec,'linewidth',3,'color', c(a,:))
+% plot(phivec,dphivec,'linewidth',3,'color', c(a,:))
+plot3(zvec,phivec,dphivec,'linewidth',3,'color', c(a,:))
+grid on
 hold on
-h2 = plot(xPosVec,yPosVec,'r');
-axis equal
-axis([-0.5 3 0 1.2])
-
-% Parameters for animated gif
-filename = 'SLIPP_Animated.gif'; % Specify the output file name
-DT = 2*1e-2;
-
-for i = 2:4:length(zfvec)
-    
-    
-    xPosVec = [xlegvec(i),xfvec(i),xvec(i)];
-    yPosVec = [zlegvec(i),zfvec(i),zvec(i)];
-%     xPosVec = [xfvec(i),xvec(i)];
-%     yPosVec = [zfvec(i),zvec(i)];    
-    xPosLegVec = [xlegvec(i),xfvec(i)];
-    yPosLegVec = [zlegvec(i),zfvec(i)];
-    
-    
-    set(h,'XData',xPosVec,'YData',yPosVec)
-    set(h2,'XData',xPosLegVec,'YData',yPosLegVec)
-    
-    if (i>=length(xvecStance)+1)
-        set(h2,'Color','b')
-    end
-    
-      frame = getframe(h0); 
-      im = frame2im(frame); 
-      [imind,cm] = rgb2ind(im,256); 
-
-      
-      if i == 2
-          imwrite(imind,cm,filename,'gif', 'Loopcount',inf,'DelayTime',DT); 
-      else 
-          imwrite(imind,cm,filename,'gif','WriteMode','append','DelayTime',DT); 
-      end    
-      pause(0.1);
-    
-end
+%% Anime
+% xPosVec = [xlegvec(1),xfvec(1),xvec(1)];
+% yPosVec = [zlegvec(1),zfvec(1),zvec(1)];
+% 
+% % xPosVec = [xfvec(1),xvec(1)];
+% % yPosVec = [zfvec(1),zvec(1)];
+% 
+% xPosLegVec = [xlegvec(1),xfvec(1)];
+% yPosLegVec = [zlegvec(1),zfvec(1)];
+% 
+% h0 = figure;
+% h = plot(xPosVec,yPosVec,'-o');
+% hold on
+% h2 = plot(xPosVec,yPosVec,'r');
+% axis equal
+% axis([-0.5 3 0 1.2])
+% 
+% % Parameters for animated gif
+% filename = 'SLIPP_Animated.gif'; % Specify the output file name
+% DT = 2*1e-2;
+% 
+% for i = 2:4:length(zfvec)
+%     
+%     
+%     xPosVec = [xlegvec(i),xfvec(i),xvec(i)];
+%     yPosVec = [zlegvec(i),zfvec(i),zvec(i)];
+% %     xPosVec = [xfvec(i),xvec(i)];
+% %     yPosVec = [zfvec(i),zvec(i)];    
+%     xPosLegVec = [xlegvec(i),xfvec(i)];
+%     yPosLegVec = [zlegvec(i),zfvec(i)];
+%     
+%     
+%     set(h,'XData',xPosVec,'YData',yPosVec)
+%     set(h2,'XData',xPosLegVec,'YData',yPosLegVec)
+%     
+%     if (i>=length(xvecStance)+1)
+%         set(h2,'Color','b')
+%     end
+%     
+%       frame = getframe(h0); 
+%       im = frame2im(frame); 
+%       [imind,cm] = rgb2ind(im,256); 
+% 
+%       
+%       if i == 2
+%           imwrite(imind,cm,filename,'gif', 'Loopcount',inf,'DelayTime',DT); 
+%       else 
+%           imwrite(imind,cm,filename,'gif','WriteMode','append','DelayTime',DT); 
+%       end    
+%       pause(0.1);
+%     
+% end
 

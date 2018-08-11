@@ -1,4 +1,4 @@
-function optParms = fixedPointFinderOptions(gVec,betaVec)
+function optParms = fixedPointFinderOptions(gVec,betaVec, mf, rc)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 %% User-defined Options
@@ -8,15 +8,15 @@ optParms.storedQuantity='maxlambda';
 optParms.useTicToc = true; % true for show calculation time
 
 % Sampled number
-optParms.sampledNumberK = 30;
-optParms.sampledNumberDelta = 30;
+optParms.sampledNumberK = 40;
+optParms.sampledNumberDelta = 40;
 
 % Range of dimensionless stiffness
-optParms.kMin = 0.25;
-optParms.kMax = 10;
+optParms.kMin = 5;
+optParms.kMax = 15;
 % Range of COM velocity direction
-optParms.deltaMin = -0.2;
-optParms.deltaMax = -0.001;
+optParms.deltaMin = 0;
+optParms.deltaMax = 0.2;
 
 % Range of parameters for plotting
 optParms.kMinPlot = optParms.kMin;
@@ -44,6 +44,9 @@ elseif length(betaVec) == 1 && length(gVec) == 1
 else
     error('dimension error: only gVec or betaVec can be a vector!');
 end
+
+optParms.rc = rc;
+optParms.mf = mf;
 
 end
 

@@ -61,10 +61,10 @@ for i = 1:iterNumb
     %%  Simulation in stance phase
     
     % Prep initial conditions
-    xbLO = [1, -normVel * cos(beta-delta), beta, normVel * sin(beta-delta), phi0, phid0];
+    xb0 = [1, -normVel * cos(beta-delta), beta, normVel * sin(beta-delta), phi0, phid0];
 
     % Solve ode
-    [t, x, te, xe, ~] = ode45(dymStance, tspan, xbLO, optionsStance); % Runge-Kutta 4th/5th order ODE solver
+    [t, x, te, xe, ~] = ode45(dymStance, tspan, xb0, optionsStance); % Runge-Kutta 4th/5th order ODE solver
     
     %%  Simulation in flight phase
     % Convert states to Cartesian space
@@ -72,39 +72,34 @@ for i = 1:iterNumb
     if  isempty(te)
             xe = x(end,:);
     end
-    lLO = xe(1);
-    ldLO = xe(2);
-    thetaLO = xe(3);
-    thetadLO = xe(4);
-    phiLO = xe(5);
-    phidLO = xe(6);
+    xe(1),xe(3),xe(5),xe(2),xe(4),xe(6)
     
-    mfMotion = frameMassCartesianMotionStance(lLO,thetaLO,phiLO,ldLO,thetadLO,phidLO,rc);
-    mbMotion = bodyMassCartesianMotionStance(lLO,thetaLO,phiLO,ldLO,thetadLO,phidLO,rc);
+    
+    mfMotion = frameMassCartesianMotionStance(xe(1),xe(3),xe(5),xe(2),xe(4),xe(6),rc);
+    mbMotion = bodyMassCartesianMotionStance(xe(1),xe(3),xe(5),xe(2),xe(4),xe(6),rc);
 
-    zfLO = mfMotion(2);
-    zfdLO = mfMotion(4);
-    xfLO = mfMotion(1); 
-    xfdLO = mfMotion(3);
+    zfLo = mfMotion(2);
+    zfdLo = mfMotion(4);
+    xfLo = mfMotion(1); 
+    xfdLo = mfMotion(3);
     
     % position and velocity of m
-    zbLO = mbMotion(2);
-    zbdLO = mbMotion(4);
-    xbLO = mbMotion(1); 
-    xbdLO = mbMotion(3);
+    zbL0 = mbMotion(2);
+    zbd0 = mbMotion(4);
+    xb0 = mbMotion(1); 
+    xbd0 = mbMotion(3);
     
     % position and velocity of COM
-    comMotion = motionPointMass2COM(xfLO,zfLO,xbLO,zbLO,xfdLO,zfdLO,xbdLO,zbdLO,rc,mf);
+    comMotion = motionPointMass2COM(xfLo,zfLo,xb0,zb0,xfdLo,zfdL,xbd0,zbd0,rc,mf);
 
-    xcLO = comMotion(1);
-    xcdLO = comMotion(3);
-    zcLO = comMotion(2);
-    zcdLO = comMotion(4);
-
+    xc0 = comMotion(1);
+    xcd0 = comMotion(3);
+    zc0 = comMotion(2);
+    zcd0 = comMotion(4);
     
-    x20 = [zcLO,zcdLO,phiLO,phidLO];
+    x20 = [zc0,zcd0,xe(5),xe(6)];
     
-    if zbdLO<0 
+    if zbd0<0 
     x2 = ones(1,4)*1e1;
     t2 = 20;
     else
@@ -114,23 +109,23 @@ for i = 1:iterNumb
 
     
     %%  
-    zcTD = x2(end,1);
-    zcdTD = x2(end,2);
+    zc = x2(end,1);
+    dzc = x2(end,2);
     
-    xcdTD = xcdLO;
-    xcTD = xcLO + t2(end)*xcdLO;
+    dxc = xcd0;
+    xc = xc0 + t2(end)*xcd0;
     
-    phiTD = x2(end,3);
-    phidTD = x2(end,4);
+    phi = x2(end,3);
+    dphi = x2(end,4);
     
-    pointMassMotion = motionCOM2PointMass(xcTD,zcTD,phiTD,xcdTD,zcdTD,phidTD,rc,mf);
+    pointMassMotion = motionCOM2PointMass(xc,zc,phi,dxc,dzc,dphi,rc,mf);
 
-    xfdTD = pointMassMotion(5);
-    zfdTD = pointMassMotion(6);
+    xdfendFlight = pointMassMotion(5);
+    zdfendFlight = pointMassMotion(6);
     %%
     
     % Get states of the next step
-    velVec = [xfdTD, -zfdTD];
+    velVec = [xdfendFlight, -zdfendFlight];
     deltaNew = atan2(velVec(2), velVec(1));
     
     if strcmp(mode, 'perturbedSimulation') && i == iterNumb
@@ -149,7 +144,7 @@ if strcmp(mode, 'fixedPointOpt')
     % Return cost
     diffDelta = deltaNew - delta;
     diffVel = 1 - norm(velVec);
-    diffPhi = norm([phi0;phid0]-[phiTD;phidTD]);
+    diffPhi = norm([phi0;phid0]-[x2(end,3);x2(end,4)]);
     result = diffDelta^2 + diffVel^2 + diffPhi^2;
 elseif strcmp(mode, 'perturbedSimulation')
     % Return second eigen value

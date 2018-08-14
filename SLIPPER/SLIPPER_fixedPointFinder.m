@@ -2,7 +2,7 @@ clc;
 clear;
 close all;
 addpath('.././SLIP');
-addpath('./Dym/autoGen');
+addpath('./dynamics/autoGen');
 
 %%
 

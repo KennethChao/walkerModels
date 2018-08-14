@@ -5,7 +5,7 @@ clc;
 close all;
 clear;
 
-data = load('fixedPointData_Varing_none_081318_1859.mat');
+data = load('fixedPointData_Varing_none_081318_2236.mat');
 optParms = data.optParms;
 result = data.result;
 
@@ -41,11 +41,11 @@ for k = 1:optParms.searchingVarLength
     ylabel(cbh, titleString, 'Interpreter', 'latex')    
     
     msg = sprintf('g = %0.2f,  \\beta = %0.2f^o', optParms.g(k), optParms.beta(k)/pi*180);
-    textHandle = text(optParms.kMaxPlot*0.75, optParms.deltaMaxPlot*0.9, msg);
+    textHandle = text(optParms.kMaxPlot*0.75, optParms.deltaMaxPlot*0.3, msg);
     msg2 = sprintf('$$\\tilde m_f = %0.2f,  \\tilde r_c = %0.2f$$',optParms.mf, optParms.rc);
-    textHandle = text(optParms.kMaxPlot*0.75, optParms.deltaMaxPlot*0.75, msg2, 'Interpreter', 'latex');
+    textHandle = text(optParms.kMaxPlot*0.75, optParms.deltaMaxPlot*0.15, msg2, 'Interpreter', 'latex');
     
-    caxis([0.1, 1]) %round(min(min(min(result.stableData))), 1)
+    caxis([0.5, 1]) %round(min(min(min(result.stableData))), 1)
     axis([optParms.kMinPlot,optParms.kMaxPlot, optParms.deltaMinPlot, optParms.deltaMaxPlot])
     axis([10,20, optParms.deltaMinPlot, optParms.deltaMaxPlot])
     axis([10,15, optParms.deltaMinPlot, 0.1])

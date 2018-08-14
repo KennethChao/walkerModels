@@ -2,6 +2,7 @@ clc;
 clear;
 close all;
 addpath('.././SLIP');
+addpath('./Dym/autoGen');
 
 %%
 
@@ -17,14 +18,14 @@ addpath('.././SLIP');
 % Energy (optional)
 
 %% Beta and dimensionless g
-betaVec = 72 / 180 * pi;
+betaVec = 70/ 180 * pi;
 % betaVec = (66:8:74) / 180 * pi;
 % betaVec = (60:5:90)/ 180 * pi;
 % gVec = [0.025 0.05 0.1 0.21 0.46 0.66]
 % gVec = linspace(0.1, 0.4, 2);
 gVec = 0.25;
 mf = 0.37;
-rc = 0.7;
+rc = 0.57;
 %% Fixed-point Finder Setup
 optParms = fixedPointFinderOptions(gVec, betaVec, mf, rc);
 

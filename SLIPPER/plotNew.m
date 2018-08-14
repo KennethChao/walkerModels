@@ -5,7 +5,7 @@ clc;
 close all;
 clear;
 
-data = load('fixedPointData_Varing_none_081018_1151.mat');
+data = load('fixedPointData_Varing_none_081318_1859.mat');
 optParms = data.optParms;
 result = data.result;
 
@@ -21,6 +21,7 @@ DT = 1;
 
 for k = 1:optParms.searchingVarLength
     C = contourf(result.meshgridK, result.meshgridDelta, result.stableData(:, :, k), 'LineStyle', ':');
+%     C = surf(result.meshgridK, result.meshgridDelta, result.stableData(:, :, k), 'LineStyle', ':');
        
     if strcmp(optParms.searchingVar, 'g')
         msg = sprintf('g = %0.2f', optParms.g(k));
@@ -44,10 +45,10 @@ for k = 1:optParms.searchingVarLength
     msg2 = sprintf('$$\\tilde m_f = %0.2f,  \\tilde r_c = %0.2f$$',optParms.mf, optParms.rc);
     textHandle = text(optParms.kMaxPlot*0.75, optParms.deltaMaxPlot*0.75, msg2, 'Interpreter', 'latex');
     
-    caxis([0.5, 1]) %round(min(min(min(result.stableData))), 1)
+    caxis([0.1, 1]) %round(min(min(min(result.stableData))), 1)
     axis([optParms.kMinPlot,optParms.kMaxPlot, optParms.deltaMinPlot, optParms.deltaMaxPlot])
     axis([10,20, optParms.deltaMinPlot, optParms.deltaMaxPlot])
-    axis([5,25, optParms.deltaMinPlot, 0.1])
+    axis([10,15, optParms.deltaMinPlot, 0.1])
     
     fileName = sprintf('fixedPointData_Varing_%s_0%d.tif', optParms.searchingVar, k);
     saveas(h,fileName);

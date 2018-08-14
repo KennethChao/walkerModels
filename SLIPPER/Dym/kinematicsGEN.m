@@ -1,83 +1,74 @@
-
-
-function expr =  kinematicsGEN()
+function expr =  kinematicsGEN(write2Function,massScaling)
 %KINEMATICS Summary of this function goes here
 %   Detailed explanation goes here
-
+if nargin==0  
+    write2Function=true;
+    massScaling = 'bodyMass';  
+end
 %%
-    syms l(t) dl(t) theta(t) dtheta(t) phi(t) dphi(t)
-    syms ddl(t) ddtheta(t) ddphi(t)
+syms l ld theta thetad phi phid
+syms ldd thetadd phidd
+syms rc
+%% Forward Kinematics
 
-% initializeSymbolicVariables();
-    syms rc mf
+% motion of mass of frame
+zf = l*sin(theta);
+xf = -l*cos(theta);
 
-%% Kinematics
+xVec = [l;theta;phi];
+xVecd = [ld;thetad;phid];
+xVecdd = [ldd;thetadd;phidd];
 
-% mass of frame
-zf = l(t)*sin(theta(t));
-xf = -l(t)*cos(theta(t));
+zfd = timeDiff(zf,xVec,xVecd,xVecdd);
+xfd = timeDiff(xf,xVec,xVecd,xVecdd);
 
-dzf = timeDiff(zf);
-dxf = timeDiff(xf);
+% motion of body mass
 
-% body mass
+% zb = zf -rc*sin(phi);
+% xb = xf +rc*cos(phi) ;
+
 zb = zf -rc*cos(phi);
 xb = xf -rc*sin(phi) ;
 
-dzb = timeDiff(zb);
-dxb = timeDiff(xb);
+zbd = timeDiff(zb,xVec,xVecd,xVecdd);
+xbd = timeDiff(xb,xVec,xVecd,xVecdd);
 
+% 
 expr.zf = zf;
 expr.xf = xf;
-expr.dzf = dzf;
-expr.dxf = dxf;
+expr.zfd = zfd;
+expr.xfd = xfd;
 expr.zb = zb;
 expr.xb = xb;
-expr.dzb = dzb;
-expr.dxb = dxb;
+expr.zbd = zbd;
+expr.xbd = xbd;
+
+%%
+if write2Function
+
+syms l ld theta thetad phi phid
+
+mfPosStance = [xf;zf];
+mfVelStance = [xfd;zfd];
+mfMotion = [mfPosStance;mfVelStance];
+
+mbPosStance = [xb;zb];
+mbVelStance = [xbd;zbd];
+mbMotion = [mbPosStance;mbVelStance];
+
+
+%%
+cd ./autoGen
+variableVector = [l, theta, phi, ld, thetad, phid, rc];
+matlabFunction(mfMotion,'File','frameMassCartesianMotionStance','Vars',variableVector);
+
+matlabFunction(mbMotion,'File','bodyMassCartesianMotionStance','Vars',variableVector);
+cd ../
 
 %
-% x = sym('x', [1 6]);
-syms x
-xf = variableSubstitution(xf)
-zf = variableSubstitution(zf)
-
-posStance = [xf;zf];
-syms l dl theta dtheta phi dphi
-matlabFunction(posStance,'File','myfile');
-
+if strcmp(massScaling,'bodyMass') || strcmp(massScaling,'totalMass')
+pointMass2COM_KinematicsGen(true, massScaling);
+com2pointMass_KinematicsGen(true, massScaling);
 end
 
-function dexp =  timeDiff(exp)    
-syms l(t) dl(t) theta(t) dtheta(t) phi(t) dphi(t)
-syms ddl(t) ddtheta(t) ddphi(t)
-
-dexp = diff(exp,t);
-dexp = subs(dexp,diff(l(t),t),dl(t));
-dexp = subs(dexp,diff(theta(t),t),dtheta(t));
-dexp = subs(dexp,diff(phi(t),t),dphi(t));
-
-dexp = subs(dexp,diff(dl(t),t),ddl(t));
-dexp = subs(dexp,diff(dtheta(t),t),ddtheta(t));
-dexp = subs(dexp,diff(dphi(t),t),ddphi(t));
 end
-
-
-function newExpr =  variableSubstitution(expr)    
-syms l(t) dl(t) theta(t) dtheta(t) phi(t) dphi(t)
-syms ddl(t) ddtheta(t) ddphi(t)
-
-syms l dl theta dtheta phi dphi
-
-x = sym('x', [1 6]);
-expr = subs(expr,l(t),l);
-expr = subs(expr,dl(t),dl);
-expr = subs(expr,theta(t),theta);
-expr = subs(expr,dtheta(t),theta);
-expr = subs(expr,phi(t),phi);
-expr = subs(expr,dphi(t),dphi);
-
-newExpr = expr;
-
-end
-

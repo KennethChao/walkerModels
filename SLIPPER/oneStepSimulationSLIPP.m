@@ -33,7 +33,7 @@ if strcmp(mode, 'fixedPointOpt')
 elseif strcmp(mode, 'simulationCheck')    
     iterNumb = 1;
 elseif strcmp(mode, 'perturbedSimulation')
-    perturbation = 1e-2;
+    perturbation = 5e-3;
     iterNumb = 4;
 end
 

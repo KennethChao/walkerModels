@@ -1,0 +1,41 @@
+function dynamicsGEN(expr,normalizedMass,normalizedLength)
+%UNTITLED5 Summary of this function goes here
+%   Detailed explanation goes here
+
+if nargin ==0
+    expr =  kinematicsGEN(true,'bodyMass');
+end
+
+syms l dl theta dtheta phi dphi
+syms ddl ddtheta ddphi
+syms rc mf mb k l0 g
+
+
+zf = expr.zf;
+xf = expr.xf;
+dzf = expr.dzf;
+dxf = expr.dxf;
+zb = expr.zb;
+xb = expr.xb;
+dzb = expr.dzb;
+dxb = expr.dxb;
+%%
+
+T = 1/2*mf*dxf^2 + 1/2*mf*dzf^2 + 1/2*mb*dxb^2 + 1/2*mb*dzb^2;
+
+V = 1/2*k*(l-l0)^2 + mf*g*(zf) + mb*g*(zb);
+
+[Mmat,bvec] = LagrangeMechanics(T,V,xVec,dxVec,ddxVec);
+
+if normalizedMass 
+if normalizedMass
+posFrame = massNomralization(Mmat,'bodyMass');
+posBody = massNomralization(posBody,method);
+velFrame = massNomralization(velFrame,method);
+velBody = massNomralization(velBody,method);
+
+end
+
+
+end
+

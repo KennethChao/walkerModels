@@ -52,10 +52,10 @@ ylabel('$\dot\phi$','Interpreter','latex')
 % title('$$Q \geq \frac{I_h H}{I_h H+I_z C}, b_1 \geq b_2$$','interpreter','latex')
 for k = optParms.searchingVarLength:-1:1
 
-        C = contourf(squeeze(result.stablePhi(1,:,:,k))-pi/2, squeeze(result.stablePhi(2,:,:,k)), result.stableData(:, :, k),'LineStyle',':')
+        C = contourf(squeeze(result.stablePhi(1,:,:,k)), squeeze(result.stablePhi(2,:,:,k)), result.stableData(:, :, k),'LineStyle',':')
 
 %       axis([0, 1.5*1e-2, 0.05, 0.06])
-      caxis([0.7, 1])
+      caxis([0.1, 1])
       
 % msg = sprintf('$$\\tilde g = %0.2f,  \\beta = %0.2f^o$$', optParms.g(k), optParms.beta(k)/pi*180);
 %     textHandle = text(0.0052, 0.0522, msg, 'Interpreter', 'latex');

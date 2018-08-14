@@ -34,14 +34,14 @@ for k = 1:optParms.searchingVarLength
             parms.rc = optParms.rc;
             
             parms.delta0 = meshgridDelta(j, i);
-            phi0 = pi / 2-0.1;
+            phi0 = 0;
             phid0 = 0;
             x0 = [phi0; phid0];
             
             parms.mode = 'fixedPointOpt';
             [sol, fval, exitflag, ~] = fminunc(@(x)oneStepSimulationSLIPP(x, parms), x0, optionsFminunc);
             
-            if exitflag > 0 && fval < 1e-3% && abs(sol(1)) < pi && abs(sol(2)) < 20
+            if exitflag > 0 && fval < 5e-4% && abs(sol(1)) < pi && abs(sol(2)) < 20
                 
                 parms.mode = 'simulationCheck';
                 ret = oneStepSimulationSLIPP(sol, parms);

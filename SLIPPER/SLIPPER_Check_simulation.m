@@ -3,7 +3,7 @@ close all;
 clc;
 clear;
 
-data = load('fixedPointData_Varing_none_081018_1151.mat');
+data = load('fixedPointData_Varing_none_081318_1859.mat');
 optParms = data.optParms;
 result = data.result;
 

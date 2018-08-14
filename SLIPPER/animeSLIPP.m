@@ -73,9 +73,9 @@ for i = 1:size(vecCheck,1)
 end
 
 
-c = parula(21);
+c = parula(172);
 
-a = round((tvec(end) - 1.0)/0.3*21);
+a = round((tvec(end) - 1.0)/1.0*172);
 %% Figures
 
 % plot([tvec; tvec],[xvec; yvec])
@@ -97,7 +97,7 @@ a = round((tvec(end) - 1.0)/0.3*21);
 % plot(tvec,phivec)
 % plot3(zvec,phivec,dphivec,'linewidth',3,'color', c(a,:))
 % plot(phivec,dphivec,'linewidth',3,'color', c(a,:))
-plot3(zvec,phivec,dphivec,'linewidth',3,'color', c(a,:))
+plot3(zvec,phivec,dphivec,'linewidth',1,'color', c(a,:))
 grid on
 hold on
 %% Anime

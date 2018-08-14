@@ -12,11 +12,11 @@ optParms.sampledNumberK = 40;
 optParms.sampledNumberDelta = 40;
 
 % Range of dimensionless stiffness
-optParms.kMin = 5;
+optParms.kMin = 10;
 optParms.kMax = 15;
 % Range of COM velocity direction
 optParms.deltaMin = 0;
-optParms.deltaMax = 0.2;
+optParms.deltaMax = 0.1;
 
 % Range of parameters for plotting
 optParms.kMinPlot = optParms.kMin;

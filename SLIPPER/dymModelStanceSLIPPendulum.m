@@ -4,6 +4,7 @@ g = parms.g;
 k = parms.k;
 mf = parms.mf;
 rc = parms.rc;
+I = parms.I;
 % Get state variables
 l = x(1);
 ld = x(2);
@@ -12,8 +13,8 @@ thetad = x(4);
 phi = x(5);
 phid = x(6);
 
-Mmat = inertiaMatrix(l,theta,phi,ld,thetad,phid,g,k,mf,rc);
-bvec = nonInertiaTerms(l,theta,phi,ld,thetad,phid,g,k,mf,rc);
+Mmat = inertiaMatrix(l,theta,phi,ld,thetad,phid,g,k,mf,rc,I);
+bvec = nonInertiaTerms(l,theta,phi,ld,thetad,phid,g,k,mf,rc,I);
 
 xdd = Mmat\bvec;
 

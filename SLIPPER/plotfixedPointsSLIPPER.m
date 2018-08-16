@@ -1,6 +1,6 @@
 %% Plot animated gif
-addpath('./SLIPPER/ret')
-cd ./SLIPPER/images
+addpath('./retsult')
+cd ./images
 clc;
 close all;
 clear;

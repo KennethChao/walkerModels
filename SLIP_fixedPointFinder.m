@@ -6,8 +6,8 @@ clear;
 profile on
 
 %%
-betaVec = linspace(66, 74, 5) / 180 * pi
-gVec = 0.21;
+betaVec = (70:2:76) / 180 * pi
+% gVec = 0.05;
 
 % betaVec = linspace(66,74,5)/180*pi
 % gVec = 0.025;
@@ -37,13 +37,12 @@ kMin = 1;
 kMax = 25;
 kMinFig = 0;
 kMaxFig = kMax;
-samplingNumbK = kMax * 4;
-
+samplingNumbK = kMax * 2;
 deltaMin = 0;
 deltaMax = 1.1;
 deltaMinFig = deltaMin;
 deltaMaxFig = deltaMax;
-samplingNumbDelta = 10;
+samplingNumbDelta = 5;
 
 kVec = linspace(kMin, kMax, samplingNumbK);
 deltaVec = linspace(deltaMin, deltaMax, samplingNumbDelta);
@@ -98,7 +97,7 @@ for k = 1:searchingVarLength
             delta0 = deltaVec(j);
             parms.mode = 'fixedPointOpt';
             [x, fval, exitflag, output] = fminunc(@(x)oneStepSimulationSLIP(x, parms), delta0, optionsFminunc);
-            if fval < 5e-3 && x > 0 && exitflag > 0 && x < pi / 2
+            if fval < 1e-5 && x > 0 && exitflag > 0 && x < pi / 2
                 
                 parms.mode = 'perturbedSimulation';
                 result = oneStepSimulationSLIP(x, parms);

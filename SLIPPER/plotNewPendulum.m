@@ -42,20 +42,30 @@ msg = sprintf('beta = %0.2^of',betaVec(1));
         else
             msg ='';
         end
-t = text(min(min(min(result.stablePhi(1,:,:,:))))-pi/2+0.1,yLimit-1e-3,msg);
+t = text(min(min(min(result.stablePhi(1,:,:,:))))+0.1,yLimit-1e-3,msg);
 ylabel(cbh, titleString,'Interpreter','latex')
-xlabel('$\phi-\pi/2$','Interpreter','latex')
+xlabel('$\phi$','Interpreter','latex')
 ylabel('$\dot\phi$','Interpreter','latex')
 % titleString = sprintf('   $$\\beta = %.1f^o$$',betaVec/pi*180);
 % % titleString = '$$\beta$$'
 % title(titleString,'Interpreter','latex');
 % title('$$Q \geq \frac{I_h H}{I_h H+I_z C}, b_1 \geq b_2$$','interpreter','latex')
 for k = optParms.searchingVarLength:-1:1
-
-        C = contourf(squeeze(result.stablePhi(1,:,:,k)), squeeze(result.stablePhi(2,:,:,k)), result.stableData(:, :, k),'LineStyle',':')
+    resultBuf = nan(size(result.meshgridK));
+    for i = 1:optParms.sampledNumberK
+        for j = 1:optParms.sampledNumberDelta
+            resultBuf(j,i) = result.stableData(j,i, k).maxAbsEigenValue;
+%               resultBuf(j,i) = result.stableData(j,i, k).netWork;
+%               resultBuf(j,i) = result.stableData(j,i, k).dutyFactor;
+%               resultBuf(j,i) = result.stableData(j,i, k).fval;
+        end
+    end
+    
+    
+        C = contourf(squeeze(result.stablePhi(1,:,:,k)), squeeze(result.stablePhi(2,:,:,k)), resultBuf,'LineStyle',':')
 
 %       axis([0, 1.5*1e-2, 0.05, 0.06])
-      caxis([0.1, 1])
+      caxis([0.0, 1])
       
 % msg = sprintf('$$\\tilde g = %0.2f,  \\beta = %0.2f^o$$', optParms.g(k), optParms.beta(k)/pi*180);
 %     textHandle = text(0.0052, 0.0522, msg, 'Interpreter', 'latex');

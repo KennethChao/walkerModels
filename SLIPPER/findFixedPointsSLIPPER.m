@@ -4,10 +4,10 @@ function result = findFixedPointsSLIPPER(optParms)
 
 %% Build buffers
 [meshgridK, meshgridDelta] = createMeshGrid(optParms);
-[stablePhi, unstablePhi, stableData, unstableData] = createDataBuffer(optParms);
+[stablePhi, unstablePhi, stableData, unstableData,stableDataBuf,unstableDataBuf] = createDataBuffer(optParms);
 
 %% Opt solver option
-optionsFminunc = optimset('Display', 'off', 'FinDiffType', 'central', 'MaxIter', 1e4);
+optionsFminunc = optimset('Display', 'off', 'FinDiffType', 'central', 'MaxIter', 4e2,  'TolFun', 1e-12, 'TolX', 1e-12);
 
 %% Find fixed points
 if optParms.useTicToc
@@ -18,13 +18,10 @@ for k = 1:optParms.searchingVarLength
     
     stablePhiStackBuf = nan(2, optParms.sampledNumberDelta, optParms.sampledNumberK);
     unstablePhiStackBuf = nan(2, optParms.sampledNumberDelta, optParms.sampledNumberK);
-    unstableDataBuf = nan(size(meshgridK));
-    stableDataBuf = nan(size(meshgridK));
     
     for i = 1:optParms.sampledNumberK
         
         parfor j = 1:optParms.sampledNumberDelta
-%             for j = 1:optParms.sampledNumberDelta
             parms = {};
             parms.g = optParms.g(k);
             parms.beta = optParms.beta(k);
@@ -32,6 +29,9 @@ for k = 1:optParms.searchingVarLength
             
             parms.mf = optParms.mf;
             parms.rc = optParms.rc;
+            parms.I = optParms.I;
+            
+            parms.optWeighting = optParms.optWeighting;   
             
             parms.delta0 = meshgridDelta(j, i);
             phi0 = 0;
@@ -39,42 +39,46 @@ for k = 1:optParms.searchingVarLength
             x0 = [phi0; phid0];
             
             parms.mode = 'fixedPointOpt';
-            [sol, fval, exitflag, ~] = fminunc(@(x)oneStepSimulationSLIPP(x, parms), x0, optionsFminunc);
+            [sol, fval, exitflag, ~] = fminunc(@(x)oneStepSimulationSLIPPER(x, parms), x0, optionsFminunc);
             
-            if exitflag > 0 && fval < 5e-4% && abs(sol(1)) < pi && abs(sol(2)) < 20
-                
+            if exitflag > 0 && fval < optParms.costTolerence
+                exitflag
                 parms.mode = 'simulationCheck';
-                ret = oneStepSimulationSLIPP(sol, parms);
+                simResult = oneStepSimulationSLIPPER(sol, parms);
                 
-                if ~isempty(ret.te2) && ~isempty(ret.te) && (ret.te2 / ret.te) < 3
+                if ~isempty(simResult.te2) && ~isempty(simResult.te) && (simResult.te/(simResult.te2 + simResult.te)) > 0.25
                     fprintf('suceed! %dth phi and %dth phid\n', i, j)
                   
                     
                     parms.mode = 'perturbedSimulation';
-                    ret = oneStepSimulationSLIPP(sol, parms);
-                    eigenValue = eig(ret);
+                    map = oneStepSimulationSLIPPER(sol, parms);
+                    eigenValue = eig(map);
                     if abs(eigenValue(1)) <= 1 && abs(eigenValue(2)) <= 1
                         stablePhiStackBuf(:, j, i) = sol;
-                        if strcmp(optParms.storedQuantity, 'fval')
-                            stableDataBuf(j, i) = fval;
-                        elseif strcmp(optParms.storedQuantity, 'maxlambda')
-                            stableDataBuf(j, i) = max(abs(eigenValue));
-                        end
+                        stableDataBuf(j, i).fval = fval;
+                        stableDataBuf(j, i).maxAbsEigenValue = max(abs(eigenValue));
+                        stableDataBuf(j, i).dutyFactor = simResult.te/(simResult.te+simResult.te2);
+                        
+                        springForce = -parms.k*(simResult.x(:,1)-1);
+                        springVelocity = simResult.x(:,2);
+                        stableDataBuf(j, i).netWork = sum(springForce.*springVelocity*0.01);
                     else
                         unstablePhiStackBuf(:, j, i) = sol;
-                        if strcmp(optParms.storedQuantity, 'fval')
-                            unstableDataBuf(j, i) = fval;
-                        elseif strcmp(optParms.storedQuantity, 'maxlambda')
-                            unstableDataBuf(j, i) = max(abs(eigenValue));
-                        end
+                        unstableDataBuf(j, i).fval = fval;
+                        unstableDataBuf(j, i).maxAbsEigenValue = max(abs(eigenValue));
+                        unstableDataBuf(j, i).dutyFactor = simResult.te/(simResult.te+simResult.te2);
+                        
+                        springForce = -parms.k*(simResult.x(:,1)-1);
+                        springVelocity = simResult.x(:,2);
+                        unstableDataBuf(j, i).netWork = sum(springForce.*springVelocity*0.01);                        
                     end
                     
                 else
-                    fprintf('failed! %dth phi and %dth phid\n', i, j)
+%                     fprintf('failed! %dth phi and %dth phid\n', i, j)
                 end
                 
             else
-                fprintf('failed! %dth phi and %dth phid\n', i, j)
+%                 fprintf('failed! %dth phi and %dth phid\n', i, j)
             end
         end
     end

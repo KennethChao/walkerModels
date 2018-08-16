@@ -7,9 +7,9 @@ beta = parms.beta;
 delta = delta0;
 
 % Ode solver setup
-    optionsStance = odeset('Event', @liftOffEventFcn,'RelTol',1.e-6);
+    optionsStance = odeset('Event', @liftOffEventFcn,'RelTol',1.e-8);
     dymStance = @(t, x) dymModelStanceDimensionless(t, x, parms); %dymModelStanceDimensionless
-    optionsFlight = odeset('Event', @(t, x)touchDownEventFcn(t, x, beta),'RelTol',1.e-6);
+    optionsFlight = odeset('Event', @(t, x)touchDownEventFcn(t, x, beta),'RelTol',1.e-8);
     dymFlight = @(t, a) dymModelFlightDimensionless(t, a, parms);
 
 

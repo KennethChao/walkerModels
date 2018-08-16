@@ -27,7 +27,7 @@ velBody = massNomralization(velBody,massScaling);
 end
 
 %
-pointMassMotionVector = [posFrame;posBody;velFrame;velBody];
+pointMassMotion = [posFrame;posBody;velFrame;velBody];
 
 if strcmp(massScaling, 'bodyMass')
 variableVector = [xc zc phi xcd zcd phid rc mf];
@@ -36,6 +36,6 @@ variableVector = [xc zc phi xcd zcd phid rc mf mb];
 end
 
 cd ./autoGen
-matlabFunction(pointMassMotionVector,'File','motionCOM2PointMass','Vars',variableVector);
+matlabFunction(pointMassMotion,'File','motionCOM2PointMass','Vars',variableVector);
 cd ../
 end

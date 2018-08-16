@@ -5,8 +5,8 @@ clc;
 close all;
 clear;
 
-data = load('fixedPointData_Varing_none_081318_2236.mat');
-optParms = data.optParms;
+data = load('fixedPointData_Varing_none_081618_1152.mat');
+optParms = data.optParms
 result = data.result;
 
 % Figure setup
@@ -19,10 +19,39 @@ set(h, 'DefaultTextFontName', 'Liberation Serif', 'DefaultTextFontSize', 18, ...
 % parameters for animated gif
 DT = 1;
 
+
+
+
+
 for k = 1:optParms.searchingVarLength
-    C = contourf(result.meshgridK, result.meshgridDelta, result.stableData(:, :, k), 'LineStyle', ':');
-%     C = surf(result.meshgridK, result.meshgridDelta, result.stableData(:, :, k), 'LineStyle', ':');
-       
+    resultBuf = nan(size(result.meshgridK));
+%     for i = 1:optParms.sampledNumberK
+%         for j = 1:optParms.sampledNumberDelta
+%             resultBuf(j,i) = result.unstableData(j,i, k).maxAbsEigenValue;
+% %               resultBuf(j,i) = result.stableData(j,i, k).netWork;
+% %               resultBuf(j,i) = result.stableData(j,i, k).dutyFactor;
+% %               resultBuf(j,i) = result.stableData(j,i, k).fval;
+%         end
+%     end
+%     
+%     
+%     
+%     C = contourf(result.meshgridK, result.meshgridDelta, resultBuf, 'LineStyle', ':');
+%        hold on    
+    for i = 1:optParms.sampledNumberK
+        for j = 1:optParms.sampledNumberDelta
+            resultBuf(j,i) = result.stableData(j,i, k).maxAbsEigenValue;
+%               resultBuf(j,i) = result.stableData(j,i, k).netWork;
+%               resultBuf(j,i) = result.stableData(j,i, k).dutyFactor;
+%               resultBuf(j,i) = result.stableData(j,i, k).fval;
+        end
+    end
+    
+ 
+    
+    C = contourf(result.meshgridK, result.meshgridDelta, resultBuf, 'LineStyle', ':');    
+    
+
     if strcmp(optParms.searchingVar, 'g')
         msg = sprintf('g = %0.2f', optParms.g(k));
     elseif strcmp(optParms.searchingVar, 'beta')
@@ -40,18 +69,26 @@ for k = 1:optParms.searchingVarLength
     titleString = 'max(abs($\lambda$))';
     ylabel(cbh, titleString, 'Interpreter', 'latex')    
     
+%         titleString = 'duty factor';
+%     ylabel(cbh, titleString, 'Interpreter', 'latex')   
+    
     msg = sprintf('g = %0.2f,  \\beta = %0.2f^o', optParms.g(k), optParms.beta(k)/pi*180);
     textHandle = text(optParms.kMaxPlot*0.75, optParms.deltaMaxPlot*0.3, msg);
+    
+
     msg2 = sprintf('$$\\tilde m_f = %0.2f,  \\tilde r_c = %0.2f$$',optParms.mf, optParms.rc);
     textHandle = text(optParms.kMaxPlot*0.75, optParms.deltaMaxPlot*0.15, msg2, 'Interpreter', 'latex');
-    
-    caxis([0.5, 1]) %round(min(min(min(result.stableData))), 1)
+% %     
+%      msg = sprintf('g = %0.2f', optParms.g(k));
+%     textHandle = text(optParms.kMaxPlot*0.75, optParms.deltaMaxPlot*0.3, msg);
+
+    caxis([0, 1]) %round(min(min(min(result.stableData))), 1)
     axis([optParms.kMinPlot,optParms.kMaxPlot, optParms.deltaMinPlot, optParms.deltaMaxPlot])
-    axis([10,20, optParms.deltaMinPlot, optParms.deltaMaxPlot])
-    axis([10,15, optParms.deltaMinPlot, 0.1])
+%     axis([10,20, optParms.deltaMinPlot, optParms.deltaMaxPlot])
+%     axis([10,15, optParms.deltaMinPlot, 0.1])
     
     fileName = sprintf('fixedPointData_Varing_%s_0%d.tif', optParms.searchingVar, k);
     saveas(h,fileName);
-    pause(1.0)
+%     pause(1.0)
 end
 cd ../

@@ -3,24 +3,20 @@ clear;
 close all;
 addpath('./dynamics/autoGen');
 addpath('./helperFunctions');
+
 %%
 
 %ToDo
 % Fixed text in showPP
-
+% Test codes again
 
 % Comment code
-%    plot functions refactoring and comment
-%       plotNewPendulum 
-%       showAnimationSLIPPER
+%       showAnimationSLIPPER. created.
 
 % extract optParms
 % try constrained optimization (maybe not)
 
-
-
-
-%% Model parameters 
+%% Model parameters
 % Beta (radius!!!) and dimensionless g
 betaVec = (72) / 180 * pi;
 gVec = 0.2;
@@ -55,8 +51,8 @@ optParms.controlMode = 'pControl'; %'pControl','constantTorque','noTorque'
 optParms.controlGain = 2;
 
 % Number of free variable
-optParms.freeVariableNumber = 3; 
-% Note: when optParms.controlMode = 'noTorque' only the first two variable 
+optParms.freeVariableNumber = 3;
+% Note: when optParms.controlMode = 'noTorque' only the first two variable
 % are used
 
 % Generate the struct of optimization parameters

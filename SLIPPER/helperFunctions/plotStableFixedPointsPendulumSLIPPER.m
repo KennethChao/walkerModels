@@ -1,5 +1,7 @@
-function plotStableFixedPointsSLIPPER(filename, colorData, scaleByTotalMass)
-%PLOTSTABLEFIXEDPOINTSSLIPPER helper function to plot stable fixed points
+function plotStableFixedPointsPendulumSLIPPER(filename, colorData)
+%PLOTSTABLEFIXEDPOINTSPENDULUMSLIPPER helper function to plot stable fixed
+% points of phi and phid
+%   
 %   Stable fixed points are ploted as a 2D contour plot.
 data = load(filename);
 optParms = data.optParms;
@@ -28,15 +30,8 @@ for k = 1:optParms.searchingVarLength
             end
         end
     end
-    
-    if scaleByTotalMass
-        bodyScale = 1 + optParms.mf;
-    else
-        bodyScale = 1;
-    end
-    
-    contourf(result.meshgridK/bodyScale, result.meshgridDelta, resultBuf, 'LineStyle', ':');
-    
+        
+    C = contourf(squeeze(result.stablePhi(1, :, :, k)), squeeze(result.stablePhi(2, :, :, k)), resultBuf, 'LineStyle', ':');
 end
 
 end

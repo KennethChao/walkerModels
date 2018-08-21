@@ -1,11 +1,11 @@
 % This is the script to show the phase portraits for a given data.
 % (for observing the periodic orbits, or cehcking the periodic conditions)
-% 
+%
 % In this script, two options can be chosen:
 %
 % 1) data present in color (line 31 - 38)
 %    Possible choices include maxAbsEigenValue, netWork of spring, running
-%    freqeuncy, duty factor, constant toque(Or, the third free variable 
+%    freqeuncy, duty factor, constant toque(Or, the third free variable
 %    depending on the control mode), opitmized cost, dimensionless
 %    stiffness, and direction of COM motion.
 %
@@ -13,7 +13,7 @@
 %    'phasePotrait_phi': phi vs phid
 %    'phasePotrait_phi': zf vs zfd
 %    'phasePotrait_phiVec&zf': phi vs phid vs zf
-%    'phasePotrait_zVec&phi': zf vs zfd vs phi 
+%    'phasePotrait_zVec&phi': zf vs zfd vs phi
 
 addpath('./result')
 addpath('./result/SLIPPER_PControl')
@@ -35,22 +35,21 @@ for k = 1:1 %1:optParms.searchingVarLength
             resultBuf(j, i) = result.stableData(j, i, k).maxAbsEigenValue;
         end
     end
-    stableIndices = find(~isnan(resultBuf));
-    
     
     for i = 1:optParms.sampledNumberK
         for j = 1:optParms.sampledNumberDelta
             resultBuf(j, i) = result.stableData(j, i, k).maxAbsEigenValue;
             %             resultBuf(j,i) = result.stableData(j,i, k).netWork;
-            %               resultBuf(j,i) = result.stableData(j,i, k).runningFreqeuncy;
-            %               resultBuf(j,i) = result.stableData(j,i, k).dutyFactor;
-            %               resultBuf(j,i) = result.stableData(j,i, k).constantTorque;
-            %               resultBuf(j,i) = result.stableData(j,i, k).fval;
-            %               resultBuf(j,i) = result.meshgridK(j,i);
-            %               resultBuf(j,i) = result.meshgridDelta(j,i);
+            %             resultBuf(j,i) = result.stableData(j,i, k).runningFreqeuncy;
+            %             resultBuf(j,i) = result.stableData(j,i, k).dutyFactor;
+            %             resultBuf(j,i) = result.stableData(j,i, k).constantTorque;
+            %             resultBuf(j,i) = result.stableData(j,i, k).fval;
+            %             resultBuf(j,i) = result.meshgridK(j,i);
+            %             resultBuf(j,i) = result.meshgridDelta(j,i);
         end
     end
     resultBuf = squeeze(reshape(resultBuf, 1, 1, []));
+    stableIndices = find(~isnan(resultBuf));
     
     result.meshgridK = squeeze(reshape(result.meshgridK, 1, 1, []));
     result.meshgridDelta = squeeze(reshape(result.meshgridDelta, 1, 1, []));
@@ -82,11 +81,14 @@ for k = 1:1 %1:optParms.searchingVarLength
         x = result.stablePhiReshape(stableIndex, :);
         ret = oneStepSimulationSLIPPER(x, parms);
         
-
-%       plotPhasePortraitSLIPPER('phasePotrait_phi',ret,resultBuf(stableIndex),parms,plotParms);
-%         plotPhasePortraitSLIPPER('phasePotrait_zf',ret,resultBuf(stableIndex),parms,plotParms);
-%       plotPhasePortraitSLIPPER('phasePotrait_phiVec&zf', ret, resultBuf(stableIndex), parms, plotParms);
-      plotPhasePortraitSLIPPER('phasePotrait_zVec&phi',ret,resultBuf(stableIndex),parms,plotParms);
+        
+        %       plotPhasePortraitSLIPPER('phasePotrait_phi',ret,resultBuf(stableIndex),parms,plotParms);
+        %       plotPhasePortraitSLIPPER('phasePotrait_zf',ret,resultBuf(stableIndex),parms,plotParms);
+        %       plotPhasePortraitSLIPPER('phasePotrait_phiVec&zf', ret, resultBuf(stableIndex), parms, plotParms);
+        plotPhasePortraitSLIPPER('phasePotrait_zVec&phi', ret, resultBuf(stableIndex), parms, plotParms);
+        
+        hold on
+        grid on
         
     end
     

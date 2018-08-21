@@ -1,9 +1,9 @@
-function kinematicData = extractKinematicDatafromResult(result,parms)
-%EXTRACTKINEMATICDATAFROMRESULT Extract kinematic data from the result 
+function kinematicData = extractKinematicDatafromResult(result, parms)
+%EXTRACTKINEMATICDATAFROMRESULT Extract kinematic data from the result
 %   The original results contains states in different cooridnates, this
-%   function is used to generate vector with consistent coordinate as a 
+%   function is used to generate vector with consistent coordinate as a
 %   helper function for 'plotPhasePortraitSLIPPER', or 'showAnimationSLIPPER'
-%   
+%
 
 % Get original state variable and time data
 x = result.x;
@@ -12,6 +12,7 @@ x2 = result.x2;
 t2 = result.t2;
 rc = parms.rc;
 mf = parms.mf;
+beta = parms.beta;
 
 %% Extract kinematic data
 
@@ -80,31 +81,44 @@ zcVec = [comMotion(2, :), zc(2:end)];
 zcdVec = [comMotion(4, :), zcd(2:end)];
 
 % Pendulum motion
-phiVec = [x(:, 5); x2(2:end, 3)];
-phidVec = [x(:, 6); x2(2:end, 4)];
+phiVec = [x(:, 5); x2(2:end, 3)]';
+phidVec = [x(:, 6); x2(2:end, 4)]';
+
+% Foot position
+zfootVec = [zeros(size(zfVecStance)), zfVecFlight - 1 * sin(beta)];
+xfootVec = [zeros(size(xfVecStance)), xfVecFlight + 1 * cos(beta)];
 
 % Simulation time
-tVec = [t; t2(2:end) + t(end)];
+tVec = [t; t2(2:end) + t(end)]';
+
 %% Store the kienmatic data into the struct
 
 kinematicData.tVec = tVec;
+
 % Pendulum motion
 kinematicData.phiVec = phiVec;
 kinematicData.phidVec = phidVec;
-% frame mass motion
+
+% Frame mass motion
 kinematicData.zfVec = zfVec;
 kinematicData.zfdVec = zfdVec;
 kinematicData.xfVec = xfVec;
 kinematicData.xfdVec = xfdVec;
-% body mass motion
-kinematicData.zVec = zbVec;
-kinematicData.zdVec = zbdVec;
-kinematicData.xVec = xbVec;
-kinematicData.xdVec = xbdVec;
+
+% Body mass motion
+kinematicData.zbVec = zbVec;
+kinematicData.zbdVec = zbdVec;
+kinematicData.xbVec = xbVec;
+kinematicData.xbdVec = xbdVec;
+
 % COM motion
 kinematicData.zcVec = zcVec;
 kinematicData.zcdVec = zcdVec;
 kinematicData.xcVec = xcVec;
 kinematicData.xcdVec = xcdVec;
-end
 
+% Foot position
+kinematicData.zfootVec = zfootVec;
+kinematicData.xfootVec = xfootVec;
+
+end

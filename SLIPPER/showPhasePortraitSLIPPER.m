@@ -1,13 +1,31 @@
+% This is the script to show the phase portraits for a given data.
+% (for observing the periodic orbits, or cehcking the periodic conditions)
+% 
+% In this script, two options can be chosen:
+%
+% 1) data present in color (line 31 - 38)
+%    Possible choices include maxAbsEigenValue, netWork of spring, running
+%    freqeuncy, duty factor, constant toque(Or, the third free variable 
+%    depending on the control mode), opitmized cost, dimensionless
+%    stiffness, and direction of COM motion.
+%
+% 2) Type of phase portraits (line 79 - 82)
+%    'phasePotrait_phi': phi vs phid
+%    'phasePotrait_phi': zf vs zfd
+%    'phasePotrait_phiVec&zf': phi vs phid vs zf
+%    'phasePotrait_zVec&phi': zf vs zfd vs phi 
+
 addpath('./result')
 addpath('./result/SLIPPER_PControl')
+addpath('./helperFunctions')
 close all;
 clc;
 clear;
 
-data = load('fixedPointData_Varing_none_082018_1403.mat');
-optParms = data.optParms
+data = load('fixedPointData_Varing_none_081918_1313.mat');
+optParms = data.optParms;
+disp(optParms);
 result = data.result;
-
 
 for k = 1:1 %1:optParms.searchingVarLength
     result = data.result;
@@ -64,10 +82,11 @@ for k = 1:1 %1:optParms.searchingVarLength
         x = result.stablePhiReshape(stableIndex, :);
         ret = oneStepSimulationSLIPPER(x, parms);
         
-        %         'phasePotrait_zf', 'phasePotrait_phiVec&zf', 'phasePotrait_zVec&phi'
-                phasePortraitSLIPPER('phasePotrait_phi',ret,resultBuf(stableIndex),parms,plotParms);
-%         phasePortraitSLIPPER('phasePotrait_phiVec&zf', ret, resultBuf(stableIndex), parms, plotParms);
-%                 phasePortraitSLIPPER('phasePotrait_zVec&phi',ret,resultBuf(stableIndex),parms,plotParms);
+
+%       plotPhasePortraitSLIPPER('phasePotrait_phi',ret,resultBuf(stableIndex),parms,plotParms);
+%         plotPhasePortraitSLIPPER('phasePotrait_zf',ret,resultBuf(stableIndex),parms,plotParms);
+%       plotPhasePortraitSLIPPER('phasePotrait_phiVec&zf', ret, resultBuf(stableIndex), parms, plotParms);
+      plotPhasePortraitSLIPPER('phasePotrait_zVec&phi',ret,resultBuf(stableIndex),parms,plotParms);
         
     end
     

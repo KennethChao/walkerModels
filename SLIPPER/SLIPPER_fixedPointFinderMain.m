@@ -2,34 +2,27 @@ clc;
 clear;
 close all;
 addpath('./dynamics/autoGen');
-
+addpath('./helperFunctions');
 %%
 
 %ToDo
+% Fixed text in showPP
 
-% Comparison to SLIP model
-% extract optParms
-% try constrained optimization
 
 % Comment code
-%    oneStepSimulationSLIPPER
-%    dynamics
-%    plot functions
+%    plot functions refactoring and comment
+%       plotNewPendulum 
+%       showAnimationSLIPPER
+
+% extract optParms
+% try constrained optimization (maybe not)
 
 
-    
 
 
 %% Model parameters 
-
-% Beta and dimensionless g
-% betaVec = 74/ 180 * pi;
-betaVec = (66) / 180 * pi;
-% betaVec = (60:5:90)/ 180 * pi;
-% gVec = [0.025 0.05 0.1 0.21 0.46 0.66]
-% gVec = [ 0.05 ];
-% gVec = linspace(0.1, 0.4, 2);
-
+% Beta (radius!!!) and dimensionless g
+betaVec = (72) / 180 * pi;
 gVec = 0.2;
 
 % Dimensionless frame mass mf, pendulum length rc, and inertia at COM I

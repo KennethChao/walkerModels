@@ -1,4 +1,4 @@
-function [position, isterminal, direction] = touchDownSLIPPendulumEventFcn(t, x, parms)
+function [position, isterminal, direction] = touchDownEventFcnSLIPPER(t, x, parms)
 % y = sin(beta)
 beta = parms.beta;
 mf = parms.mf;

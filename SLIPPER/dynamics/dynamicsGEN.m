@@ -9,7 +9,7 @@ function dynamicsGEN(expr, write2File,normalizedMass,massScaling,normalizedLengt
 %   by the leg length lo
 
 if nargin ==0
-    addpath('../../util')
+    addpath('./util')
     write2File = true; % export matlab function
     normalizedLength = true;
     normalizedMass = true; % normalized the mass with the given massScaling    

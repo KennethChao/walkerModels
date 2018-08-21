@@ -1,5 +1,6 @@
-function plotStableRegion(filename, colorData, scaleByTotalWeight)
-
+function plotStableFixedPointsSLIPPER(filename, colorData, scaleByTotalMass)
+%PLOTSTABLEFIXEDPOINTSSLIPPER helper function to plot stable fixed points 
+%   Stable fixed points are ploted as a 2D contour plot.
 data = load(filename);
 optParms = data.optParms;
 disp(optParms)
@@ -28,7 +29,7 @@ for k = 1:optParms.searchingVarLength
         end
     end
     
-    if scaleByTotalWeight
+    if scaleByTotalMass
         bodyScale = 1 + optParms.mf;
     else
         bodyScale = 1;

@@ -1,4 +1,5 @@
-function dx = dymModelStanceSLIPPendulum(t, x, u0, parms)
+function dx = dymModelStanceSLIPPER(t, x, u0, parms)
+
 % Get parameters
 g = parms.g;
 k = parms.k;
@@ -13,6 +14,7 @@ thetad = x(4);
 phi = x(5);
 phid = x(6);
 
+% Calculate the torque input
 if strcmp(parms.controlMode,'pControl')
 tau = -parms.controlGain*(phid-u0);
 elseif strcmp(parms.controlMode,'constantTorque')
@@ -22,6 +24,7 @@ tau = 0;
 else
 error('unknown controlMode of pendulum')
 end
+
 
 Mmat = inertiaMatrix(l,theta,phi,ld,thetad,phid, tau,g,k,mf,rc,I);
 bvec = nonInertiaTerms(l,theta,phi,ld,thetad,phid, tau,g,k,mf,rc,I);

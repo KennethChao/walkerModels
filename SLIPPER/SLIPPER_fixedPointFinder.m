@@ -1,57 +1,80 @@
 clc;
 clear;
 close all;
-addpath('.././SLIP');
 addpath('./dynamics/autoGen');
 
 %%
 
 %ToDo
-% Correct the printout msg ()
+
 % Comparison to SLIP model
+% extract optParms
+% try constrained optimization
 
-% Next Week: Check EOM again! (shift)
+% Comment code
+%    oneStepSimulationSLIPPER
+%    dynamics
+%    plot functions
 
-% Energy (optional)
 
-%% Beta and dimensionless g
-betaVec = 74/ 180 * pi;
-% betaVec = (70:2:76) / 180 * pi;
+    
+
+
+%% Model parameters 
+
+% Beta and dimensionless g
+% betaVec = 74/ 180 * pi;
+betaVec = (66) / 180 * pi;
 % betaVec = (60:5:90)/ 180 * pi;
 % gVec = [0.025 0.05 0.1 0.21 0.46 0.66]
 % gVec = [ 0.05 ];
 % gVec = linspace(0.1, 0.4, 2);
-gVec = 0.25;
+
+gVec = 0.2;
+
+% Dimensionless frame mass mf, pendulum length rc, and inertia at COM I
 mf = 0.37;
 rc = 0.57;
-I = (1+mf)*0.18^2;
-%% Fixed-point Finder Setup
-% Sampled number
-optParms.sampledNumberK = 20;
-optParms.sampledNumberDelta = 30;
+I = (1 + mf) * 0.18^2;
 
+%% Fixed-point Finder Setup
 % Range of dimensionless stiffness
-optParms.kMin = 15;
-optParms.kMax = 25;
+optParms.kMin = 7;
+optParms.kMax = 12;
+
 % Range of COM velocity direction
 optParms.deltaMin = 0;
-optParms.deltaMax = 0.18;
+optParms.deltaMax = 0.3;
+
+% Sampling number
+optParms.sampledNumberK = (optParms.kMax - optParms.kMin) * 4;
+optParms.sampledNumberDelta = (optParms.deltaMax - optParms.deltaMin) * 100;
 
 % Weighting of costfunction
-optParms.costTolerence = 3e-4; % weighting of delta difference
-optParms.optWeighting(1) = 5; % weighting of delta difference
-optParms.optWeighting(2) = 5; % weighting of velocity norm difference
-optParms.optWeighting(3) = 0.5; % weighting of phi norm difference
+optParms.costTolerence = 5e-4; % weighting of delta difference
+optParms.optWeighting(1) = 3; % weighting of delta difference
+optParms.optWeighting(2) = 3; % weighting of velocity norm difference
+optParms.optWeighting(3) = 1; % weighting of phi norm difference
+optParms.optWeighting(4) = 0.01; % weighting of u square
 
-optParms = fixedPointFinderOptionsSLIPPER(gVec, betaVec, mf, rc,I,optParms);
+% Control at the hinge of pendulum
+optParms.controlMode = 'pControl'; %'pControl','constantTorque','noTorque'
+optParms.controlGain = 2;
+
+% Number of free variable
+optParms.freeVariableNumber = 3; 
+% Note: when optParms.controlMode = 'noTorque' only the first two variable 
+% are used
+
+% Generate the struct of optimization parameters
+optParms = fixedPointFinderOptionsSLIPPER(gVec, betaVec, mf, rc, I, optParms);
 
 %% Find fixed points of SLIPPER model
 result = findFixedPointsSLIPPER(optParms);
 
-%%
+%% Save result
 stringDateTime = datestr(now, 'mmddyy_HHMM');
 cd ./result
 fileName = sprintf('fixedPointData_Varing_%s_%s.mat', optParms.searchingVar, stringDateTime);
-
 save(fileName, 'result', 'optParms');
 cd ../

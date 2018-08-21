@@ -20,6 +20,7 @@ end
 % state variables
 syms l ld theta thetad phi phid
 syms ldd thetadd phidd
+syms u
 % system parameters
 syms rc mf mb k l0 g I
 
@@ -53,10 +54,11 @@ end
 if normalizedLength
     Mmat = subs(Mmat,l0,1);
     bvec = subs(bvec,l0,1);
+    bvec = bvec + [0;-u;u];
     
     if write2File
     cd ./autoGen
-    variableVector = [l, theta, phi, ld, thetad, phid,g,k, mf, rc, I];
+    variableVector = [l, theta, phi, ld, thetad, phid, u,g,k, mf, rc, I];
     matlabFunction(Mmat,'File','inertiaMatrix','Vars',variableVector);
     matlabFunction(bvec,'File','nonInertiaTerms','Vars',variableVector);
     cd ../

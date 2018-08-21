@@ -1,4 +1,4 @@
-function dx = dymModelStanceSLIPPendulum(t, x, parms)
+function dx = dymModelStanceSLIPPendulum(t, x, u0, parms)
 % Get parameters
 g = parms.g;
 k = parms.k;
@@ -13,8 +13,18 @@ thetad = x(4);
 phi = x(5);
 phid = x(6);
 
-Mmat = inertiaMatrix(l,theta,phi,ld,thetad,phid,g,k,mf,rc,I);
-bvec = nonInertiaTerms(l,theta,phi,ld,thetad,phid,g,k,mf,rc,I);
+if strcmp(parms.controlMode,'pControl')
+tau = -parms.controlGain*(phid-u0);
+elseif strcmp(parms.controlMode,'constantTorque')
+tau = u0;
+elseif strcmp(parms.controlMode,'noTorque')
+tau = 0;
+else
+error('unknown controlMode of pendulum')
+end
+
+Mmat = inertiaMatrix(l,theta,phi,ld,thetad,phid, tau,g,k,mf,rc,I);
+bvec = nonInertiaTerms(l,theta,phi,ld,thetad,phid, tau,g,k,mf,rc,I);
 
 xdd = Mmat\bvec;
 

@@ -1,6 +1,10 @@
-function optParms = fixedPointFinderOptionsSLIPPER(gVec,betaVec, mf, rc, I, optParms)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+function optParms = fixedPointFinderOptionsSLIPPER(gVec, betaVec, mf, rc, I, optParms)
+%FIXEDPOINTFINDEROPTIONSSLIPPER Generate the struct of optimization parameters
+%   Generate the struc of parameter set for the SLIPPER fixed-point finder 
+%   based on user-defined data.
+%
+
+
 %% User-defined Options
 
 optParms.useTicToc = true; % true for show calculation time
@@ -27,7 +31,7 @@ elseif length(betaVec) == 1 && length(gVec) == 1
     optParms.searchingVarLength = 1;
     optParms.g = gVec;
     optParms.beta = betaVec;
-    optParms.searchingVar = 'none'; % !!!!!!!!!!!!!!!!!!!!>>>>>>>>>>>>>>>>
+    optParms.searchingVar = 'none';
 else
     error('dimension error: only gVec or betaVec can be a vector!');
 end
@@ -37,4 +41,3 @@ optParms.mf = mf;
 optParms.I = I;
 
 end
-

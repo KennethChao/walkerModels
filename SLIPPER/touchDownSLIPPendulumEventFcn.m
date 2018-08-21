@@ -3,8 +3,8 @@ function [position, isterminal, direction] = touchDownSLIPPendulumEventFcn(t, x,
 beta = parms.beta;
 mf = parms.mf;
 rc = parms.rc;
-rc2w = 1/(1+mf);
-yw = x(1) + rc*rc2w*cos(x(3));
+rc2w = 1 / (1 + mf);
+yw = x(1) + rc * rc2w * cos(x(3));
 
 position = yw - sin(beta); % The value that we want to be zero
 isterminal = 1; % Halt integration

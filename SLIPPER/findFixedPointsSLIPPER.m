@@ -1,13 +1,21 @@
 function result = findFixedPointsSLIPPER(optParms)
-%UNTITLED6 Summary of this function goes here
-%   Detailed explanation goes here
+%FINDFIXEDPOINTSSLIPPER Main function for finding SLIPPER fixed points
+%   A unconstrained nonlinear optimization is formulated to derive the 
+%   fixed points of SLIPPER (SLIP with PEndulum Runner).
+%
+%   This function use the parfor (line 25) to speed up the calculation,
+%   which requires the Parallel Computing Toolbox. To check whether the
+%   toolbox is installed or not, run 'ver('distcomp')' in command line.
+%   If the toolbox is not installed, please change 'parfor' to 'for' to 
+%   run this function.
+%
 
 %% Build buffers
 [meshgridK, meshgridDelta] = createMeshGrid(optParms);
-[stablePhi, unstablePhi, stableData, unstableData,stableDataBuf,unstableDataBuf] = createDataBuffer(optParms);
+[stablePhi, unstablePhi, stableData, unstableData, stableDataBuf, unstableDataBuf] = createDataBuffer(optParms);
 
 %% Opt solver option
-optionsFminunc = optimset('Display', 'off', 'FinDiffType', 'central', 'MaxIter', 4e2,  'TolFun', 1e-12, 'TolX', 1e-12);
+optionsFminunc = optimset('Display', 'off', 'FinDiffType', 'central', 'MaxIter', 4e2, 'TolFun', 1e-9, 'TolX', 1e-9);
 
 %% Find fixed points
 if optParms.useTicToc
@@ -16,8 +24,8 @@ end
 
 for k = 1:optParms.searchingVarLength
     
-    stablePhiStackBuf = nan(2, optParms.sampledNumberDelta, optParms.sampledNumberK);
-    unstablePhiStackBuf = nan(2, optParms.sampledNumberDelta, optParms.sampledNumberK);
+    stablePhiStackBuf = nan(optParms.freeVariableNumber, optParms.sampledNumberDelta, optParms.sampledNumberK);
+    unstablePhiStackBuf = nan(optParms.freeVariableNumber, optParms.sampledNumberDelta, optParms.sampledNumberK);
     
     for i = 1:optParms.sampledNumberK
         
@@ -31,12 +39,18 @@ for k = 1:optParms.searchingVarLength
             parms.rc = optParms.rc;
             parms.I = optParms.I;
             
-            parms.optWeighting = optParms.optWeighting;   
+            parms.controlMode = optParms.controlMode;
+            parms.controlGain = optParms.controlGain;
+            
+            parms.optWeighting = optParms.optWeighting;
             
             parms.delta0 = meshgridDelta(j, i);
+
+            % Initial guess of free variables
             phi0 = 0;
             phid0 = 0;
-            x0 = [phi0; phid0];
+            u0 = 0;
+            x0 = [phi0; phid0; u0];            
             
             parms.mode = 'fixedPointOpt';
             [sol, fval, exitflag, ~] = fminunc(@(x)oneStepSimulationSLIPPER(x, parms), x0, optionsFminunc);
@@ -46,9 +60,9 @@ for k = 1:optParms.searchingVarLength
                 parms.mode = 'simulationCheck';
                 simResult = oneStepSimulationSLIPPER(sol, parms);
                 
-                if ~isempty(simResult.te2) && ~isempty(simResult.te) && (simResult.te/(simResult.te2 + simResult.te)) > 0.25
-                    fprintf('suceed! %dth phi and %dth phid\n', i, j)
-                  
+                if ~isempty(simResult.te2) && ~isempty(simResult.te) && (simResult.te / (simResult.te2 + simResult.te)) > 0.25
+                    fprintf('suceed! %dth k and %dth delta\n', i, j)
+                    
                     
                     parms.mode = 'perturbedSimulation';
                     map = oneStepSimulationSLIPPER(sol, parms);
@@ -57,28 +71,32 @@ for k = 1:optParms.searchingVarLength
                         stablePhiStackBuf(:, j, i) = sol;
                         stableDataBuf(j, i).fval = fval;
                         stableDataBuf(j, i).maxAbsEigenValue = max(abs(eigenValue));
-                        stableDataBuf(j, i).dutyFactor = simResult.te/(simResult.te+simResult.te2);
+                        stableDataBuf(j, i).dutyFactor = simResult.te / (simResult.te + simResult.te2);
+                        stableDataBuf(j, i).runningFreqeuncy = 1 / (simResult.te + simResult.te2);
+                        stableDataBuf(j, i).constantTorque = sol(3);
                         
-                        springForce = -parms.k*(simResult.x(:,1)-1);
-                        springVelocity = simResult.x(:,2);
+                        springForce = -parms.k * (simResult.x(:, 1) - 1);
+                        springVelocity = simResult.x(:, 2);
                         stableDataBuf(j, i).netWork = sum(springForce.*springVelocity*0.01);
                     else
                         unstablePhiStackBuf(:, j, i) = sol;
                         unstableDataBuf(j, i).fval = fval;
                         unstableDataBuf(j, i).maxAbsEigenValue = max(abs(eigenValue));
-                        unstableDataBuf(j, i).dutyFactor = simResult.te/(simResult.te+simResult.te2);
+                        unstableDataBuf(j, i).dutyFactor = simResult.te / (simResult.te + simResult.te2);
+                        unstableDataBuf(j, i).runningFreqeuncy = 1 / (simResult.te + simResult.te2);
+                        unstableDataBuf(j, i).constantTorque = sol(3)
                         
-                        springForce = -parms.k*(simResult.x(:,1)-1);
-                        springVelocity = simResult.x(:,2);
-                        unstableDataBuf(j, i).netWork = sum(springForce.*springVelocity*0.01);                        
+                        springForce = -parms.k * (simResult.x(:, 1) - 1);
+                        springVelocity = simResult.x(:, 2);
+                        unstableDataBuf(j, i).netWork = sum(springForce.*springVelocity*0.01);
                     end
                     
                 else
-%                     fprintf('failed! %dth phi and %dth phid\n', i, j)
+                                        fprintf('failed! %dth k and %dth delta\n', i, j)
                 end
                 
             else
-%                 fprintf('failed! %dth phi and %dth phid\n', i, j)
+                                fprintf('failed! %dth k and %dth delta\n', i, j)
             end
         end
     end

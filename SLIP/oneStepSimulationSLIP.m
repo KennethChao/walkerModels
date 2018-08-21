@@ -13,7 +13,7 @@ delta = delta0;
     dymFlight = @(t, a) dymModelFlightDimensionless(t, a, parms);
 
 
-if strcmp(mode, 'fixedPointOpt')
+if strcmp(mode, 'fixedPointOpt') || strcmp(mode, 'checkDutyFactor')
     iterNumb = 1;
 elseif strcmp(mode, 'perturbedSimulation')
     perturbation = 1e-3;
@@ -78,9 +78,13 @@ if strcmp(mode, 'fixedPointOpt')
     diffDelta = deltaNew - delta;
     diffBeta = 1 - norm(velVec);
     result = (diffDelta)^2 + (diffBeta)^2;
+elseif strcmp(mode, 'checkDutyFactor')
+    result = te/(te+te2);
 elseif strcmp(mode, 'perturbedSimulation')
     % Return second eigen value
     result = (deltaNewPlus - deltaNewMinus) / 2 / perturbation;
+else
+    error('unknown oneStepSimulation mode')
 end
 
 end

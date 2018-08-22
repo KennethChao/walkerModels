@@ -1,8 +1,6 @@
 function trauncatedFixedPoints = removeRepeatedFixedPointsSLIP(fixedPoints)
-% ToDo summary, explanation of parameters
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
-
+%REMOVEREPEATEDFIXEDPOINTSSLIP Remove repeated fixed points from data
+%   
     % Initialize 2D array "trauncatedFixedPoints"
     samplingNumbDelta = size(fixedPoints, 1);
     samplingNumbK = size(fixedPoints, 2);

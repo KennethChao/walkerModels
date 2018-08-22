@@ -9,7 +9,6 @@ addpath('./dynamics/autoGen');
 addpath('./helperFunctions');
 
 %ToDo
-% Test codes again for checking addpath
 
 %% Model parameters
 % Beta (radius!!!) and dimensionless g

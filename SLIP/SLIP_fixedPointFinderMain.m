@@ -14,36 +14,41 @@ clc;
 clear;
 
 %ToDo
-
-%comment
-% oneStepSimulationSLIP done
-% add reference
-% complete:
-%   showAllFixedPoints
-%   plotAllFixedPoints
+% save images
+% fast running for fixed beta, varying tilde g
 
 tic
 %% Model parameters
 % Beta (radius!!!) and dimensionless g
 % Either betaVec or gVec can be a vector.
 
-gVec = [0.12 0.20 0.28 0.36 0.44];
-betaVec = 72/ 180*pi;
+% Parameter set for SLIP vs. SLIPPER comparison
+% gVec = [0.12 0.20 0.28 0.36 0.44];
+% betaVec = 72/ 180*pi;
 
+% Parameter set for SLIP vs. SLIPPER comparison
 % betaVec = (66:2:74) / 180 * pi;
 % gVec = 0.2;
 
-
-
-% betaVec = (70:2:76) / 180 * pi
-% gVec = 0.05;
-
-% betaVec = linspace(66,74,5)/180*pi
-% gVec = 0.025;
-
+% Parameter set for result validation with reference
+% betaVec = (66:2:74) / 180 * pi;
 % gVec = 0.46;
-% gVec = [0.025 0.05 0.1 0.21 0.46 0.66]
 
+% Parameter set for result validation with reference
+% betaVec = 72 / 180 * pi;
+% gVec = [0.21, 0.46, 0.66, 0.86, 1.11, 1.31, 1.51];
+
+% Parameter set for fast running 1) 
+betaVec = (66:2:74) / 180 * pi;
+gVec = 0.1; % 22.16 mph
+
+% Parameter set for fast running 2) 
+% betaVec = (66:2:74) / 180 * pi;
+% gVec = 0.05; % 31.33 mph
+
+% Parameter set for fast running 3) 
+% betaVec = (66:2:74) / 180 * pi;
+% gVec = 0.025; % 44.31 mph
 
 % mph2msVec = (1:5)*4.4704; % g from 10 to 50 mph
 % gVec = 9.81./(mph2msVec.^2)
@@ -51,19 +56,19 @@ betaVec = 72/ 180*pi;
 
 %% User option
 % If true, the result will only collect the fixed-points with duty factor>0.25
-optParms.checkDutyFactor = true;
+optParms.checkDutyFactor = false;
 
 %% Sampling number and range
 % Range of dimensionless stiffness
-optParms.kMin = 1;
-optParms.kMax = 25;
+optParms.kMin = 0;
+optParms.kMax = 20;
 
 % Range of COM velocity direction (radius)
 optParms.deltaMin = 0;
-optParms.deltaMax = 1.1;
+optParms.deltaMax = 0.6;
 
 % Sampling number
-optParms.samplingNumbK = optParms.kMax * 2;
+optParms.samplingNumbK = optParms.kMax * 3;
 optParms.samplingNumbDelta = 6;
 
 % Range of parameters for plotting
@@ -103,8 +108,8 @@ end
 stableSolution = nan * zeros(optParms.samplingNumbDelta, optParms.samplingNumbK, optParms.searchingVarLength);
 unstableSolution = nan * zeros(optParms.samplingNumbDelta, optParms.samplingNumbK, optParms.searchingVarLength);
 
-stableSolutionAbsEigenValue = nan * zeros(optParms.samplingNumbDelta, optParms.samplingNumbK, optParms.searchingVarLength);
-unstableSolutionAbsEigenValue = nan * zeros(optParms.samplingNumbDelta, optParms.samplingNumbK, optParms.searchingVarLength);
+stableSolutionEigenValue = nan * zeros(optParms.samplingNumbDelta, optParms.samplingNumbK, optParms.searchingVarLength);
+unstableSolutionEigenValue = nan * zeros(optParms.samplingNumbDelta, optParms.samplingNumbK, optParms.searchingVarLength);
 
 %% Parameter check
 if sum(optParms.deltaVec > pi/2) > 0 || sum(optParms.deltaVec < 0) > 0
@@ -145,10 +150,10 @@ for k = 1:optParms.searchingVarLength
                         
                         if abs(eigenValue) < 1.0
                             stableSolutionBuffer(j, i) = x;
-                            stableSolutionAbsEigenValueBuffer(j, i) = abs(eigenValue);
+                            stableSolutionAbsEigenValueBuffer(j, i) = eigenValue;
                         else
                             unstableSolutionBuffer(j, i) = x;
-                            unstableSolutionAbsEigenValueBuffer(j, i) = abs(eigenValue);
+                            unstableSolutionAbsEigenValueBuffer(j, i) = eigenValue;
                         end
                     end
                 else
@@ -158,10 +163,10 @@ for k = 1:optParms.searchingVarLength
                     
                     if abs(eigenValue) < 1.0
                         stableSolutionBuffer(j, i) = x;
-                        stableSolutionAbsEigenValueBuffer(j, i) = abs(eigenValue);
+                        stableSolutionAbsEigenValueBuffer(j, i) = eigenValue;
                     else
                         unstableSolutionBuffer(j, i) = x;
-                        unstableSolutionAbsEigenValueBuffer(j, i) = abs(eigenValue);
+                        unstableSolutionAbsEigenValueBuffer(j, i) = eigenValue;
                     end
                 end
             end
@@ -172,15 +177,15 @@ for k = 1:optParms.searchingVarLength
     % Store the result from buffer (used for parfor parellel computing)
     stableSolution(:, :, k) = stableSolutionBuffer;
     unstableSolution(:, :, k) = unstableSolutionBuffer;
-    stableSolutionAbsEigenValue(:, :, k) = stableSolutionAbsEigenValueBuffer;
-    unstableSolutionAbsEigenValue(:, :, k) = unstableSolutionAbsEigenValueBuffer;
+    stableSolutionEigenValue(:, :, k) = stableSolutionAbsEigenValueBuffer;
+    unstableSolutionEigenValue(:, :, k) = unstableSolutionAbsEigenValueBuffer;
 end
 
 % Store all the results to a struct
 result.stableSolution = stableSolution;
 result.unstableSolution = unstableSolution;
-result.stableData = stableSolutionAbsEigenValue;
-result.unstableData = unstableSolutionAbsEigenValue;
+result.stableData = stableSolutionEigenValue;
+result.unstableData = unstableSolutionEigenValue;
 
 toc
 

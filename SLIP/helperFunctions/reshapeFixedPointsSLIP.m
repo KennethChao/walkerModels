@@ -1,6 +1,7 @@
 function reshapedFixedPoints  = reshapeFixedPointsSLIP(stableFixedPoints,unstableFixedPoints,kVec,deltaMax,startingPointOption)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+%RESHAPEFIXEDPOINTSSLIP Sorting the data based on the speicified starting
+% point option
+%  
     
 
 
@@ -48,7 +49,7 @@ function reshapedFixedPoints  = reshapeFixedPointsSLIP(stableFixedPoints,unstabl
         end
         [~,normIndex] = min(bufferDataNorm);
     
-        reshapedFixedPoints(:,i+1) = bufferData(:,normIndex)
+        reshapedFixedPoints(:,i+1) = bufferData(:,normIndex);
         bufferData(:,normIndex) = [];   
     end
 

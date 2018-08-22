@@ -1,3 +1,4 @@
+
 function result = oneStepSimulationSLIP(delta0, parms)
 %ONESTEPSIMULATIONSLIP run a one step simulation of SLIP
 %   With an initial condition 'delta0' and parameter set 'parms', run a one
@@ -12,8 +13,8 @@ function result = oneStepSimulationSLIP(delta0, parms)
 %   For more information, please check the reference.
 %
 %   Reference:
-%   Shen Z, Seipel J. A Piecewise-Linear Approximation of the Canonical 
-%   Spring-Loaded Inverted Pendulum Model of Legged Locomotion. ASME. J. 
+%   Shen Z, Seipel J. "A Piecewise-Linear Approximation of the Canonical 
+%   Spring-Loaded Inverted Pendulum Model of Legged Locomotion.", ASME. J. 
 %   Comput. Nonlinear Dynam., 2016.
 %   
 

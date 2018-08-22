@@ -8,9 +8,8 @@ unconstrained nonlinear optimization to minimize the cost associated with the pe
 - __showPhasePortraitSLIPPER.m__: The script to show how to  plot phase portrait of the set of stable fixed points using helper functions.
 - __showAnimationSLIPPER.m__: The script to show animation of the selected stable fixed point, and generate the animated gif file.
 - Note: All the kinematic and dynamic variables (except variables related to angle) used in SLIPPER Fixed-Point Finder are dimensionless, i.e. the legnth is scaled by the unstretched leg length 'l_0', and the mass is scaled by body mass. For more information please refer to:
-Reference:
-   Shen Z, Seipel J. A Piecewise-Linear Approximation of the Canonical 
-   Spring-Loaded Inverted Pendulum Model of Legged Locomotion. ASME. J. 
+   Shen Z, Seipel J. "A Piecewise-Linear Approximation of the Canonical 
+   Spring-Loaded Inverted Pendulum Model of Legged Locomotion.", ASME. J. 
    Comput. Nonlinear Dynam., 2016.
 
 ## Dependencies

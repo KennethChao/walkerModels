@@ -14,7 +14,6 @@ clc;
 clear;
 
 %ToDo
-% SLIP_fixedPointFinderMain comment done.
 
 %comment
 % oneStepSimulationSLIP done
@@ -27,6 +26,7 @@ tic
 %% Model parameters
 % Beta (radius!!!) and dimensionless g
 % Either betaVec or gVec can be a vector.
+
 gVec = [0.12 0.20 0.28 0.36 0.44];
 betaVec = 72/ 180*pi;
 

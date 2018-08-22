@@ -9,11 +9,7 @@ addpath('./dynamics/autoGen');
 addpath('./helperFunctions');
 
 %ToDo
-% Fixed text in showPP
-% Test codes again
-
-% extract optParms
-% try constrained optimization (maybe not)
+% Test codes again for checking addpath
 
 %% Model parameters
 % Beta (radius!!!) and dimensionless g
@@ -27,8 +23,8 @@ I = (1 + mf) * 0.18^2;
 
 %% Fixed-point Finder Setup
 % Range of dimensionless stiffness
-optParms.kMin = 7;
-optParms.kMax = 12;
+optParms.kMin = 11;
+optParms.kMax = 19;
 
 % Range of COM velocity direction (radius)
 optParms.deltaMin = 0;

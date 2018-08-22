@@ -25,22 +25,22 @@ switch phasePortraitType
     
     case 'phasePotrait_zf'
         plot(zfVec, zfdVec, 'linewidth', 1.2, 'color', c(a, :));
-        xlabel('z')
-        ylabel('\dot z')
+        xlabel('$z_f$', 'Interpreter', 'latex')
+        ylabel('$\dot{z}_f$', 'Interpreter', 'latex')
     case 'phasePotrait_phi'
         plot(phiVec, phidVec, 'linewidth', 1.2, 'color', c(a, :))
-        xlabel('\phi')
-        ylabel('\phi dot')
+        xlabel('$\phi$', 'Interpreter', 'latex')
+        ylabel('$\dot{\phi}$', 'Interpreter', 'latex')
     case 'phasePotrait_phiVec&zf'
         plot3(phiVec, phidVec, zfVec, 'linewidth', 1.2, 'color', c(a, :))
-        xlabel('\phi')
-        ylabel('\phi dot')
-        zlabel('z')
+        xlabel('$\phi$', 'Interpreter', 'latex')
+        ylabel('$\dot{\phi}$', 'Interpreter', 'latex')
+        zlabel('$z_f$', 'Interpreter', 'latex')
     case 'phasePotrait_zVec&phi'
         plot3(zfVec, zfdVec, phiVec, 'linewidth', 1.2, 'color', c(a, :)) %,
-        xlabel('z')
-        ylabel('\dot z')
-        zlabel('phi')
+        xlabel('$z_f$', 'Interpreter', 'latex')
+        ylabel('$\dot{z}_f$', 'Interpreter', 'latex')
+        zlabel('$\phi$', 'Interpreter', 'latex')
 end
 
 end

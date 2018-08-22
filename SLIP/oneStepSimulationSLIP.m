@@ -11,7 +11,10 @@ function result = oneStepSimulationSLIP(delta0, parms)
 %   The model and the initial conditions are extended from the SLIP simulation.
 %   For more information, please check the reference.
 %
-%   Reference
+%   Reference:
+%   Shen Z, Seipel J. A Piecewise-Linear Approximation of the Canonical 
+%   Spring-Loaded Inverted Pendulum Model of Legged Locomotion. ASME. J. 
+%   Comput. Nonlinear Dynam., 2016.
 %   
 
 mode = parms.mode;

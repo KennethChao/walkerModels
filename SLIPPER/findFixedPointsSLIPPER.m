@@ -29,7 +29,7 @@ for k = 1:optParms.searchingVarLength
     
     for i = 1:optParms.sampledNumberK
         
-        for j = 1:optParms.sampledNumberDelta
+        parfor j = 1:optParms.sampledNumberDelta
             parms = {};
             parms.g = optParms.g(k);
             parms.beta = optParms.beta(k);

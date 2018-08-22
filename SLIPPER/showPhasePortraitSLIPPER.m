@@ -18,6 +18,8 @@
 addpath('./result')
 addpath('./result/SLIPPER_PControl')
 addpath('./helperFunctions')
+addpath('./dynamics/autoGen');
+
 close all;
 clc;
 clear;

@@ -82,10 +82,10 @@ for k = 1:1 %1:optParms.searchingVarLength
         ret = oneStepSimulationSLIPPER(x, parms);
         
         
-        %       plotPhasePortraitSLIPPER('phasePotrait_phi',ret,resultBuf(stableIndex),parms,plotParms);
-        %       plotPhasePortraitSLIPPER('phasePotrait_zf',ret,resultBuf(stableIndex),parms,plotParms);
-        %       plotPhasePortraitSLIPPER('phasePotrait_phiVec&zf', ret, resultBuf(stableIndex), parms, plotParms);
-        plotPhasePortraitSLIPPER('phasePotrait_zVec&phi', ret, resultBuf(stableIndex), parms, plotParms);
+        %       plotPhasePortraitsSLIPPER('phasePotrait_phi',ret,resultBuf(stableIndex),parms,plotParms);
+        %       plotPhasePortraitsSLIPPER('phasePotrait_zf',ret,resultBuf(stableIndex),parms,plotParms);
+        %       plotPhasePortraitsSLIPPER('phasePotrait_phiVec&zf', ret, resultBuf(stableIndex), parms, plotParms);
+        plotPhasePortraitsSLIPPER('phasePotrait_zVec&phi', ret, resultBuf(stableIndex), parms, plotParms);
         
         hold on
         grid on

@@ -1,4 +1,4 @@
-function trauncatedFixedPoints = removeRepeatedFixedPoints(fixedPoints)
+function trauncatedFixedPoints = removeRepeatedFixedPointsSLIP(fixedPoints)
 % ToDo summary, explanation of parameters
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here

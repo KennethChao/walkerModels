@@ -1,20 +1,19 @@
 function result = findFixedPointsSLIPPER(optParms)
 %FINDFIXEDPOINTSSLIPPER Main function for finding SLIPPER fixed points
-%   A unconstrained nonlinear optimization is formulated to derive the 
+%   A unconstrained nonlinear optimization is formulated to derive the
 %   fixed points of SLIPPER (SLIP with PEndulum Runner).
 %
 %   This function use the parfor (line 25) to speed up the calculation,
 %   which requires the Parallel Computing Toolbox. To check whether the
 %   toolbox is installed or not, run 'ver('distcomp')' in command line.
-%   If the toolbox is not installed, please change 'parfor' to 'for' to 
+%   If the toolbox is not installed, please change 'parfor' to 'for' to
 %   run this function.
 %
 
 %% Build buffers
 [meshgridK, meshgridDelta] = createMeshGridSLIPPER(optParms);
 [stablePhi, unstablePhi, stableData, unstableData, stableDataBuf, unstableDataBuf] ...
-                           = createDataBufferSLIPPER(optParms);
-
+    = createDataBufferSLIPPER(optParms);
 %% Opt solver option
 optionsFminunc = optimset('Display', 'off', 'FinDiffType', 'central', 'MaxIter', 4e2, 'TolFun', 1e-9, 'TolX', 1e-9);
 
@@ -46,18 +45,18 @@ for k = 1:optParms.searchingVarLength
             parms.optWeighting = optParms.optWeighting;
             
             parms.delta0 = meshgridDelta(j, i);
-
+            
             % Initial guess of free variables
             phi0 = 0;
             phid0 = 0;
             u0 = 0;
-            x0 = [phi0; phid0; u0];            
+            x0 = [phi0; phid0; u0];
             
-            % Solve the unconstrained optimization            
+            % Solve the unconstrained optimization
             parms.mode = 'fixedPointOpt';
             [sol, fval, exitflag, ~] = fminunc(@(x)oneStepSimulationSLIPPER(x, parms), x0, optionsFminunc);
             
-            % Accept solution with positive exitflag (likely to be local 
+            % Accept solution with positive exitflag (likely to be local
             % minimum) within cost tolerence
             if exitflag > 0 && fval < optParms.costTolerence
                 

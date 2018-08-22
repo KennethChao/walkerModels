@@ -1,4 +1,4 @@
-% This is the script to plot fixed-point set of SLIPPER
+% This is the script to plot stable fixed-point set of SLIPPER
 % (for comparison between SLIP and SLIPPER)
 %
 % In the SLIPPER model, an inertia and a p control for phi dot are
@@ -7,6 +7,10 @@
 
 addpath('./result/SLIPPER_PControl')
 addpath('./helperFunctions')
+
+addpath('../SLIP/result/Comparison')
+addpath('../SLIP/helperFunctions')
+
 close all
 
 %% Delta-dimensiolness k plot: Fixed beta, varying dimensionless g
@@ -23,6 +27,8 @@ plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_081918_1321', colorData
 plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_081918_1313', colorData, scaleByTotalMass);
 plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_081918_1306', colorData, scaleByTotalMass);
 plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_081918_1332', colorData, scaleByTotalMass);
+
+plotStableFixedPointsSLIP('fixedPointData_Varing_g_dutyFactorChecked_082118_1954');
 
 axis([5, 20, 0, 0.3])
 daspect([30, 1, 1])
@@ -83,12 +89,13 @@ hold on
 colorData = 'maxAbsEigenValue';
 scaleByTotalMass = true;
 
-
 plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082018_2202', colorData, scaleByTotalMass);
 plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_081918_1321', colorData, scaleByTotalMass);
 plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082018_2212', colorData, scaleByTotalMass);
 plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082018_2218', colorData, scaleByTotalMass);
 plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082018_2222', colorData, scaleByTotalMass);
+
+plotStableFixedPointsSLIP('fixedPointData_Varing_beta_dutyFactorChecked_082118_1901');
 
 axis([5, 20, 0, 0.3])
 daspect([30, 1, 1])

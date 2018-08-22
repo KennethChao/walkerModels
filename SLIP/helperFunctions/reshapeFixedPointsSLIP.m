@@ -1,4 +1,4 @@
-function reshapedFixedPoints  = reshapeFixedPoints(stableFixedPoints,unstableFixedPoints,kVec,deltaMax,startingPointOption)
+function reshapedFixedPoints  = reshapeFixedPointsSLIP(stableFixedPoints,unstableFixedPoints,kVec,deltaMax,startingPointOption)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
     

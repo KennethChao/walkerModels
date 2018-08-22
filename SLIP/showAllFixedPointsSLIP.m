@@ -1,5 +1,3 @@
-close all;
-clc;
 
 
 %%
@@ -8,12 +6,17 @@ clc;
 % 'DefaultAxesFontName','Liberation Serif','DefaultAxesFontSize',18,...
 % 'DefaultLineLineWidth',1,'DefaultLineMarkerSize',7.75)
 
-if strcmp(    storedQuantity,'delta')
-    axis([kMinFig, kMaxFig, deltaMinFig, deltaMaxFig])
-elseif( strcmp(    storedQuantity,'lambda'))
-    axis([kMinFig, kMaxFig, -1.5, 2.5])
-end
-hold on
+% if strcmp(    storedQuantity,'delta')
+%     axis([kMinFig, kMaxFig, deltaMinFig, deltaMaxFig])
+% elseif( strcmp(    storedQuantity,'lambda'))
+%     axis([kMinFig, kMaxFig, -1.5, 2.5])
+% end
+
+% Load data
+data = load(filename);
+optParms = data.optParms;
+disp(optParms);
+result = data.result;
 
 for k = 1:5
     

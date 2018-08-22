@@ -1,5 +1,6 @@
 % This is the script to show the animation for a (stable) fixed-point.
-% Currently this code only support single beta and signle g.
+% Currently this code only support single beta and signle g (user need to 
+% specify the k at line 18 for different beta or g values).
 % 
 
 addpath('./result')

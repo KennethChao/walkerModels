@@ -1,17 +1,16 @@
+% The main script to find the fixed-points at the Poincare section for the
+% SLIPPER model with the speicifed parameters.
+%
+
 clc;
 clear;
 close all;
 addpath('./dynamics/autoGen');
 addpath('./helperFunctions');
 
-%%
-
 %ToDo
 % Fixed text in showPP
 % Test codes again
-
-% Comment code
-%       showAnimationSLIPPER. created.
 
 % extract optParms
 % try constrained optimization (maybe not)
@@ -31,7 +30,7 @@ I = (1 + mf) * 0.18^2;
 optParms.kMin = 7;
 optParms.kMax = 12;
 
-% Range of COM velocity direction
+% Range of COM velocity direction (radius)
 optParms.deltaMin = 0;
 optParms.deltaMax = 0.3;
 

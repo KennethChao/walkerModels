@@ -1,6 +1,9 @@
 function [x, xd, z, zd] = polar2CartesianSLIP(l, ld, theta, thetad)
-%POLAR2CARTESIANSLIP Summary of this function goes here
-%   Detailed explanation goes here
+%POLAR2CARTESIANSLIP function to convert motion from polar cooridnate to
+% Cartesian space
+%   Covert the COM motions in terms of (l, ld, theta, thetad) to
+%   (x, xd, z, zd).
+
 z = l .* sin(theta);
 zd = ld .* sin(theta) + l .* thetad .* cos(theta);
 x = -l * cos(theta);

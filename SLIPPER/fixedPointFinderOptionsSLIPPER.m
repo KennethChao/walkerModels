@@ -15,7 +15,7 @@ optParms.kMaxPlot = optParms.kMax;
 optParms.deltaMinPlot = optParms.deltaMin;
 optParms.deltaMaxPlot = optParms.deltaMax;
 
-%% Create parameter set for fixed-point search
+%% Create parameter set (g & beta) for fixed-point search
 
 if length(gVec) > 1 && length(betaVec) == 1
     optParms.searchingVarLength = length(gVec);

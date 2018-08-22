@@ -1,5 +1,4 @@
 function dx = dymModelStanceSLIPPER(t, x, u0, parms)
-
 % Get parameters
 g = parms.g;
 k = parms.k;

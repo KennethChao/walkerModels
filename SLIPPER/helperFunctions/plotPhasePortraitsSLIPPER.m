@@ -1,5 +1,8 @@
-function plotPhasePortraitSLIPPER(phasePortraitType, result, stableData, parms, plotParms)
-
+function plotPhasePortraitsSLIPPER(phasePortraitType, result, stableData, parms, plotParms)
+%PLOTPHASEPORTRAITSLIPPER helper function to plot phase portraits of stable fixed
+% points
+%   
+%  Plotting options are availble for various 2D or 3D phase portraits.
 %% Extract kinematic data from result
 kinematicData = extractKinematicDatafromResult(result, parms);
 

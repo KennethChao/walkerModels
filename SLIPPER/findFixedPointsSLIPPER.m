@@ -72,7 +72,8 @@ for k = 1:optParms.searchingVarLength
                     parms.mode = 'perturbedSimulation';
                     PoincareMap = oneStepSimulationSLIPPER(sol, parms);
                     eigenValue = eig(PoincareMap);
-                    if abs(eigenValue(1)) <= 1 && abs(eigenValue(2)) <= 1
+                    if abs(eigenValue(1)) <= 1 && abs(eigenValue(2)) <= 1 && abs(eigenValue(3)) <= 1
+                        disp('stable!!!')
                         stablePhiStackBuf(:, j, i) = sol;
                         stableDataBuf(j, i).fval = fval;
                         stableDataBuf(j, i).maxAbsEigenValue = max(abs(eigenValue));

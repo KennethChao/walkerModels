@@ -14,8 +14,6 @@ clc;
 clear;
 
 %ToDo
-% save images
-% fast running for fixed beta, varying tilde g
 
 tic
 %% Model parameters
@@ -27,8 +25,8 @@ tic
 % betaVec = 72/ 180*pi;
 
 % Parameter set for SLIP vs. SLIPPER comparison
-% betaVec = (66:2:74) / 180 * pi;
-% gVec = 0.2;
+betaVec = (66:2:74) / 180 * pi;
+gVec = 0.2;
 
 % Parameter set for result validation with reference
 % betaVec = (66:2:74) / 180 * pi;
@@ -39,8 +37,8 @@ tic
 % gVec = [0.21, 0.46, 0.66, 0.86, 1.11, 1.31, 1.51];
 
 % Parameter set for fast running 1) 
-betaVec = (66:2:74) / 180 * pi;
-gVec = 0.1; % 22.16 mph
+% betaVec = (66:2:74) / 180 * pi;
+% gVec = 0.1; % 22.16 mph
 
 % Parameter set for fast running 2) 
 % betaVec = (66:2:74) / 180 * pi;
@@ -50,7 +48,8 @@ gVec = 0.1; % 22.16 mph
 % betaVec = (66:2:74) / 180 * pi;
 % gVec = 0.025; % 44.31 mph
 
-% mph2msVec = (1:5)*4.4704; % g from 10 to 50 mph
+% Parameter set for fast running 3) 
+% mph2msVec = (1:3)*4.4704; % g from 20 to 40 mph
 % gVec = 9.81./(mph2msVec.^2)
 % betaVec = 72/ 180 * pi;
 
@@ -60,12 +59,12 @@ optParms.checkDutyFactor = false;
 
 %% Sampling number and range
 % Range of dimensionless stiffness
-optParms.kMin = 0;
-optParms.kMax = 20;
+optParms.kMin = 1;
+optParms.kMax = 25;
 
 % Range of COM velocity direction (radius)
 optParms.deltaMin = 0;
-optParms.deltaMax = 0.6;
+optParms.deltaMax = 1.2;
 
 % Sampling number
 optParms.samplingNumbK = optParms.kMax * 3;

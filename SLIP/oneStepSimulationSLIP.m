@@ -33,7 +33,7 @@ dymFlight = @(t, a) dymModelFlightDimensionless(t, a, parms);
 if strcmp(mode, 'fixedPointOpt') || strcmp(mode, 'checkDutyFactor')
     iterNumb = 1;
 elseif strcmp(mode, 'perturbedSimulation')
-    perturbation = 1e-3;
+    perturbation = 1e-4;
     iterNumb = 2;
 end
 

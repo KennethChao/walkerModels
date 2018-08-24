@@ -13,10 +13,10 @@ function result = oneStepSimulationSLIPPER(xVec, parms)
 
 %% Extract the initial conditions and parameters
 % initial conditions
-phi0 = xVec(1);
-phid0 = xVec(2);
-u0 = xVec(3);
-delta0 = parms.delta0;
+phiInitialGuess = xVec(1);
+phidInitialGuess = xVec(2);
+uInitiailGuess = xVec(3);
+deltaGirdPoint = parms.delta0;
 
 % parameters
 beta = parms.beta;
@@ -24,14 +24,16 @@ rc = parms.rc;
 mf = parms.mf;
 optWeighting = parms.optWeighting;
 
-delta = delta0;
+delta = deltaGirdPoint;
+phi0 = phiInitialGuess;
+phid0 = phidInitialGuess;
 mode = parms.mode;
 
 %% Solver setup
 
 % ode45 solver option
 optionsStance = odeset('Event', @eventFcnLiftOffSLIPPER, 'AbsTol', 1e-9, 'RelTol', 1.e-8);
-dymStance = @(t, x) dymModelStanceSLIPPER(t, x, u0, parms);
+dymStance = @(t, x) dymModelStanceSLIPPER(t, x, uInitiailGuess, parms);
 optionsFlight = odeset('Event', @(t, x)eventFncTouchDownSLIPPER(t, x, parms), 'AbsTol', 1e-9, 'RelTol', 1.e-8);
 dymFlight = @(t, a) dymModelFlightSLIPPER(t, a, parms);
 
@@ -42,7 +44,16 @@ elseif strcmp(mode, 'simulationCheck')
     iterationNumber = 1;
 elseif strcmp(mode, 'perturbedSimulation')
     perturbation = 5e-3;
-    iterationNumber = 4;
+    iterationNumber = 6;
+
+    perturbedDeltaPlus = deltaGirdPoint + perturbation;
+    perturbedDeltaMinus = deltaGirdPoint - perturbation;
+    
+    perturbedPhiPlus = phiInitialGuess + perturbation;
+    perturbedPhiMinus = phiInitialGuess - perturbation;
+    
+    perturbedPhidPlus = phidInitialGuess + perturbation;
+    perturbedPhidMinus = phidInitialGuess - perturbation;    
 end
 
 tspan = 0:0.01:20;
@@ -51,26 +62,31 @@ for i = 1:iterationNumber
     
     %% Update initial conditions
     normVel = 1;
-    
-    if i > 1
-        delta = deltaNew;
-        phi0 = x2(end, 3);
-        phid0 = x2(end, 4);
-    end
-    if strcmp(mode, 'perturbedSimulation') && i == iterationNumber
+
+    if strcmp(mode, 'perturbedSimulation') && i == 1
         delta = perturbedDeltaPlus;
-    elseif strcmp(mode, 'perturbedSimulation') && i == iterationNumber - 1
+        phi0 = phiInitialGuess;
+        phid0 = phidInitialGuess;
+    elseif strcmp(mode, 'perturbedSimulation') && i == 2
         delta = perturbedDeltaMinus;
-    elseif strcmp(mode, 'perturbedSimulation') && i == iterationNumber - 2
+        phi0 = phiInitialGuess;
+        phid0 = phidInitialGuess;        
+    elseif strcmp(mode, 'perturbedSimulation') && i == 3
+        delta = deltaGirdPoint;
         phi0 = perturbedPhiPlus;
-    elseif strcmp(mode, 'perturbedSimulation') && i == iterationNumber - 3
-        newDelta0 = delta0; 
-        perturbedDeltaPlus = newDelta0 + perturbation;
-        perturbedDeltaMinus = newDelta0 - perturbation;
-        newPhi0 = phi0;
-        perturbedPhiPlus = newPhi0 + perturbation;
-        perturbedPhiMinus = newPhi0 - perturbation;
+        phid0 = phidInitialGuess;                
+    elseif strcmp(mode, 'perturbedSimulation') && i == 4
+        delta = deltaGirdPoint;
         phi0 = perturbedPhiMinus;
+        phid0 = phidInitialGuess;  
+    elseif strcmp(mode, 'perturbedSimulation') && i == 5
+        delta = deltaGirdPoint;
+        phi0 = phiInitialGuess;
+        phid0 = perturbedPhidPlus;         
+    elseif strcmp(mode, 'perturbedSimulation') && i == 6
+        delta = deltaGirdPoint;
+        phi0 = phiInitialGuess;
+        phid0 = perturbedPhidMinus;          
     end
     
     %%  Simulation in stance phase
@@ -151,14 +167,18 @@ for i = 1:iterationNumber
     velVec = [xfdTD, -zfdTD];
     deltaNew = atan2(velVec(2), velVec(1));
     
-    if strcmp(mode, 'perturbedSimulation') && i == iterationNumber
-        deltaNewPlus = [deltaNew; x2(end, 3)];
-    elseif strcmp(mode, 'perturbedSimulation') && i == iterationNumber - 1
-        deltaNewMinus = [deltaNew; x2(end, 3)];
-    elseif strcmp(mode, 'perturbedSimulation') && i == iterationNumber - 2
-        phiNewPlus = [deltaNew; x2(end, 3)];
-    elseif strcmp(mode, 'perturbedSimulation') && i == iterationNumber - 3
-        phiNewMinus = [deltaNew; x2(end, 3)];
+    if strcmp(mode, 'perturbedSimulation') && i == 1
+        deltaNewPlus = [deltaNew; x2(end, 3); x2(end, 4)];
+    elseif strcmp(mode, 'perturbedSimulation') && i == 2
+        deltaNewMinus = [deltaNew; x2(end, 3); x2(end, 4)];
+    elseif strcmp(mode, 'perturbedSimulation') && i == 3
+        phiNewPlus = [deltaNew; x2(end, 3); x2(end, 4)];
+    elseif strcmp(mode, 'perturbedSimulation') && i == 4
+        phiNewMinus = [deltaNew; x2(end, 3); x2(end, 4)];
+    elseif strcmp(mode, 'perturbedSimulation') && i == 5
+        phidNewPlus = [deltaNew; x2(end, 3); x2(end, 4)];
+    elseif strcmp(mode, 'perturbedSimulation') && i == 6
+        phidNewMinus = [deltaNew; x2(end, 3); x2(end, 4)];
     end
     
 end
@@ -169,14 +189,15 @@ if strcmp(mode, 'fixedPointOpt')
     diffVel = 1 - norm(velVec);
     diffPhi = norm([phi0; phid0]-[phiTD; phidTD]);
     if strcmp(parms.controlMode, 'pControl') || strcmp(parms.controlMode, 'constantTorque')
-        result = optWeighting(1) * diffDelta^2 + optWeighting(2) * diffVel^2 + optWeighting(3) * diffPhi^2 + optWeighting(4) * u0^2;
+        result = optWeighting(1) * diffDelta^2 + optWeighting(2) * diffVel^2 + optWeighting(3) * diffPhi^2 + optWeighting(4) * uInitiailGuess^2;
     else
         result = optWeighting(1) * diffDelta^2 + optWeighting(2) * diffVel^2 + optWeighting(3) * diffPhi^2;
     end
 elseif strcmp(mode, 'perturbedSimulation')
     % Return Poincare Map
     result = [(deltaNewPlus - deltaNewMinus) / 2 / perturbation, ...
-        (phiNewPlus - phiNewMinus) / 2 / perturbation; ...
+                  (phiNewPlus - phiNewMinus) / 2 / perturbation, ...
+                  (phidNewPlus - phidNewMinus) / 2 / perturbation
         ];
 elseif strcmp(mode, 'simulationCheck')
     % Return the struct of state and time data

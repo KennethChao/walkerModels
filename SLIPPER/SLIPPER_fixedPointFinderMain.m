@@ -9,10 +9,12 @@ addpath('./dynamics/autoGen');
 addpath('./helperFunctions');
 
 %ToDo
+% Control relative anguler velocities
+% Fixed animation leg color
 
 %% Model parameters
 % Beta (radius!!!) and dimensionless g
-betaVec = (72) / 180 * pi;
+betaVec = (66) / 180 * pi;
 gVec = 0.2;
 
 % Dimensionless frame mass mf, pendulum length rc, and inertia at COM I
@@ -22,8 +24,8 @@ I = (1 + mf) * 0.18^2;
 
 %% Fixed-point Finder Setup
 % Range of dimensionless stiffness
-optParms.kMin = 11;
-optParms.kMax = 19;
+optParms.kMin = 7;
+optParms.kMax = 11;
 
 % Range of COM velocity direction (radius)
 optParms.deltaMin = 0;

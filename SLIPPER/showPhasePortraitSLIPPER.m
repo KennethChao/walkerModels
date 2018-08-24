@@ -24,7 +24,7 @@ close all;
 clc;
 clear;
 
-data = load('fixedPointData_Varing_none_081918_1313.mat');
+data = load('fixedPointData_Varing_none_082218_1604.mat');
 optParms = data.optParms;
 disp(optParms);
 result = data.result;
@@ -37,21 +37,21 @@ for k = 1:1 %1:optParms.searchingVarLength
             resultBuf(j, i) = result.stableData(j, i, k).maxAbsEigenValue;
         end
     end
+    stableIndices = find(~isnan(resultBuf));
     
     for i = 1:optParms.sampledNumberK
         for j = 1:optParms.sampledNumberDelta
             resultBuf(j, i) = result.stableData(j, i, k).maxAbsEigenValue;
-            %             resultBuf(j,i) = result.stableData(j,i, k).netWork;
-            %             resultBuf(j,i) = result.stableData(j,i, k).runningFreqeuncy;
-            %             resultBuf(j,i) = result.stableData(j,i, k).dutyFactor;
-            %             resultBuf(j,i) = result.stableData(j,i, k).constantTorque;
+% %                         resultBuf(j,i) = result.stableData(j,i, k).netWork;
+%                         resultBuf(j,i) = result.stableData(j,i, k).runningFreqeuncy;
+%                         resultBuf(j,i) = result.stableData(j,i, k).dutyFactor;
+%                         resultBuf(j,i) = result.stableData(j,i, k).constantTorque;
             %             resultBuf(j,i) = result.stableData(j,i, k).fval;
-            %             resultBuf(j,i) = result.meshgridK(j,i);
-            %             resultBuf(j,i) = result.meshgridDelta(j,i);
+%                         resultBuf(j,i) = result.meshgridK(j,i);
+                        resultBuf(j,i) = result.meshgridDelta(j,i);
         end
     end
     resultBuf = squeeze(reshape(resultBuf, 1, 1, []));
-    stableIndices = find(~isnan(resultBuf));
     
     result.meshgridK = squeeze(reshape(result.meshgridK, 1, 1, []));
     result.meshgridDelta = squeeze(reshape(result.meshgridDelta, 1, 1, []));
@@ -85,8 +85,8 @@ for k = 1:1 %1:optParms.searchingVarLength
         
         
         %       plotPhasePortraitsSLIPPER('phasePotrait_phi',ret,resultBuf(stableIndex),parms,plotParms);
-        %       plotPhasePortraitsSLIPPER('phasePotrait_zf',ret,resultBuf(stableIndex),parms,plotParms);
-        %       plotPhasePortraitsSLIPPER('phasePotrait_phiVec&zf', ret, resultBuf(stableIndex), parms, plotParms);
+%               plotPhasePortraitsSLIPPER('phasePotrait_zf',ret,resultBuf(stableIndex),parms,plotParms);
+%               plotPhasePortraitsSLIPPER('phasePotrait_phiVec&zf', ret, resultBuf(stableIndex), parms, plotParms);
         plotPhasePortraitsSLIPPER('phasePotrait_zVec&phi', ret, resultBuf(stableIndex), parms, plotParms);
         
         hold on

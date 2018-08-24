@@ -12,7 +12,13 @@ unconstrained nonlinear optimization to minimize the cost associated with the pe
 ## Dependencies
 It requires 'Optimization Toolbox' and 'Parallel Computing Toolbox' (optional).
 
-## In the 'result/Comparison' folder
+## In the 'result/Comparison2SLIPPER' folder
 The folder contains the fixed-point data for SLIP and SLIPPER model comparison.
 
-## Others details
+## In the 'result/Comparison2Paper' folder
+The folder contains the fixed-point data for comparing to the results in Shen's SLIP paper mentioned above.
+
+## In the 'result/fastRunning' folder
+The folder contains the fixed-point data from 20 to 40 mph.
+
+## Other details

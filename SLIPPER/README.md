@@ -23,4 +23,9 @@ It requires 'Optimization Toolbox' and 'Parallel Computing Toolbox' (optional).
 ## In the 'result/SLIPPER_PControl' folder
 The folder conatins the fixed-point data for SLIP and SLIPPER model comparison.
 
-## Others details
+## Futher Testing Directions
+- Try different rc.
+- Instead of the P control of desired phi dot (which in physical experiment requires the IMU), try to control the relative anguler velocity.
+- Try lower dimensionless g (Note: the limitation of duty factor > 0.25) may need to change for larger stable region for low dimensionless k.
+- Try PD control. (Note: desired phi and desired phi dot need to be the free variables in the optimization, and the cost function also need to be modified.)
+- Observe the change of phase portriats when tring different testing parameters.

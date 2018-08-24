@@ -8,7 +8,7 @@
 addpath('./result/SLIPPER_PControl')
 addpath('./helperFunctions')
 
-addpath('../SLIP/result/Comparison')
+addpath('../SLIP/result/Comparison2SLIPPER')
 addpath('../SLIP/helperFunctions')
 
 close all
@@ -22,11 +22,11 @@ hold on
 colorData = 'maxAbsEigenValue';
 scaleByTotalMass = true;
 
-plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_081918_1326', colorData, scaleByTotalMass);
-plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_081918_1321', colorData, scaleByTotalMass);
-plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_081918_1313', colorData, scaleByTotalMass);
-plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_081918_1306', colorData, scaleByTotalMass);
-plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_081918_1332', colorData, scaleByTotalMass);
+plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082218_1529', colorData, scaleByTotalMass);
+plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082218_1604', colorData, scaleByTotalMass);
+plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082218_1617', colorData, scaleByTotalMass);
+plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082218_1644', colorData, scaleByTotalMass);
+plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082218_1649', colorData, scaleByTotalMass);
 
 plotStableFixedPointsSLIP('fixedPointData_Varing_g_dutyFactorChecked_082118_1954');
 
@@ -38,6 +38,9 @@ grid on
 set(gcf, 'DefaultTextFontName', 'Liberation Serif', 'DefaultTextFontSize', 18, ...
     'DefaultAxesFontName', 'Liberation Serif', 'DefaultAxesFontSize', 18, ...
     'DefaultLineLineWidth', 1, 'DefaultLineMarkerSize', 7.75)
+
+% add parameter text
+text(8,0.32,'$\beta = 72^o, \tilde{g} = [0.12, 0.2, 0.28, 0.36, 0.44]$','Interpreter','latex','FontSize',12)
 
 
 % figure labels
@@ -57,11 +60,11 @@ hold on
 
 colorData = 'maxAbsEigenValue';
 
-plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_081918_1326', colorData);
-plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_081918_1321', colorData);
-plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_081918_1313', colorData);
-plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_081918_1306', colorData);
-plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_081918_1332', colorData);
+plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082218_1529', colorData);
+plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082218_1604', colorData);
+plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082218_1617', colorData);
+plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082218_1644', colorData);
+plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082218_1649', colorData);
 
 grid on
 
@@ -70,6 +73,8 @@ set(gcf, 'DefaultTextFontName', 'Liberation Serif', 'DefaultTextFontSize', 18, .
     'DefaultAxesFontName', 'Liberation Serif', 'DefaultAxesFontSize', 18, ...
     'DefaultLineLineWidth', 1, 'DefaultLineMarkerSize', 7.75)
 
+% add parameter text
+text(-0.0085,0.026,'$\beta = 72^o, \tilde{g} = [0.12, 0.2, 0.28, 0.36, 0.44]$','Interpreter','latex','FontSize',12)
 
 % figure labels
 xlabel('$\phi^*$', 'Interpreter', 'latex')
@@ -89,11 +94,11 @@ hold on
 colorData = 'maxAbsEigenValue';
 scaleByTotalMass = true;
 
-plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082018_2202', colorData, scaleByTotalMass);
-plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_081918_1321', colorData, scaleByTotalMass);
-plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082018_2212', colorData, scaleByTotalMass);
-plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082018_2218', colorData, scaleByTotalMass);
-plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082018_2222', colorData, scaleByTotalMass);
+plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082218_2113', colorData, scaleByTotalMass);
+plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082218_2120', colorData, scaleByTotalMass);
+plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082218_2125', colorData, scaleByTotalMass);
+plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082218_2131', colorData, scaleByTotalMass);
+plotStableFixedPointsSLIPPER('fixedPointData_Varing_none_082218_2135', colorData, scaleByTotalMass);
 
 plotStableFixedPointsSLIP('fixedPointData_Varing_beta_dutyFactorChecked_082118_1901');
 
@@ -105,6 +110,9 @@ grid on
 set(gcf, 'DefaultTextFontName', 'Liberation Serif', 'DefaultTextFontSize', 18, ...
     'DefaultAxesFontName', 'Liberation Serif', 'DefaultAxesFontSize', 18, ...
     'DefaultLineLineWidth', 1, 'DefaultLineMarkerSize', 7.75)
+
+% add parameter text
+text(8,0.32,'$\tilde{g} = 0.2, \beta = [66^o, 68^o, 70^o, 72^o, 74^o]$','Interpreter','latex','FontSize',12)
 
 % figure labels
 xlabel('$\tilde{k}$', 'Interpreter', 'latex')
@@ -123,11 +131,11 @@ hold on
 
 colorData = 'maxAbsEigenValue';
 
-plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082018_2202', colorData);
-plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_081918_1321', colorData);
-plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082018_2212', colorData);
-plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082018_2218', colorData);
-plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082018_2222', colorData);
+plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082218_2113', colorData);
+plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082218_2120', colorData);
+plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082218_2125', colorData);
+plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082218_2131', colorData);
+plotStableFixedPointsPendulumSLIPPER('fixedPointData_Varing_none_082218_2135', colorData);
 
 grid on
 
@@ -136,6 +144,8 @@ set(gcf, 'DefaultTextFontName', 'Liberation Serif', 'DefaultTextFontSize', 18, .
     'DefaultAxesFontName', 'Liberation Serif', 'DefaultAxesFontSize', 18, ...
     'DefaultLineLineWidth', 1, 'DefaultLineMarkerSize', 7.75)
 
+% add parameter text
+text(-0.0085,0.0165,'$\tilde{g} = 0.2, \beta = [66^o, 68^o, 70^o, 72^o, 74^o]$','Interpreter','latex','FontSize',12)
 
 % figure labels
 xlabel('$\phi^*$', 'Interpreter', 'latex')

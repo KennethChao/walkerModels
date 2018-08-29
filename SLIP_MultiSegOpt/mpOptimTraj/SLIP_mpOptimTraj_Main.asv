@@ -86,7 +86,7 @@ cost = @(x)costTest(x, dataInd, optPars); %chk
 % gCost = @(x)gcostK(x,dataInd,optPars); %chk
 %
 cnst = @(x)constAll(x, dataInd, optPars);
-gCnst = @(x)gconstAll(x, dataInd, optPars);
+% gCnst = @(x)gconstAll(x, dataInd, optPars);
 %
 % cnstPattern = @()GP(optPars);
 
@@ -95,7 +95,7 @@ funcs = {};
 funcs.objective = cost;
 % funcs.gradient = gCost;
 funcs.constraints = cnst;
-funcs.jacobian = gCnst;
+% funcs.jacobian = gCnst;
 % funcs.jacobianstructure =cnstPattern;
 
 

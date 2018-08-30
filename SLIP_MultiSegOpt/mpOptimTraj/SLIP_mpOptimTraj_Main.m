@@ -82,21 +82,22 @@ parms.phase(2).hub = 10;
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                       Set up function handles                           %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-cost = @(x)costTest(x, dataInd, optPars); %chk
-% gCost = @(x)gcostK(x,dataInd,optPars); %chk
+cost = @(x)costTest(x); %chk
+gCost = @(x)gcostTest(x); %chk
 %
-cnst = @(x)constAll(x, dataInd, optPars);
-gCnst = @(x)gconstAll(x, dataInd, optPars);
+cnst = @(x)constAll(x, parms);
+gCnst = @(x)gconstAll(x, parms);
 %
-% cnstPattern = @()GP(optPars);
+% xVec = initialGuess(parms);
+cnstPattern = @()GP(parms);
 
 % Assign Function Handle for IPOPT
 funcs = {};
 funcs.objective = cost;
-% funcs.gradient = gCost;
+funcs.gradient = gCost;
 funcs.constraints = cnst;
 funcs.jacobian = gCnst;
-% funcs.jacobianstructure =cnstPattern;
+funcs.jacobianstructure =cnstPattern;
 
 
 % problem.func.dynamics = @(t,x,u)( dymModelStanceDimensionless(t, x,u,parms) );
@@ -115,8 +116,8 @@ funcs.jacobian = gCnst;
 
 options.lb = lb;
 options.ub = ub;
-options.cl = clb;
-options.cu = cub;
+options.cl = clb';
+options.cu = cub';
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %              Create an initial guess for the trajectory                 %
@@ -131,15 +132,18 @@ options.ipopt.tol = 1e-4;
 options.ipopt.mu_strategy = 'adaptive';
 
 options.ipopt.print_info_string = 'yes';
-options.ipopt.linear_solver = 'ma57';
+% options.ipopt.linear_solver = 'ma57';
 options.ipopt.honor_original_bounds = 'no';
-% options.ipopt.derivative_test       = 'first-order';
-% options.ipopt.max_iter = 100;
+options.ipopt.derivative_test       = 'first-order';
+options.ipopt.max_iter = 1;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                           Solve!                                        %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-
+%         if optPars.flag_IPOPT==1
+xVec = initialGuess(parms);
+        [x_Flat2, ~] = ipopt(xVec,funcs,options);
+%         else
 %%%%% THE KEY LINE:
 % soln = optimTraj(problem);
 %
@@ -207,9 +211,10 @@ function c = constAll(xVec, parms)
 [x, dx, ddx, h] = extractState(xVec, parms);
 
 c0 = constKineHSM(x, dx, ddx, h, parms);
-c1 = constDym(x, dx, ddx, parms);
-c2 = constPeriodic(x, dx, parms);
-c = [c0; c1; c2];
+% c1 = constDym(x, dx, ddx, parms);
+% c2 = constPeriodic(x, dx, parms);
+% c = [c0; c1; c2];
+c = [c0;];
 end %function end
 
 
@@ -245,8 +250,8 @@ function [clb, cub] = constBounds(parms)
 % Bounds of Kinematic Constraints
 nHSM = 2;
 relativeDegree = 2;
-clbKine = zeros(parms.totalKnotNumber*parms.ndof*nHSM*relativeDegree, 1);
-cubKine = zeros(parms.totalKnotNumber*parms.ndof*nHSM*relativeDegree, 1);
+clbKine = zeros((parms.totalKnotNumber-4)*parms.ndof*nHSM*relativeDegree, 1);
+cubKine = zeros((parms.totalKnotNumber-4)*parms.ndof*nHSM*relativeDegree, 1);
 
 % Bounds of Dynamic Constraints
 clbDym = zeros(parms.totalKnotNumber*parms.ndof, 1);
@@ -266,21 +271,25 @@ end %function end
 
 function g = gconstAll(xVec, parms)
 [x, dx, ddx, h] = extractState(xVec, parms);
-g0=gconstKineHSM(x, dx, ddx, h, parms);
+g0=gconstKineHSM(x, dx, ddx, h, parms, false);
 % g1=gDymHSM(aVec, aInd, cfg);
 % g2=gContact(aVec, aInd, cfg);
 % g3=gPeriodic(aVec, aInd, cfg);
-g = [g0;g1;g2;g3];%g1;g2;g3
-% g = [g0];%g1;g2;g3
+% g = [g0;g1;g2;g3];%g1;g2;g3
+g = [g0];%g1;g2;g3
 end %function end
 %
-% function Pattern = GP(cfg)
+function g0 = GP(parms)
+% xVec = initialGuess(parms);
+% [x, dx, ddx, h] = extractState(xVec, parms);
+% g0=gconstKineHSM(x, dx, ddx, h, parms, true);
+g0 = sparse(ones(16,38))
 % G0 = gKineHSMPat(cfg);
 % G1 = gDymHSMPat(cfg);
 % G2 = gContactPat(cfg);
 % G3 = gPeriodicPat(cfg);
 % Pattern = [G0;G1;G2;G3];
-% end
+end
 function xVec = state2FreeVariableVector(x, dx, ddx, h, parms)
 
 xVec = zeros(parms.totalKnotNumber*parms.nVarSeg+2, 1);
@@ -314,23 +323,24 @@ end
 
 function xVec = initialGuess(parms)
 % h
-h = [1, 1];
+h = [3, 2];
 % x
-x1 = [linspace(1, 1, parms.phase(1).knotNumber); ...
-    linspace(parms.beta, parms.beta*2, parms.phase(1).knotNumber);];
+% x1 = [linspace(1, 1, parms.phase(1).knotNumber); ...
+%     linspace(parms.beta, parms.beta*2, parms.phase(1).knotNumber);];
 
 
 % t2 = linspace(1,h(2),parms.phase(2).knotNumber);
 
-x2 = [linspace(1, 1, parms.phase(2).knotNumber); ...
-    linspace(parms.beta, parms.beta*2, parms.phase(2).knotNumber);];
-
+% x2 = [linspace(1, 1, parms.phase(2).knotNumber); ...
+%     linspace(parms.beta, parms.beta*2, parms.phase(2).knotNumber);];
+x1 = ones(2,6);
+x2 = ones(2,6);
 x = [x1, x2];
 
 % dx
-dx = zeros(parms.ndof, parms.totalKnotNumber);
+dx = 0.1*ones(parms.ndof, parms.totalKnotNumber);
 % ddx
-ddx = zeros(parms.ndof, parms.totalKnotNumber);
+ddx = 0.1*ones(parms.ndof, parms.totalKnotNumber);
 
 
 xVec = state2FreeVariableVector(x, dx, ddx, h, parms);

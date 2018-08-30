@@ -1,6 +1,7 @@
-function cost = costTest(xVec)
+function result = gcostTest(xVec)
 %COSTTEST Summary of this function goes here
 %   Detailed explanation goes here
-cost = sum(xVec);
+
+result = ones(size(xVec));
 end
 

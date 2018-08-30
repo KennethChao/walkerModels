@@ -82,21 +82,21 @@ parms.phase(2).hub = 10;
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                       Set up function handles                           %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-cost = @(x)costTest(x, dataInd, optPars); %chk
-% gCost = @(x)gcostK(x,dataInd,optPars); %chk
+cost = @(x)costTest(x, dataInd, parms); %chk
+gCost = @(x)gcostTest(x,dataInd,ars); %chk
 %
 cnst = @(x)constAll(x, dataInd, optPars);
-% gCnst = @(x)gconstAll(x, dataInd, optPars);
+gCnst = @(x)gconstAll(x, dataInd, optPars);
 %
-% cnstPattern = @()GP(optPars);
+cnstPattern = @()GP(optPars);
 
 % Assign Function Handle for IPOPT
 funcs = {};
 funcs.objective = cost;
-% funcs.gradient = gCost;
+funcs.gradient = gCost;
 funcs.constraints = cnst;
-% funcs.jacobian = gCnst;
-% funcs.jacobianstructure =cnstPattern;
+funcs.jacobian = gCnst;
+funcs.jacobianstructure =cnstPattern;
 
 
 % problem.func.dynamics = @(t,x,u)( dymModelStanceDimensionless(t, x,u,parms) );
@@ -131,15 +131,18 @@ options.ipopt.tol = 1e-4;
 options.ipopt.mu_strategy = 'adaptive';
 
 options.ipopt.print_info_string = 'yes';
-options.ipopt.linear_solver = 'ma57';
+% options.ipopt.linear_solver = 'ma57';
 options.ipopt.honor_original_bounds = 'no';
-% options.ipopt.derivative_test       = 'first-order';
+options.ipopt.derivative_test       = 'first-order';
 % options.ipopt.max_iter = 100;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                           Solve!                                        %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-
+%         if optPars.flag_IPOPT==1
+xVec = initialGuess(parms);
+        [x_Flat2, ~] = ipopt(xVec,funcs,options);
+%         else
 %%%%% THE KEY LINE:
 % soln = optimTraj(problem);
 %
@@ -274,13 +277,13 @@ g = [g0;g1;g2;g3];%g1;g2;g3
 % g = [g0];%g1;g2;g3
 end %function end
 %
-% function Pattern = GP(cfg)
-% G0 = gKineHSMPat(cfg);
+function Pattern = GP(cfg)
+G0 = gKineHSMPat(cfg);
 % G1 = gDymHSMPat(cfg);
 % G2 = gContactPat(cfg);
 % G3 = gPeriodicPat(cfg);
 % Pattern = [G0;G1;G2;G3];
-% end
+end
 function xVec = state2FreeVariableVector(x, dx, ddx, h, parms)
 
 xVec = zeros(parms.totalKnotNumber*parms.nVarSeg+2, 1);

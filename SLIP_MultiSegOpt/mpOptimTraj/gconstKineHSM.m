@@ -1,29 +1,34 @@
-function g = gconstKineHSM( parms) %x, dx, ddx, h,
+function g = gconstKineHSM(x, dx, ddx, h, parms, pattern) %x, dx, ddx, h,
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-    x1 = [linspace(1, 1, parms.phase(1).knotNumber); ...
-    linspace(parms.beta, parms.beta*2, parms.phase(1).knotNumber);];
+    if nargin ==1
+        pattern = false;
+    end
 
-
-    % t2 = linspace(1,h(2),parms.phase(2).knotNumber);
-
-    x2 = [linspace(1, 1, parms.phase(2).knotNumber); ...
-        linspace(parms.beta, parms.beta*2, parms.phase(2).knotNumber);];
-
-    x = [x1, x2];
-
-    % dx
-    dx = ones(parms.ndof, parms.totalKnotNumber);
-    % ddx
-    ddx = zeros(parms.ndof, parms.totalKnotNumber);
-
-    h  = [1;2];
+%     x1 = [linspace(1, 1, parms.phase(1).knotNumber); ...
+%     linspace(parms.beta, parms.beta*2, parms.phase(1).knotNumber);];
+% 
+% 
+%     % t2 = linspace(1,h(2),parms.phase(2).knotNumber);
+% 
+%     x2 = [linspace(1, 1, parms.phase(2).knotNumber); ...
+%         linspace(parms.beta, parms.beta*2, parms.phase(2).knotNumber);];
+% 
+%     x = [x1, x2];
+% 
+%     % dx
+%     dx = ones(parms.ndof, parms.totalKnotNumber);
+%     % ddx
+%     ddx = zeros(parms.ndof, parms.totalKnotNumber);
+% 
+%     h  = [1;2];
 
     iter = 1;
 
     oldInd = 0;
-
-    for i=1:length(h)
+    shiftIndex = 0;
+    phaseNum = length(parms.phase);
+    for i=1:phaseNum
         if i==1
               nRow = parms.ndof*4;
               nCol = parms.nVarSeg*3;
@@ -33,14 +38,17 @@ function g = gconstKineHSM( parms) %x, dx, ddx, h,
         end        
         
         for j=1:(parms.phase(i).knotNumber-2)
+            
+        dxSeg = dx(:,shiftIndex+(1:parms.phase(i).knotNumber));
+        ddxSeg = ddx(:,shiftIndex+(1:parms.phase(i).knotNumber));            
                                                  
         gSeg1 = [-1*eye(2), -1/6*h(i)*eye(2), zeros(2),...
                   zeros(2), -4/6*h(i)*eye(2), zeros(2),...
-                    eye(2),  1/6*h(i)*eye(2), zeros(2)];
+                    eye(2), -1/6*h(i)*eye(2), zeros(2)];
                
         gSeg2 = [zeros(2),  -1*eye(2), -1/6*h(i)*eye(2),... 
                  zeros(2),   zeros(2), -4/6*h(i)*eye(2),... 
-                 zeros(2),     eye(2),  1/6*h(i)*eye(2)];               
+                 zeros(2),     eye(2), -1/6*h(i)*eye(2)];               
 
         gSeg3 = [-1/2*eye(2), -1/8*h(i)*eye(2), zeros(2),...
                       eye(2),         zeros(2), zeros(2),...
@@ -50,17 +58,16 @@ function g = gconstKineHSM( parms) %x, dx, ddx, h,
                  zeros(2),       eye(2),         zeros(2),... 
                  zeros(2),  -1/2*eye(2),  1/8*h(i)*eye(2),];   
              
-        gSeg1h = -1/6*dx(:,j)-4/6*dx(:,j+1)-1/6*dx(:,j+2);
+        gSeg1h = -1/6*dxSeg(:,j)-4/6*dxSeg(:,j+1)-1/6*dxSeg(:,j+2);
              
-        gSeg2h = -1/6*ddx(:,j)-4/6*ddx(:,j+1)-1/6*ddx(:,j+2);
+        gSeg2h = -1/6*ddxSeg(:,j)-4/6*ddxSeg(:,j+1)-1/6*ddxSeg(:,j+2);
              
-        gSeg3h = -1/8*dx(:,j)+ zeros(2,1)+1/8*dx(:,j+2);             
+        gSeg3h = -1/8*dxSeg(:,j)+1/8*dxSeg(:,j+2);             
              
 
-        gSeg4h = -1/8*ddx(:,j)+zeros(2,1)+1/8*ddx(:,j+2);                          
+        gSeg4h = -1/8*ddxSeg(:,j)+1/8*ddxSeg(:,j+2);                          
 
-     
-
+        
         gSegKine = [gSeg1;
                     gSeg2;
                     gSeg3;
@@ -71,13 +78,22 @@ function g = gconstKineHSM( parms) %x, dx, ddx, h,
                    gSeg3h;
                    gSeg4h];
 
+        if pattern
+               
+        sparseK = sparse(spones(gSegKine));
+        [SegI_K,SegJ_K,SegV_K] = find(sparseK);
+              
+        sparseKh = sparse(spones(gKineh));
+        [SegI_Kh,~,SegV_Kh] = find(sparseKh);
+        
+        else
         sparseK = sparse(gSegKine);
         [SegI_K,SegJ_K,SegV_K] = find(sparseK);
               
         sparseKh = sparse(gKineh);
-        [SegI_Kh,~,SegV_Kh] = find(sparseKh);
+        [SegI_Kh,~,SegV_Kh] = find(sparseKh);            
 
-
+        end
         shiftInd = size(SegI_K,1)+size(SegI_Kh,1);
 
         gI((1:shiftInd)+oldInd,1) = [SegI_K+(nRow)*(iter-1);...
@@ -94,6 +110,8 @@ function g = gconstKineHSM( parms) %x, dx, ddx, h,
 %                 iter = iter+1;
 %             end
         end
+        
+        shiftIndex = shiftIndex + parms.phase(i).knotNumber;
     end
     
     g = sparse(gI(1:oldInd,1),gJ(1:oldInd,1),gV(1:oldInd,1),nRow*(parms.totalKnotNumber-4),parms.totalVarNumber);

@@ -29,7 +29,7 @@ ddx = [xbdd;zbdd];
 
 xStack = [x;dx;ddx]
 
-ddxOde = dymFlightDimensionless(x,dx, g)
+ddxOde = dymFlightDimensionless(x,dx, g, k)
 
 jacobianFlight = simplify(jacobian((ddx-ddxOde),xStack));
 

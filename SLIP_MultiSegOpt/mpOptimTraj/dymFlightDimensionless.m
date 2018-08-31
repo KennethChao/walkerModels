@@ -1,4 +1,4 @@
-function ddx = dymFlightDimensionless(x,dx, g)
+function ddx = dymFlightDimensionless(x,dx, g, k)
 % Get parameters
 % g = parms.g;
 % k = parms.k;

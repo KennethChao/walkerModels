@@ -1,4 +1,4 @@
-function g = gconstDym(x,dx,ddx,parms)
+function g = gconstDymPattern(parms)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -13,21 +13,13 @@ function g = gconstDym(x,dx,ddx,parms)
             gJ=nan( (nRow)*(parms.totalKnotNumber),1);
             gV=nan( (nRow)*(parms.totalKnotNumber),1);    
         end
-        
-        if i ==1
-            indexRange = 1: parms.phase(i).knotNumber;        
-            xSeg = x(:,indexRange);
-            dxSeg = dx(:,indexRange);      
-        else        
-            indexRange = parms.phase(i-1).knotNumber + (1: parms.phase(i).knotNumber);   
-            xSeg = x(:,indexRange);
-            dxSeg = dx(:,indexRange);                     
-        end        
+         
         
         for j=1:(parms.phase(i).knotNumber)
                     
-            gSegDym = parms.phase(i).jacobianDymFunc(xSeg(1,i),xSeg(2,i),dxSeg(1,i),dxSeg(2,i),parms.g, parms.k);
-
+%             gSegDym = parms.phase(i).dymFunc(xSeg(1,i),xSeg(2,i),dxSeg(1,i),dxSeg(2,i),parms.g, parms.k);
+            gSegDym = [ones(2,4),eye(2)];
+            gSegDym = [ones(2,6)];
             sparseD = sparse(gSegDym);
             [SegI_D,SegJ_D,SegV_D] = find(sparseD);
 

@@ -51,11 +51,12 @@ parms.nVarSeg = parms.ndof * 3;
 parms.nPeriodicConst = 10;
 
 %% Opt
-parms.phase(1).knotNumber = 21;
-parms.phase(2).knotNumber = 31;
+parms.phase(1).knotNumber = 5;
+parms.phase(2).knotNumber = 5;
 
 totalKnotNumber = 0;
 totaHSMCnstNumber = 0;
+
 for i = 1:length(parms.phase)
     totalKnotNumber = totalKnotNumber + parms.phase(i).knotNumber;
     totaHSMCnstNumber = totaHSMCnstNumber + (parms.phase(i).knotNumber-1)/2;
@@ -67,7 +68,7 @@ parms.phaseNum = length(parms.phase);
 parms.totalVarNumber = parms.totalKnotNumber * parms.nVarSeg + parms.phaseNum;
 
 % Dym
-parms.phase(1).dymFunc = @dymModelStanceDimensionless;
+parms.phase(1).dymFunc = @dymStanceDimensionless;
 parms.phase(2).dymFunc = @dymFlightDimensionless;
 
 parms.phase(1).jacobianDymFunc = @jacobianStanceDym;
@@ -295,7 +296,7 @@ end %function end
 function g = gconstAll(xVec, parms)
 [x, dx, ddx, h] = extractState(xVec, parms);
 % g0=gconstKineHSM(x, dx, ddx, h, parms);
-g1=gDymHSM(aVec, aInd, cfg);
+g1=gconstDym(x,dx,ddx,parms);
 % g2=gContact(aVec, aInd, cfg);
 % g3=gPeriodic(aVec, aInd, cfg);
 % g = [g0;g1;g2;g3];%g1;g2;g3
@@ -306,7 +307,9 @@ function g0 = GP(parms)
 % xVec = initialGuess(parms);
 % [x, dx, ddx, h] = extractState(xVec, parms);
 % g0=gconstKineHSM(x, dx, ddx, h, parms, true);
-g0 = gconstPatternKineHSM(parms);
+% g0 = gconstPatternKineHSM(parms);
+g0 = sparse(ones(20,62));
+% g0 = gconstDymPattern(parms);
 % g0 = sparse(ones(24,50));
 % G0 = gKineHSMPat(cfg);
 % G1 = gDymHSMPat(cfg);

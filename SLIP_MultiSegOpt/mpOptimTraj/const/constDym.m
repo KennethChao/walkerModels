@@ -10,9 +10,22 @@ c = zeros(1,parms.totalKnotNumber*dim);
 shiftIndex = 0;
 
 for i = 1:phaseNum
-    for j =  1: (parms.phase(i).KnotNumber)
     
-    cSegment = ddx(:,j) - parms.phase(i).dymFunc(x(:,j),dx(:,j), parms);
+    if i ==1
+        indexRange = 1: parms.phase(i).knotNumber;        
+        xSeg = x(:,indexRange);
+        dxSeg = dx(:,indexRange);      
+        ddxSeg = ddx(:,indexRange);      
+    else        
+        indexRange = parms.phase(i-1).knotNumber + (1: parms.phase(i).knotNumber);   
+        xSeg = x(:,indexRange);
+        dxSeg = dx(:,indexRange);        
+        ddxSeg = ddx(:,indexRange);      
+    end       
+    
+    for j =  1: (parms.phase(i).knotNumber)
+    
+    cSegment = ddxSeg(:,j) - parms.phase(i).dymFunc(xSeg(:,j),dxSeg(:,j), parms.g, parms.k);
         
     c(shiftIndex + (1:dim)) = cSegment;
     shiftIndex = shiftIndex + dim;

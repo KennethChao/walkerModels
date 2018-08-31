@@ -1,6 +1,6 @@
-function ddx = dymFlightDimensionless(x,dx, parms)
+function ddx = dymFlightDimensionless(x,dx, g)
 % Get parameters
-g = parms.g;
+% g = parms.g;
 % k = parms.k;
 % Get state variables
 % x = x(1,:);

@@ -11,8 +11,17 @@
 clc;
 clear;
 % addpath ../../
-
+addpath('./const')
+addpath('./helperFunctions')
 % ToDO:
+% 08/30 - HSM constraints, pattern, tests
+    % constraints refactored, 
+    % pattern done
+    % test with different knot number done
+    % test with fewest knot number done
+    
+
+
 
 % Check vector flatten or unflatten: Done
 % Pola2Cartesin (Vector or Matrix): Done
@@ -42,21 +51,27 @@ parms.nVarSeg = parms.ndof * 3;
 parms.nPeriodicConst = 10;
 
 %% Opt
-parms.phase(1).knotNumber = 3;
-parms.phase(2).knotNumber = 3;
+parms.phase(1).knotNumber = 21;
+parms.phase(2).knotNumber = 31;
 
 totalKnotNumber = 0;
+totaHSMCnstNumber = 0;
 for i = 1:length(parms.phase)
     totalKnotNumber = totalKnotNumber + parms.phase(i).knotNumber;
+    totaHSMCnstNumber = totaHSMCnstNumber + (parms.phase(i).knotNumber-1)/2;
 end
+
 parms.totalKnotNumber = totalKnotNumber;
-parms.totalVarNumber = parms.totalKnotNumber * parms.nVarSeg + length(parms.phase);
-
-
+parms.totaHSMCnstNumber = totaHSMCnstNumber;
+parms.phaseNum = length(parms.phase);
+parms.totalVarNumber = parms.totalKnotNumber * parms.nVarSeg + parms.phaseNum;
 
 % Dym
 parms.phase(1).dymFunc = @dymModelStanceDimensionless;
 parms.phase(2).dymFunc = @dymFlightDimensionless;
+
+parms.phase(1).jacobianDymFunc = @jacobianStanceDym;
+parms.phase(2).jacobianDymFunc = @jacobianFlightDym;
 
 % Bounds
 parms.phase(1).xlb = [0, parms.beta];
@@ -78,6 +93,14 @@ parms.phase(2).xub = [inf, inf];
 parms.phase(2).dxub = [inf, inf];
 parms.phase(2).ddxub = [inf, inf];
 parms.phase(2).hub = 10;
+
+% Cechking input
+for i = 1:length(parms.phase)
+    if mod(parms.phase(i).knotNumber,2)==0
+        error('knotNumber should be an odd number')
+    end
+end
+
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                       Set up function handles                           %
@@ -116,8 +139,8 @@ funcs.jacobianstructure =cnstPattern;
 
 options.lb = lb;
 options.ub = ub;
-options.cl = clb';
-options.cu = cub';
+options.cl = clb;
+options.cu = cub;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %              Create an initial guess for the trajectory                 %
@@ -133,7 +156,7 @@ options.ipopt.mu_strategy = 'adaptive';
 
 options.ipopt.print_info_string = 'yes';
 % options.ipopt.linear_solver = 'ma57';
-options.ipopt.honor_original_bounds = 'no';
+% options.ipopt.honor_original_bounds = 'no';
 options.ipopt.derivative_test       = 'first-order';
 options.ipopt.max_iter = 1;
 
@@ -142,7 +165,7 @@ options.ipopt.max_iter = 1;
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %         if optPars.flag_IPOPT==1
 xVec = initialGuess(parms);
-        [x_Flat2, ~] = ipopt(xVec,funcs,options);
+[x_Flat2, ~] = ipopt(xVec,funcs,options);
 %         else
 %%%%% THE KEY LINE:
 % soln = optimTraj(problem);
@@ -210,11 +233,11 @@ end %function end
 function c = constAll(xVec, parms)
 [x, dx, ddx, h] = extractState(xVec, parms);
 
-c0 = constKineHSM(x, dx, ddx, h, parms);
-% c1 = constDym(x, dx, ddx, parms);
+% c0 = constKineHSM(x, dx, ddx, h, parms);
+c1 = constDym(x, dx, ddx, parms);
 % c2 = constPeriodic(x, dx, parms);
 % c = [c0; c1; c2];
-c = [c0;];
+c = [c1;];
 end %function end
 
 
@@ -224,7 +247,7 @@ ub = ones(1, parms.totalVarNumber) * inf;
 
 %%
 shiftIndex = 0;
-for i = 1:length(parms.phase)
+for i = 1:parms.phaseNum
     for j = 1:parms.phase(i).knotNumber
         lb(1, (1:parms.ndof)+(j - 1)*parms.nVarSeg+shiftIndex) = parms.phase(i).xlb;
         lb(1, (1:parms.ndof)+(j - 1)*parms.nVarSeg+parms.ndof+shiftIndex) = parms.phase(i).dxlb;
@@ -250,8 +273,8 @@ function [clb, cub] = constBounds(parms)
 % Bounds of Kinematic Constraints
 nHSM = 2;
 relativeDegree = 2;
-clbKine = zeros((parms.totalKnotNumber-4)*parms.ndof*nHSM*relativeDegree, 1);
-cubKine = zeros((parms.totalKnotNumber-4)*parms.ndof*nHSM*relativeDegree, 1);
+clbKine = zeros(parms.totaHSMCnstNumber*parms.ndof*nHSM*relativeDegree, 1);
+cubKine = zeros(parms.totaHSMCnstNumber*parms.ndof*nHSM*relativeDegree, 1);
 
 % Bounds of Dynamic Constraints
 clbDym = zeros(parms.totalKnotNumber*parms.ndof, 1);
@@ -264,26 +287,27 @@ cubPeriodic = zeros(parms.nPeriodicConst, 1);
 % clb = [clbKine; clbDym; clbPeriodic];
 % cub = [cubKine; cubDym; cubPeriodic];
 
-clb = [clbKine];
-cub = [cubKine];
+clb = [clbDym]';
+cub = [cubDym]';
 end %function end
 
 
 function g = gconstAll(xVec, parms)
 [x, dx, ddx, h] = extractState(xVec, parms);
-g0=gconstKineHSM(x, dx, ddx, h, parms, false);
-% g1=gDymHSM(aVec, aInd, cfg);
+% g0=gconstKineHSM(x, dx, ddx, h, parms);
+g1=gDymHSM(aVec, aInd, cfg);
 % g2=gContact(aVec, aInd, cfg);
 % g3=gPeriodic(aVec, aInd, cfg);
 % g = [g0;g1;g2;g3];%g1;g2;g3
-g = [g0];%g1;g2;g3
+g = [g1];%g1;g2;g3
 end %function end
 %
 function g0 = GP(parms)
 % xVec = initialGuess(parms);
 % [x, dx, ddx, h] = extractState(xVec, parms);
 % g0=gconstKineHSM(x, dx, ddx, h, parms, true);
-g0 = sparse(ones(16,38))
+g0 = gconstPatternKineHSM(parms);
+% g0 = sparse(ones(24,50));
 % G0 = gKineHSMPat(cfg);
 % G1 = gDymHSMPat(cfg);
 % G2 = gContactPat(cfg);
@@ -324,17 +348,14 @@ end
 function xVec = initialGuess(parms)
 % h
 h = [3, 2];
-% x
-% x1 = [linspace(1, 1, parms.phase(1).knotNumber); ...
-%     linspace(parms.beta, parms.beta*2, parms.phase(1).knotNumber);];
+x1 = [linspace(1, 1, parms.phase(1).knotNumber); ...
+    linspace(parms.beta, parms.beta*2, parms.phase(1).knotNumber);];
 
 
 % t2 = linspace(1,h(2),parms.phase(2).knotNumber);
 
-% x2 = [linspace(1, 1, parms.phase(2).knotNumber); ...
-%     linspace(parms.beta, parms.beta*2, parms.phase(2).knotNumber);];
-x1 = ones(2,6);
-x2 = ones(2,6);
+x2 = [linspace(1, 1, parms.phase(2).knotNumber); ...
+    linspace(parms.beta, parms.beta*2, parms.phase(2).knotNumber);];
 x = [x1, x2];
 
 % dx

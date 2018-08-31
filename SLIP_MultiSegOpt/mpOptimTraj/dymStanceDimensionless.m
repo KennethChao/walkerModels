@@ -1,7 +1,7 @@
-function ddx = dymStanceDimensionless(x,dx, parms)
+function ddx = dymStanceDimensionless(x,dx, g, k)
 % Get parameters
-g = parms.g;
-k = parms.k;
+% g = parms.g;
+% k = parms.k;
 % Get state variables
 l = x(1,:);
 theta = x(2,:);

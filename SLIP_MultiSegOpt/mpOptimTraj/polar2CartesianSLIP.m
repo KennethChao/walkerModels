@@ -1,4 +1,4 @@
-function [x, xd, z, zd] = polar2CartesianSLIP(l, ld, theta, thetad)
+function [x, z, xd, zd] = polar2CartesianSLIP(l, theta, ld, thetad)
 %POLAR2CARTESIANSLIP Summary of this function goes here
 %   Detailed explanation goes here
 z = l .* sin(theta);

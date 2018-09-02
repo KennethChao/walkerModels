@@ -14,21 +14,12 @@ clear;
 addpath('./const')
 addpath('./helperFunctions')
 % ToDO:
-% 08/30 - HSM constraints, pattern, tests
-    % constraints refactored, 
-    % pattern done
-    % test with different knot number done
-    % test with fewest knot number done
-    
+% 08/30 - HSM constraints, pattern, tests done
+% 09/02 - Dym constraints done
+% 09/02 - 
 
-
-
-% Check vector flatten or unflatten: Done
-% Pola2Cartesin (Vector or Matrix): Done
 % Cartesin2BetaDelta: Skipped
 % Gradient:
-% - cnst (Kine)
-% - cnst (Dym)
 % - cnst (Periodic)(low priority)
 % - cost (low priority)
 % Improve Initial Guess
@@ -51,8 +42,8 @@ parms.nVarSeg = parms.ndof * 3;
 parms.nPeriodicConst = 10;
 
 %% Opt
-parms.phase(1).knotNumber = 5;
-parms.phase(2).knotNumber = 5;
+parms.phase(1).knotNumber = 51;
+parms.phase(2).knotNumber = 31;
 
 totalKnotNumber = 0;
 totaHSMCnstNumber = 0;
@@ -61,7 +52,7 @@ for i = 1:length(parms.phase)
     totalKnotNumber = totalKnotNumber + parms.phase(i).knotNumber;
     totaHSMCnstNumber = totaHSMCnstNumber + (parms.phase(i).knotNumber-1)/2;
 end
-
+    
 parms.totalKnotNumber = totalKnotNumber;
 parms.totaHSMCnstNumber = totaHSMCnstNumber;
 parms.phaseNum = length(parms.phase);
@@ -308,8 +299,8 @@ function g0 = GP(parms)
 % [x, dx, ddx, h] = extractState(xVec, parms);
 % g0=gconstKineHSM(x, dx, ddx, h, parms, true);
 % g0 = gconstPatternKineHSM(parms);
-g0 = sparse(ones(20,62));
-% g0 = gconstDymPattern(parms);
+% g0 = sparse(ones(20,62));
+g0 = gconstDymPattern(parms);
 % g0 = sparse(ones(24,50));
 % G0 = gKineHSMPat(cfg);
 % G1 = gDymHSMPat(cfg);

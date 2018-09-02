@@ -9,6 +9,7 @@ function g = gconstKineHSM(x, dx, ddx, h, parms) %x, dx, ddx, h,
     for i=1:parms.phaseNum
         if i==1
               nRow = parms.ndof*4;
+              nCol = parms.totalVarNumber;              
               gI=nan( (nRow)*(parms.totaHSMCnstNumber),1);
               gJ=nan( (nRow)*(parms.totaHSMCnstNumber),1);
               gV=nan( (nRow)*(parms.totaHSMCnstNumber),1);    

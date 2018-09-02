@@ -9,9 +9,10 @@ function g = gconstDym(x,dx,ddx,parms)
     for i=1:parms.phaseNum
         if i==1
             nRow = parms.ndof;
-            gI=nan( (nRow)*(parms.totalKnotNumber),1);
-            gJ=nan( (nRow)*(parms.totalKnotNumber),1);
-            gV=nan( (nRow)*(parms.totalKnotNumber),1);    
+            nCol = parms.totalVarNumber;
+            gI=nan( (nRow)*nCol,1);
+            gJ=nan( (nRow)*nCol,1);
+            gV=nan( (nRow)*nCol,1);    
         end
         
         if i ==1
@@ -26,16 +27,16 @@ function g = gconstDym(x,dx,ddx,parms)
         
         for j=1:(parms.phase(i).knotNumber)
                     
-            gSegDym = parms.phase(i).jacobianDymFunc(xSeg(1,i),xSeg(2,i),dxSeg(1,i),dxSeg(2,i),parms.g, parms.k);
+            gSegDym = parms.phase(i).jacobianDymFunc(xSeg(1,j),xSeg(2,j),dxSeg(1,j),dxSeg(2,j),parms.g, parms.k);
 
             sparseD = sparse(gSegDym);
             [SegI_D,SegJ_D,SegV_D] = find(sparseD);
 
-            shiftInd = size(SegI_D,1);
+            shiftInd = length(SegI_D);
 
             gI((1:shiftInd)+oldInd,1) = SegI_D+(nRow)*(iter-1);
 
-            gJ((1:shiftInd)+oldInd,1) = SegJ_D+(parms.nVarSeg)*(iter-1 );
+            gJ((1:shiftInd)+oldInd,1) = SegJ_D+(parms.nVarSeg)*(iter-1);
 
             gV((1:shiftInd)+oldInd,1) = SegV_D;
 

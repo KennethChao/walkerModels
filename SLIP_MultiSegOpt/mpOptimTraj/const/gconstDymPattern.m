@@ -9,9 +9,10 @@ function g = gconstDymPattern(parms)
     for i=1:parms.phaseNum
         if i==1
             nRow = parms.ndof;
-            gI=nan( (nRow)*(parms.totalKnotNumber),1);
-            gJ=nan( (nRow)*(parms.totalKnotNumber),1);
-            gV=nan( (nRow)*(parms.totalKnotNumber),1);    
+            nCol = parms.totalVarNumber;
+            gI=nan( (nRow)*nCol,1);
+            gJ=nan( (nRow)*nCol,1);
+            gV=nan( (nRow)*nCol,1);    
         end
          
         
@@ -23,7 +24,7 @@ function g = gconstDymPattern(parms)
             sparseD = sparse(gSegDym);
             [SegI_D,SegJ_D,SegV_D] = find(sparseD);
 
-            shiftInd = size(SegI_D,1);
+            shiftInd = length(SegI_D);
 
             gI((1:shiftInd)+oldInd,1) = SegI_D+(nRow)*(iter-1);
 

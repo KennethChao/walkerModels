@@ -43,6 +43,10 @@ cBoundary = simplify([xStance0Polar(1) - 1; ... %l0=1
     ]);
 
 c = [cTransition; cBoundary]'
+
+variableVector = [l, theta, ld, thetad, xEnd, zEnd, xdEnd, zdEnd, g,k, beta];
+matlabFunction(c,'File','boundaryConst','Vars',variableVector);
+
 %%
 
 x = [l;theta];
@@ -55,7 +59,7 @@ jacobianStance = simplify(jacobian(c,xStack));
 
 
 variableVector = [l, theta, ld, thetad, g,k, beta];
-matlabFunction(jacobianStance,'File','jacobianPeriodicX0','Vars',variableVector);
+matlabFunction(jacobianStance,'File','jacobianBoundaryConstX0','Vars',variableVector);
 
 
 %%
@@ -69,4 +73,4 @@ jacobianFlight = simplify(jacobian(c,xStack));
 
 
 variableVector = [xEnd, zEnd, xdEnd, zdEnd, g,k, beta];
-matlabFunction(jacobianFlight,'File','jacobianPeriodicXEnd','Vars',variableVector);
+matlabFunction(jacobianFlight,'File','jacobianBoundaryConstXEnd','Vars',variableVector);

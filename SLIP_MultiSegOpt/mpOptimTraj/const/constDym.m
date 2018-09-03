@@ -6,7 +6,7 @@ function c = constDym(x,dx,ddx,parms)
 dim = size(x,1);
 phaseNum = length(parms.phase);
 
-c = zeros(1,parms.totalKnotNumber*dim);
+c = zeros(1,(parms.totalKnotNumber+2)/2*dim);
 shiftIndex = 0;
 
 for i = 1:phaseNum
@@ -23,7 +23,7 @@ for i = 1:phaseNum
         ddxSeg = ddx(:,indexRange);      
     end       
     
-    for j =  1: (parms.phase(i).knotNumber)
+    for j =  1:2:(parms.phase(i).knotNumber)
     
     cSegment = ddxSeg(:,j) - parms.phase(i).dymFunc(xSeg(:,j),dxSeg(:,j), parms.g, parms.k);
         

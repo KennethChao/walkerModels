@@ -3,7 +3,8 @@ function g = gconstDymPattern(parms)
 %   Detailed explanation goes here
 
 
-    iter = 1;
+    iterCol = 1;
+    iterRow = 1;
     oldInd = 0;
     
     for i=1:parms.phaseNum
@@ -16,7 +17,7 @@ function g = gconstDymPattern(parms)
         end
          
         
-        for j=1:(parms.phase(i).knotNumber)
+        for j=1:2:(parms.phase(i).knotNumber)
                     
 %             gSegDym = parms.phase(i).dymFunc(xSeg(1,i),xSeg(2,i),dxSeg(1,i),dxSeg(2,i),parms.g, parms.k);
             gSegDym = [ones(2,4),eye(2)];
@@ -26,19 +27,22 @@ function g = gconstDymPattern(parms)
 
             shiftInd = length(SegI_D);
 
-            gI((1:shiftInd)+oldInd,1) = SegI_D+(nRow)*(iter-1);
+            gI((1:shiftInd)+oldInd,1) = SegI_D+(nRow)*(iterRow-1);
 
-            gJ((1:shiftInd)+oldInd,1) = SegJ_D+(parms.nVarSeg)*(iter-1 );
+            gJ((1:shiftInd)+oldInd,1) = SegJ_D+(parms.nVarSeg*2)*(iterCol-1 );
 
             gV((1:shiftInd)+oldInd,1) = SegV_D;
 
             oldInd = oldInd+shiftInd;
-            iter = iter+1;
-        
+            iterRow = iterRow+1;
+            iterCol = iterCol+1;
+            if j == parms.phase(i).knotNumber
+                iterCol = iterCol-0.5;
+            end
         end
     end
     
-    g = sparse(gI(1:oldInd,1),gJ(1:oldInd,1),gV(1:oldInd,1),nRow*parms.totalKnotNumber,parms.totalVarNumber);
+    g = sparse(gI(1:oldInd,1),gJ(1:oldInd,1),gV(1:oldInd,1),nRow*(parms.totalKnotNumber+2)/2,parms.totalVarNumber);
 
 end
 

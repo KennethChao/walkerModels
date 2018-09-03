@@ -1,8 +1,22 @@
-function c = constPeriodic(x, dx, parms)
+function c = constBoundary(x, dx, parms)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 
 %% State in Cartesian space at the start of the stance phase
+xStance0 = [x(:,1);dx(:,1)];
+xStanceEnd = [x(:,parms.phase(1).knotNumber);dx(:,parms.phase(1).knotNumber)];
+
+xFlight0 = [x(:,parms.phase(1).knotNumber+1);dx(:,parms.phase(1).knotNumber+1)];
+xFlightEnd = [x(:,end);dx(:,end)];
+
+c = boundaryConst(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
+    xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),....
+    xFlight0(1),xFlight0(2),xFlight0(3),xFlight0(4),...
+    xFlightEnd(1),xFlightEnd(2),xFlightEnd(3),xFlightEnd(4),...
+    parms.g,parms.k,parms.beta );
+
+
+
 % xStance0 = [x(1, 1), ...
 %     dx(1, 1), ...
 %     x(2, 1), ...

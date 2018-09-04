@@ -42,7 +42,7 @@ parms.nVarSeg = parms.ndof * 3;
 parms.nBoundaryConst = 9;
 
 %% Opt
-parms.phase(1).knotNumber = 13;
+parms.phase(1).knotNumber = 31;
 parms.phase(2).knotNumber = 21;
 
 totalKnotNumber = 0;
@@ -71,6 +71,15 @@ parms.phase(2).dymFunc = @dymFlightDimensionless;
 
 parms.phase(1).jacobianDymFunc = @jacobianStanceDym;
 parms.phase(2).jacobianDymFunc = @jacobianFlightDym;
+
+% Cost
+parms.phase(1).costFunc = @costStance;
+parms.phase(1).jacobianCostX = @jacobianCostStanceX;
+parms.phase(1).jacobianCostH = @jacobianCostStanceH;
+parms.phase(2).costFunc = @costFlight;
+parms.phase(2).jacobianCostX = @jacobianCostFlightX;
+parms.phase(2).jacobianCostH = @jacobianCostFlightH;
+
 
 % Boundary Constraints
 
@@ -116,8 +125,8 @@ end
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                       Set up function handles                           %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-cost = @(x)costTest(x); %chk
-gCost = @(x)gcostTest(x); %chk
+cost = @(x)costFunction(x, parms); %chk
+gCost = @(x)gcostFunction(x, parms); %chk
 %
 cnst = @(x)constAll(x, parms);
 gCnst = @(x)gconstAll(x, parms);
@@ -168,8 +177,8 @@ options.ipopt.mu_strategy = 'adaptive';
 options.ipopt.print_info_string = 'yes';
 % options.ipopt.linear_solver = 'ma57';
 % options.ipopt.honor_original_bounds = 'no';
-options.ipopt.derivative_test       = 'first-order';
-options.ipopt.max_iter = 1;
+% options.ipopt.derivative_test       = 'first-order';
+options.ipopt.max_iter = 1500;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                           Solve!                                        %
@@ -177,6 +186,8 @@ options.ipopt.max_iter = 1;
 %         if optPars.flag_IPOPT==1
 xVec = initialGuess(parms);
 [x_Flat2, ~] = ipopt(xVec,funcs,options);
+
+[x, dx, ddx, h] = extractState(x_Flat2, parms);
 %         else
 %%%%% THE KEY LINE:
 % soln = optimTraj(problem);
@@ -238,7 +249,13 @@ xVec = initialGuess(parms);
 function c = costFunction(xVec, parms)
 [x, dx, ddx, h] = extractState(xVec, parms);
 %
-c = costFun(h, dx);
+c = costFun(x,dx,h,parms);
+end %function end
+
+function g = gcostFunction(xVec, parms)
+[x, dx, ddx, h] = extractState(xVec, parms);
+%
+g = gcostFun(x,dx,h,parms);
 end %function end
 
 function c = constAll(xVec, parms)

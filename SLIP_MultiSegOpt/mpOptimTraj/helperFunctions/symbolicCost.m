@@ -2,7 +2,7 @@ clc;
 
 addpath('../')
 
-syms h real
+syms h g real
  
 
 %% State in Cartesian space at the start of the stance phase
@@ -10,12 +10,12 @@ syms l ld ldd theta thetad thetadd real
 
 xStancePolar = [l;theta;ld;thetad];
 
-[~, ~, xdStart,  zdStart] = polar2CartesianSLIP(xStancePolar(1), xStancePolar(2), xStancePolar(3), xStancePolar(4));
+[xStart, zStart, xdStart,  zdStart] = polar2CartesianSLIP(xStancePolar(1), xStancePolar(2), xStancePolar(3), xStancePolar(4));
 
-costStance = simplify((xdStart^2 + zdStart^2)*h);
+costStance = simplify((xdStart^2 + zdStart^2 + g*zStart)*h);
 
 
-variableVector = [l, theta, ld, thetad, h];
+variableVector = [l, theta, ld, thetad, h, g];
 matlabFunction(costStance,'File','costStance','Vars',variableVector);
 
 
@@ -26,11 +26,11 @@ ddx = [ldd;thetadd];
 xStack = [x;dx;ddx];
 
 jacobianCostStanceX = simplify(jacobian(costStance,xStack));
-variableVector = [l, theta, ld, thetad, h];
+variableVector = [l, theta, ld, thetad, h, g];
 matlabFunction(jacobianCostStanceX,'File','jacobianCostStanceX','Vars',variableVector);
 
 jacobianCostStanceH = simplify(jacobian(costStance,h));
-variableVector = [l, theta, ld, thetad, h];
+variableVector = [l, theta, ld, thetad, h, g];
 matlabFunction(jacobianCostStanceH,'File','jacobianCostStanceH','Vars',variableVector);
 
 %% State in Cartesian space at the start of the flight phase
@@ -40,9 +40,9 @@ matlabFunction(jacobianCostStanceH,'File','jacobianCostStanceH','Vars',variableV
 %     dx(2, parms.phase(1).KnotNumber)];
 syms xF zF xFd zFd xFdd zFdd real
 xFlightStart = [xF; zF; xFd; zFd];
-costFlight = simplify((xFd^2 + zFd^2)*h);
+costFlight = simplify((xFd^2 + zFd^2 + zF*g )*h);
 
-variableVector = [xF, zF, xFd, zFd, h];
+variableVector = [xF, zF, xFd, zFd, h, g];
 matlabFunction(costFlight,'File','costFlight','Vars',variableVector);
 
 x = [xF;zF];
@@ -52,11 +52,11 @@ ddx = [xFdd;zFdd];
 xStack = [x;dx;ddx];
 
 jacobianCostFlightX = simplify(jacobian(costFlight,xStack));
-variableVector = [xF, zF, xFd, zFd, h];
+variableVector = [xF, zF, xFd, zFd, h, g];
 matlabFunction(jacobianCostFlightX,'File','jacobianCostFlightX','Vars',variableVector);
 
 jacobianCostFlightH = simplify(jacobian(costFlight,h));
-variableVector = [xF, zF, xFd, zFd, h];
+variableVector = [xF, zF, xFd, zFd, h, g];
 matlabFunction(jacobianCostFlightH,'File','jacobianCostFlightH','Vars',variableVector);
 % 
 % %% State in Cartesian space at the end of the flight phase

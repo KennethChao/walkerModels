@@ -56,8 +56,12 @@ cTransition = [xFlightEnd - xStanceStart;...
                  xFlightStart - xStanceEnd];
              
 %boundary Condition
-cBoundary = simplify((velVecS(1)^2+velVecS(2)^2) - 1); ... %v0 = 1
-    
+cBoundary = simplify([  xStance0Polar(1)-1;
+                        xStance0Polar(2)-beta;
+                        xStanceEndPolar(1)-1;
+                        (velVecS(1)^2+velVecS(2)^2) - 1;
+                        xFEnd-0.0]); %v0 = 1
+                        
 c = [cTransition; cBoundary]'
 
 variableVector = [l0, theta0, l0d, theta0d, lEnd, thetaEnd, lEndd, thetaEndd, xF0, zF0, xF0d, zF0d, xFEnd, zFEnd, xFEndd, zFEndd, g,k, beta];

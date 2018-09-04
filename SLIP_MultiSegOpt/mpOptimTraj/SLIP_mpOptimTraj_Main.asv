@@ -43,8 +43,8 @@ parms.nVarSeg = parms.ndof * 3;
 parms.nBoundaryConst = 13;
 
 %% Opt
-parms.phase(1).knotNumber = 21;
-parms.phase(2).knotNumber = 21;
+parms.phase(1).knotNumber = 11;
+parms.phase(2).knotNumber = 11;
 
 totalKnotNumber = 0;
 totaHSMCnstNumber = 0;
@@ -320,25 +320,25 @@ cubKine = zeros(parms.totaHSMCnstNumber*parms.ndof*nHSM*relativeDegree, 1);
 % Bounds of Dynamic Constraints
 % clbDym = zeros((parms.totalKnotNumber+2)/2*parms.ndof, 1);
 % cubDym = zeros((parms.totalKnotNumber+2)/2*parms.ndof, 1);
-% clbDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
-% cubDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
-rex = 0.01;
-clbDymGTZero = -rex*ones((parms.totalKnotNumber)*parms.ndof, 1);
-cubDymGTZero = inf*ones((parms.totalKnotNumber)*parms.ndof, 1);
-
-clbDymSTZero = -inf*ones((parms.totalKnotNumber)*parms.ndof, 1);
-cubDymSTZero = rex*ones((parms.totalKnotNumber)*parms.ndof, 1);
+clbDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
+cubDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
 
 % Bounds of Boundary Constraints
-clbBoundary = zeros(parms.nBoundaryConst, 1);
-cubBoundary = zeros(parms.nBoundaryConst, 1);
+% clbBoundary = zeros(parms.nBoundaryConst, 1);
+% cubBoundary = zeros(parms.nBoundaryConst, 1);
+clbBoundaryGreaterThanZero = zeros(parms.nBoundaryConst, 1);
+cubBoundaryGreaterThanZero = inf*ones(parms.nBoundaryConst, 1);
+
+clbBoundaryLessThanZero = -inf*ones(parms.nBoundaryConst, 1);
+cubBoundaryLessThanZero = zeros(parms.nBoundaryConst, 1);
+% cubBoundary = zeros(parms.nBoundaryConst, 1);
+
 
 cubBoundary(end) = inf;
 
-% clb = [clbKine; clbDym; clbBoundary];
-% cub = [cubKine; cubDym; cubBoundary];
-clb = [clbKine; clbDymGTZero; clbDymSTZero; clbBoundary];
-cub = [cubKine; cubDymGTZero; cubDymSTZero; cubBoundary];
+clb = [clbKine; clbDym; clbBoundary];
+cub = [cubKine; cubDym; cubBoundary];
+
 
 % clb = clbDym;
 % cub = cubDym;

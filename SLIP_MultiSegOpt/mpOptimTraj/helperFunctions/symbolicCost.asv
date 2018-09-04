@@ -12,11 +12,11 @@ xStancePolar = [l;theta;ld;thetad];
 
 [~, ~, xdStart,  zdStart] = polar2CartesianSLIP(xStancePolar(1), xStancePolar(2), xStancePolar(3), xStancePolar(4));
 
-costStance = simplify((xdStart^2 + zdStart^2)*h);
+costStance = simplify((xdStart^2 + zdStart^2 + xddStart^2 + zddStart^2 + )*h);
 
 
 variableVector = [l, theta, ld, thetad, h];
-matlabFunction(c,'File','costStance','Vars',variableVector);
+matlabFunction(costStance,'File','costStance','Vars',variableVector);
 
 
 x = [l;theta];
@@ -25,33 +25,39 @@ ddx = [ldd;thetadd];
 
 xStack = [x;dx;ddx];
 
-jacobianCostStance = simplify(jacobian(costStance,xStack));
-% jacobianStance0Pattern = jacobianCostStance;
-% jacobianStance0Pattern(jacobianStance0Pattern~=0) = 1;
+jacobianCostStanceX = simplify(jacobian(costStance,xStack));
+variableVector = [l, theta, ld, thetad, h];
+matlabFunction(jacobianCostStanceX,'File','jacobianCostStanceX','Vars',variableVector);
 
+jacobianCostStanceH = simplify(jacobian(costStance,h));
+variableVector = [l, theta, ld, thetad, ldd, thetadd, h];
+matlabFunction(jacobianCostStanceH,'File','jacobianCostStanceH','Vars',variableVector);
 
-variableVector = [l, theta0, l0d, theta0d, g,k, beta];
-matlabFunction(jacobianCostStance,'File','jacobianBoundaryConstXS0','Vars',variableVector);
-% matlabFunction(jacobianStance0Pattern,'File','jacobianBoundaryConstXS0Pattern');
+%% State in Cartesian space at the start of the flight phase
+% xStanceEnd = [x(1, parms.phase(1).knotNumber), ...
+%     dx(1, parms.phase(1).KnotNumber), ...
+%     x(2, parms.phase(1).KnotNumber), ...
+%     dx(2, parms.phase(1).KnotNumber)];
+syms xF zF xFd zFd xFdd zFdd real
+xFlightStart = [xF; zF; xFd; zFd];
+costFlight = simplify((xFd^2 + zFd^2)*h);
 
+variableVector = [xF, zF, xFd, zFd, xFdd,zFdd, h];
+matlabFunction(costFlight,'File','costFlight','Vars',variableVector);
 
-%% State in Cartesian space at the end of the stance phase
-% syms lEnd lEndd lEnddd thetaEnd thetaEndd thetaEnddd real
-% 
-% xStanceEndPolar = [lEnd;thetaEnd;lEndd;thetaEndd];
-% 
-% [xSEnd, zSEnd, xSEndd, zSEndd] = polar2CartesianSLIP(xStanceEndPolar(1), xStanceEndPolar(2), xStanceEndPolar(3), xStanceEndPolar(4));
-% 
-% xStanceEnd = [xSEnd; xSEndd; zSEnd; zSEndd];
-% 
-% %% State in Cartesian space at the start of the flight phase
-% % xStanceEnd = [x(1, parms.phase(1).knotNumber), ...
-% %     dx(1, parms.phase(1).KnotNumber), ...
-% %     x(2, parms.phase(1).KnotNumber), ...
-% %     dx(2, parms.phase(1).KnotNumber)];
-% syms xF0 zF0 xF0d zF0d xF0dd zF0dd real
-% xFlightStart = [xF0; zF0; xF0d; zF0d];
-% 
+x = [xF;zF];
+dx = [xFd;zFd];
+ddx = [xFdd;zFdd];
+
+xStack = [x;dx;ddx];
+
+jacobianCostFlightX = simplify(jacobian(costFlight,xStack));
+variableVector = [xF, zF, xFd, zFd, h];
+matlabFunction(jacobianCostFlightX,'File','jacobianCostFlightX','Vars',variableVector);
+
+jacobianCostFlightH = simplify(jacobian(costFlight,h));
+variableVector = [xF, zF, xFd, zFd, h];
+matlabFunction(jacobianCostFlightH,'File','jacobianCostFlightH','Vars',variableVector);
 % 
 % %% State in Cartesian space at the end of the flight phase
 % % xStanceEnd = [x(1, parms.phase(1).knotNumber), ...
@@ -83,20 +89,20 @@ matlabFunction(jacobianCostStance,'File','jacobianBoundaryConstXS0','Vars',varia
 
 % %% the start of stance phase
 % 
-x = [l0;theta0];
-dx = [l0d;theta0d];
-ddx = [l0dd;theta0dd];
-
-xStack = [x;dx;ddx];
-
-jacobianCostStance = simplify(jacobian(c,xStack));
-jacobianStance0Pattern = jacobianCostStance;
-jacobianStance0Pattern(jacobianStance0Pattern~=0) = 1;
-
-
-variableVector = [l0, theta0, l0d, theta0d, g,k, beta];
-matlabFunction(jacobianCostStance,'File','jacobianBoundaryConstXS0','Vars',variableVector);
-matlabFunction(jacobianStance0Pattern,'File','jacobianBoundaryConstXS0Pattern');
+% x = [l0;theta0];
+% dx = [l0d;theta0d];
+% ddx = [l0dd;theta0dd];
+% 
+% xStack = [x;dx;ddx];
+% 
+% jacobianCostStance = simplify(jacobian(c,xStack));
+% jacobianStance0Pattern = jacobianCostStance;
+% jacobianStance0Pattern(jacobianStance0Pattern~=0) = 1;
+% 
+% 
+% variableVector = [l0, theta0, l0d, theta0d, g,k, beta];
+% matlabFunction(jacobianCostStance,'File','jacobianBoundaryConstXS0','Vars',variableVector);
+% matlabFunction(jacobianStance0Pattern,'File','jacobianBoundaryConstXS0Pattern');
 % 
 % %% the end of stance phase
 % x = [lEnd;thetaEnd];

@@ -44,7 +44,7 @@ parms.nBoundaryConst = 13;
 
 %% Opt
 parms.phase(1).knotNumber = 21;
-parms.phase(2).knotNumber = 21;
+% parms.phase(2).knotNumber = 21;
 
 totalKnotNumber = 0;
 totaHSMCnstNumber = 0;
@@ -68,18 +68,18 @@ parms.totalVarNumber = parms.totalKnotNumber * parms.nVarSeg + parms.phaseNum;
 
 % Dym
 parms.phase(1).dymFunc = @dymStanceDimensionless;
-parms.phase(2).dymFunc = @dymFlightDimensionless;
+% parms.phase(2).dymFunc = @dymFlightDimensionless;
 
 parms.phase(1).jacobianDymFunc = @jacobianStanceDym;
-parms.phase(2).jacobianDymFunc = @jacobianFlightDym;
+% parms.phase(2).jacobianDymFunc = @jacobianFlightDym;
 
 % Cost
 parms.phase(1).costFunc = @costStance;
 parms.phase(1).jacobianCostX = @jacobianCostStanceX;
 parms.phase(1).jacobianCostH = @jacobianCostStanceH;
-parms.phase(2).costFunc = @costFlight;
-parms.phase(2).jacobianCostX = @jacobianCostFlightX;
-parms.phase(2).jacobianCostH = @jacobianCostFlightH;
+% parms.phase(2).costFunc = @costFlight;
+% parms.phase(2).jacobianCostX = @jacobianCostFlightX;
+% parms.phase(2).jacobianCostH = @jacobianCostFlightH;
 
 
 % Boundary Constraints
@@ -89,10 +89,10 @@ parms.phase(1).jacobianBoundaryXEnd = @jacobianBoundaryConstXSEnd;
 parms.phase(1).jacobianBoundaryX0Pattern = @jacobianBoundaryConstXS0Pattern;
 parms.phase(1).jacobianBoundaryXEndPattern = @jacobianBoundaryConstXSEndPattern;
 
-parms.phase(2).jacobianBoundaryX0 = @jacobianBoundaryConstXF0;
-parms.phase(2).jacobianBoundaryXEnd = @jacobianBoundaryConstXFEnd;
-parms.phase(2).jacobianBoundaryX0Pattern = @jacobianBoundaryConstXF0Pattern;
-parms.phase(2).jacobianBoundaryXEndPattern = @jacobianBoundaryConstXFEndPattern;
+% parms.phase(2).jacobianBoundaryX0 = @jacobianBoundaryConstXF0;
+% parms.phase(2).jacobianBoundaryXEnd = @jacobianBoundaryConstXFEnd;
+% parms.phase(2).jacobianBoundaryX0Pattern = @jacobianBoundaryConstXF0Pattern;
+% parms.phase(2).jacobianBoundaryXEndPattern = @jacobianBoundaryConstXFEndPattern;
 
 % Bounds
 parms.phase(1).xlb = [0, parms.beta];
@@ -105,15 +105,15 @@ parms.phase(1).dxub = [inf, inf];
 parms.phase(1).ddxub = [inf, inf];
 parms.phase(1).hub = 10;
 
-parms.phase(2).xlb = [-inf, 0];
-parms.phase(2).dxlb = [-inf, -inf];
-parms.phase(2).ddxlb = [-inf, -inf];
-parms.phase(2).hlb = 1e-2;
-
-parms.phase(2).xub = [inf, inf];
-parms.phase(2).dxub = [inf, inf];
-parms.phase(2).ddxub = [inf, inf];
-parms.phase(2).hub = 10;
+% parms.phase(2).xlb = [-inf, 0];
+% parms.phase(2).dxlb = [-inf, -inf];
+% parms.phase(2).ddxlb = [-inf, -inf];
+% parms.phase(2).hlb = 1e-2;
+% 
+% parms.phase(2).xub = [inf, inf];
+% parms.phase(2).dxub = [inf, inf];
+% parms.phase(2).ddxub = [inf, inf];
+% parms.phase(2).hub = 10;
 
 % Cechking input
 for i = 1:length(parms.phase)
@@ -272,8 +272,8 @@ function c = constAll(xVec, parms)
 
 c0 = constKineHSM(x, dx, ddx, h, parms);
 c1 = constDym(x, dx, ddx, parms);
-c2 = constBoundary(x, dx, parms);
-c = [c0 c1 c1 c2];
+% c2 = constBoundary(x, dx, parms);
+c = [c0 c1];
 % c = [c1;];
 end %function end
 
@@ -318,16 +318,8 @@ clbKine = zeros(parms.totaHSMCnstNumber*parms.ndof*nHSM*relativeDegree, 1);
 cubKine = zeros(parms.totaHSMCnstNumber*parms.ndof*nHSM*relativeDegree, 1);
 
 % Bounds of Dynamic Constraints
-% clbDym = zeros((parms.totalKnotNumber+2)/2*parms.ndof, 1);
-% cubDym = zeros((parms.totalKnotNumber+2)/2*parms.ndof, 1);
-% clbDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
-% cubDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
-rex = 0.01;
-clbDymGTZero = -rex*ones((parms.totalKnotNumber)*parms.ndof, 1);
-cubDymGTZero = inf*ones((parms.totalKnotNumber)*parms.ndof, 1);
-
-clbDymSTZero = -inf*ones((parms.totalKnotNumber)*parms.ndof, 1);
-cubDymSTZero = rex*ones((parms.totalKnotNumber)*parms.ndof, 1);
+clbDym = zeros((parms.totalKnotNumber+2)/2*parms.ndof, 1);
+cubDym = zeros((parms.totalKnotNumber+2)/2*parms.ndof, 1);
 
 % Bounds of Boundary Constraints
 clbBoundary = zeros(parms.nBoundaryConst, 1);
@@ -337,8 +329,9 @@ cubBoundary(end) = inf;
 
 % clb = [clbKine; clbDym; clbBoundary];
 % cub = [cubKine; cubDym; cubBoundary];
-clb = [clbKine; clbDymGTZero; clbDymSTZero; clbBoundary];
-cub = [cubKine; cubDymGTZero; cubDymSTZero; cubBoundary];
+
+clb = [clbKine; clbDym];
+cub = [cubKine; cubDym];
 
 % clb = clbDym;
 % cub = cubDym;
@@ -350,21 +343,21 @@ function g = gconstAll(xVec, parms)
 [x, dx, ddx, h] = extractState(xVec, parms);
 g0=gconstKineHSM(x, dx, ddx, h, parms);
 g1=gconstDym(x,dx,ddx,parms);
-g2=gconstBoundary(x,dx,ddx,parms);
-g = [g0;g1;g1;g2];%g1;g2;g3
+% g2=gconstBoundary(x,dx,ddx,parms);
+g = [g0;g1];%g1;g2;g3
 % g = [g1];%g1;g2;g3
 end %function end
 %
 function Pattern = GP(parms)
 G0 = gconstKineHSMPattern(parms);
 G1 = gconstDymPattern(parms);
-G2 = gconstBoundaryPattern(parms);
-Pattern = [G0;G1;G1;G2];
+% G2 = gconstBoundaryPattern(parms);
+Pattern = [G0;G1];
 % Pattern = G1;
 end
 function xVec = state2FreeVariableVector(x, dx, ddx, h, parms)
 
-xVec = zeros(parms.totalKnotNumber*parms.nVarSeg+2, 1);
+xVec = zeros(parms.totalKnotNumber*parms.nVarSeg+length(parms.phase), 1);
 for i = 1:parms.totalKnotNumber
     xSegment = [x(:, i); ...
         dx(:, i); ...
@@ -392,29 +385,31 @@ for i = 1:parms.totalKnotNumber
     ddx(:, i) = aVec((i - 1)*parms.nVarSeg+(1:parms.ndof)+parms.ndof*2, 1);
 end
 
-h(1) = aVec(end);
-h(2) = aVec(end-1);
+for i = 1:length(parms.phase)
+     h(i) = aVec(end-i+1);
+end
+
 end
 
 function xVec = initialGuess(parms)
 % h
-h = [0.2, 0.2];
-% h = [0.2];
+% h = [0.2, 0.2];
+h = [0.2];
 x1 = [linspace(1, 1, parms.phase(1).knotNumber); ...
     linspace(parms.beta, parms.beta*2, parms.phase(1).knotNumber);];
 
 
 % t2 = linspace(1,h(2),parms.phase(2).knotNumber);
 
-x2 = [linspace(1, 1, parms.phase(2).knotNumber); ...
-    linspace(parms.beta, parms.beta*2, parms.phase(2).knotNumber);];
-% x2 = [];
+% x2 = [linspace(1, 1, parms.phase(2).knotNumber); ...
+%     linspace(parms.beta, parms.beta*2, parms.phase(2).knotNumber);];
+x2 = [];
 x = [x1, x2];
 
 % dx
 dx = 0.1*ones(parms.ndof, parms.totalKnotNumber);
 % ddx
-ddx = 0.0*ones(parms.ndof, parms.totalKnotNumber);
+ddx = 0.1*ones(parms.ndof, parms.totalKnotNumber);
 
 
 xVec = state2FreeVariableVector(x, dx, ddx, h, parms);

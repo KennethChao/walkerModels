@@ -60,7 +60,7 @@ cBoundary = simplify([  xStance0Polar(1)-1;
                         xStance0Polar(2)-beta;
                         xStanceEndPolar(1)-1;
                         (velVecS(1)^2+velVecS(2)^2) - 1;
-                        xFEnd-0.0]); %v0 = 1
+                        xFEnd-0.3]); %v0 = 1
                         
 c = [cTransition; cBoundary]'
 

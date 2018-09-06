@@ -43,7 +43,7 @@ parms.nVarSeg = parms.ndof * 3;
 parms.nBoundaryConst = 13;
 
 %% Opt
-parms.phase(1).knotNumber = 21;
+parms.phase(1).knotNumber = 11;
 % parms.phase(2).knotNumber = 21;
 
 totalKnotNumber = 0;
@@ -318,8 +318,8 @@ clbKine = zeros(parms.totaHSMCnstNumber*parms.ndof*nHSM*relativeDegree, 1);
 cubKine = zeros(parms.totaHSMCnstNumber*parms.ndof*nHSM*relativeDegree, 1);
 
 % Bounds of Dynamic Constraints
-clbDym = zeros((parms.totalKnotNumber+2)/2*parms.ndof, 1);
-cubDym = zeros((parms.totalKnotNumber+2)/2*parms.ndof, 1);
+clbDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
+cubDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
 
 % Bounds of Boundary Constraints
 clbBoundary = zeros(parms.nBoundaryConst, 1);

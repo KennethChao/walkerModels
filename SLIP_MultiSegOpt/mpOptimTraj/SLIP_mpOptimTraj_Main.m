@@ -15,9 +15,7 @@ close all;
 addpath('./const')
 addpath('./helperFunctions')
 % ToDO:
-% 08/30 - HSM constraints, pattern, tests done
-% 09/02 - Dym constraints done
-% 09/02 - 
+
 
 % Cartesin2BetaDelta: Skipped
 % Gradient:
@@ -40,10 +38,10 @@ parms.delta0 = 0.1;
 %% Sys
 parms.ndof = 2;
 parms.nVarSeg = parms.ndof * 3;
-parms.nBoundaryConst = 13;
+parms.nBoundaryConst = 3;
 
 %% Opt
-parms.phase(1).knotNumber = 11;
+parms.phase(1).knotNumber = 21;
 % parms.phase(2).knotNumber = 21;
 
 totalKnotNumber = 0;
@@ -68,31 +66,26 @@ parms.totalVarNumber = parms.totalKnotNumber * parms.nVarSeg + parms.phaseNum;
 
 % Dym
 parms.phase(1).dymFunc = @dymStanceDimensionless;
-% parms.phase(2).dymFunc = @dymFlightDimensionless;
 
 parms.phase(1).jacobianDymFunc = @jacobianStanceDym;
-% parms.phase(2).jacobianDymFunc = @jacobianFlightDym;
 
 % Cost
 parms.phase(1).costFunc = @costStance;
 parms.phase(1).jacobianCostX = @jacobianCostStanceX;
 parms.phase(1).jacobianCostH = @jacobianCostStanceH;
-% parms.phase(2).costFunc = @costFlight;
-% parms.phase(2).jacobianCostX = @jacobianCostFlightX;
-% parms.phase(2).jacobianCostH = @jacobianCostFlightH;
-
 
 % Boundary Constraints
 
-parms.phase(1).jacobianBoundaryX0 = @jacobianBoundaryConstXS0;
-parms.phase(1).jacobianBoundaryXEnd = @jacobianBoundaryConstXSEnd;
-parms.phase(1).jacobianBoundaryX0Pattern = @jacobianBoundaryConstXS0Pattern;
-parms.phase(1).jacobianBoundaryXEndPattern = @jacobianBoundaryConstXSEndPattern;
+parms.phase(1).jacobianBoundaryX0 = @jacobianBoundaryConstXS0Single;
+parms.phase(1).jacobianBoundaryXEnd = @jacobianBoundaryConstXSEndSingle;
+parms.phase(1).jacobianBoundaryX0Pattern = @jacobianBoundaryConstXS0SinglePattern;
+parms.phase(1).jacobianBoundaryXEndPattern = @jacobianBoundaryConstXSEndSinglePattern;
 
-% parms.phase(2).jacobianBoundaryX0 = @jacobianBoundaryConstXF0;
-% parms.phase(2).jacobianBoundaryXEnd = @jacobianBoundaryConstXFEnd;
-% parms.phase(2).jacobianBoundaryX0Pattern = @jacobianBoundaryConstXF0Pattern;
-% parms.phase(2).jacobianBoundaryXEndPattern = @jacobianBoundaryConstXFEndPattern;
+parms.phase(1).jacobianBoundaryX0Fake = @jacobianBoundaryConstXS0SingleFake;
+parms.phase(1).jacobianBoundaryXEndFake = @jacobianBoundaryConstXSEndSingleFake;
+parms.phase(1).jacobianBoundaryX0PatternFake = @jacobianBoundaryConstXS0SinglePatternFake;
+parms.phase(1).jacobianBoundaryXEndPatternFake = @jacobianBoundaryConstXSEndSinglePatternFake;
+
 
 % Bounds
 parms.phase(1).xlb = [0, parms.beta];
@@ -105,15 +98,6 @@ parms.phase(1).dxub = [inf, inf];
 parms.phase(1).ddxub = [inf, inf];
 parms.phase(1).hub = 10;
 
-% parms.phase(2).xlb = [-inf, 0];
-% parms.phase(2).dxlb = [-inf, -inf];
-% parms.phase(2).ddxlb = [-inf, -inf];
-% parms.phase(2).hlb = 1e-2;
-% 
-% parms.phase(2).xub = [inf, inf];
-% parms.phase(2).dxub = [inf, inf];
-% parms.phase(2).ddxub = [inf, inf];
-% parms.phase(2).hub = 10;
 
 % Cechking input
 for i = 1:length(parms.phase)
@@ -178,8 +162,8 @@ options.ipopt.mu_strategy = 'adaptive';
 options.ipopt.print_info_string = 'yes';
 % options.ipopt.linear_solver = 'ma57';
 % options.ipopt.honor_original_bounds = 'no';
-% options.ipopt.derivative_test       = 'first-order';
-options.ipopt.max_iter = 1500;
+options.ipopt.derivative_test       = 'first-order';
+options.ipopt.max_iter = 1;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                           Solve!                                        %
@@ -272,9 +256,9 @@ function c = constAll(xVec, parms)
 
 c0 = constKineHSM(x, dx, ddx, h, parms);
 c1 = constDym(x, dx, ddx, parms);
-% c2 = constBoundary(x, dx, parms);
-c = [c0 c1];
-% c = [c1;];
+c2 = constBoundary(x, dx, parms);
+c = [c0 c1 c2];
+% c = [c2;];
 end %function end
 
 
@@ -301,11 +285,11 @@ for i = (1:length(parms.phase))
     ub(1, end-i+1) = parms.phase(i).hub;
 end
 
-% lb(1) = 1;
-% ub(1) = 1;
-% % 
-% lb(2) = parms.beta;
-% ub(2) = parms.beta;
+lb(1) = 1;
+ub(1) = 1;
+% 
+lb(2) = parms.beta;
+ub(2) = parms.beta;
 end %function end
 
 function [clb, cub] = constBounds(parms)
@@ -322,19 +306,20 @@ clbDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
 cubDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
 
 % Bounds of Boundary Constraints
-clbBoundary = zeros(parms.nBoundaryConst, 1);
-cubBoundary = zeros(parms.nBoundaryConst, 1);
+tol = 1e-2;
+clbBoundary = -tol*ones(parms.nBoundaryConst, 1);
+cubBoundary = tol*ones(parms.nBoundaryConst, 1);
 
-cubBoundary(end) = inf;
+% cubBoundary(end) = inf;
 
-% clb = [clbKine; clbDym; clbBoundary];
-% cub = [cubKine; cubDym; cubBoundary];
+clb = [clbKine; clbDym; clbBoundary];
+cub = [cubKine; cubDym; cubBoundary];
 
-clb = [clbKine; clbDym];
-cub = [cubKine; cubDym];
+% clb = [clbKine; clbDym];
+% cub = [cubKine; cubDym];
 
-% clb = clbDym;
-% cub = cubDym;
+% clb = clbBoundary;
+% cub = cubBoundary;
 
 end %function end
 
@@ -343,17 +328,17 @@ function g = gconstAll(xVec, parms)
 [x, dx, ddx, h] = extractState(xVec, parms);
 g0=gconstKineHSM(x, dx, ddx, h, parms);
 g1=gconstDym(x,dx,ddx,parms);
-% g2=gconstBoundary(x,dx,ddx,parms);
-g = [g0;g1];%g1;g2;g3
-% g = [g1];%g1;g2;g3
+g2=gconstBoundary(x,dx,ddx,parms);
+g = [g0;g1;g2];%g1;g2;g3
+% g = [g2];%g1;g2;g3
 end %function end
 %
 function Pattern = GP(parms)
 G0 = gconstKineHSMPattern(parms);
 G1 = gconstDymPattern(parms);
-% G2 = gconstBoundaryPattern(parms);
-Pattern = [G0;G1];
-% Pattern = G1;
+G2 = gconstBoundaryPattern(parms);
+Pattern = [G0;G1;G2];
+% Pattern = G2;
 end
 function xVec = state2FreeVariableVector(x, dx, ddx, h, parms)
 
@@ -407,9 +392,13 @@ x2 = [];
 x = [x1, x2];
 
 % dx
-dx = 0.1*ones(parms.ndof, parms.totalKnotNumber);
+dx = [0.01*ones(1, parms.totalKnotNumber);
+        -0.01*ones(1, parms.totalKnotNumber)
+    ];
 % ddx
-ddx = 0.1*ones(parms.ndof, parms.totalKnotNumber);
+ddx = [0.01*ones(1, parms.totalKnotNumber);
+        -0.01*ones(1, parms.totalKnotNumber)
+    ];
 
 
 xVec = state2FreeVariableVector(x, dx, ddx, h, parms);

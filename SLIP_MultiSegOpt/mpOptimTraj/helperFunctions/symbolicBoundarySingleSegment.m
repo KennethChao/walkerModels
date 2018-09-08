@@ -40,13 +40,17 @@ r = roots([-1/2*g, zSEndd, sin(beta)-zSEnd]);
 
 tFlightEnd = r(2);
 
+
+variableVector = [lEnd, thetaEnd, lEndd, thetaEndd, g,k, beta];
+matlabFunction(tFlightEnd,'File','boundaryConstTFlight','Vars',variableVector);
+
+
 zFEndd = zSEndd - tFlightEnd*g;
 xFEndd = xSEndd;
 
 
 velVecF = [xFEndd; zFEndd];
 deltaNew = atan2(velVecF(2), velVecF(1));
-
 %% State in Cartesian space at the end of the flight phase
 % xStanceEnd = [x(1, parms.phase(1).knotNumber), ...
 %     dx(1, parms.phase(1).KnotNumber), ...
@@ -68,7 +72,7 @@ cBoundary = simplify([  (velVecS(1)^2+velVecS(2)^2) - 1,...
 c = cBoundary
 
 variableVector = [l0, theta0, l0d, theta0d, lEnd, thetaEnd, lEndd, thetaEndd, g,k, beta];
-matlabFunction(c,'File','boundaryConsSingle','Vars',variableVector);
+matlabFunction(c,'File','boundaryConstSingle','Vars',variableVector);
 
 %% the start of stance phase
 
@@ -105,7 +109,7 @@ matlabFunction(jacobianStanceEndPattern,'File','jacobianBoundaryConstXSEndSingle
 
 
 %%
-velVecFFake = 10*[xSEndd; zSEndd];
+velVecFFake = 5*[xSEndd; zSEndd];
 
 %boundary Condition
 cBoundaryFake = simplify([  (velVecS(1)^2+velVecS(2)^2) - 1,...
@@ -115,7 +119,7 @@ cBoundaryFake = simplify([  (velVecS(1)^2+velVecS(2)^2) - 1,...
 c = cBoundaryFake
 
 variableVector = [l0, theta0, l0d, theta0d, lEnd, thetaEnd, lEndd, thetaEndd, g,k, beta];
-matlabFunction(c,'File','boundaryConsSingleFake','Vars',variableVector);
+matlabFunction(c,'File','boundaryConstSingleFake','Vars',variableVector);
 
 %% the start of stance phase
 

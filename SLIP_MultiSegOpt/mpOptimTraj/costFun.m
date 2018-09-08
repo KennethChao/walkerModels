@@ -18,5 +18,5 @@ for i = 1:parms.phaseNum
        
 %     shiftIndex = shiftIndex + parms.phase(i).knotNumber;
 end
-
+cost = cost + (x(1,end)-1);
 end

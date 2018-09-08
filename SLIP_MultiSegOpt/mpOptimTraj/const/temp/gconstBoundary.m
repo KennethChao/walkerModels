@@ -27,24 +27,11 @@ function g = gconstBoundary(x,dx,ddx,parms)
 %%                   
 %             parms.phase(i).jacobianBoundaryX0 = @jacobianBoundaryConstX0;
 %             parms.phase(i).jacobianBoundaryXEnd = @jacobianBoundaryConstXEnd;
-        x0 = xSeg(:,1);
-        dx0 = dxSeg(:,1);
+            x0 = xSeg(:,1);
+            dx0 = dxSeg(:,1);
 
-        xEnd = xSeg(:,end);
-        dxEnd = dxSeg(:,end);  
-            
-  
-tFlight = boundaryConstTFlight(xEnd(1),xEnd(2),dxEnd(1),dxEnd(2),g,k,beta);
-
-        
-
-if isreal(tFlight) && tFlight>0  
             gSegBoundary0 = parms.phase(i).jacobianBoundaryX0(...
                 x0(1),x0(2),dx0(1),dx0(2), g, k, beta);
-else
-        gSegBoundary0 = parms.phase(i).jacobianBoundaryX0Fake(...
-                x0(1),x0(2),dx0(1),dx0(2), g, k, beta);    
-end
 
             sparseB = sparse(gSegBoundary0);
             [SegI_B,SegJ_B,SegV_B] = find(sparseB);
@@ -59,14 +46,13 @@ end
 
             oldInd = oldInd+shiftInd;
 
- %%         
- if isreal(tFlight) && tFlight>0             
+%%
+            xEnd = xSeg(:,end);
+            dxEnd = dxSeg(:,end);            
+            
             gSegBoundaryEnd = parms.phase(i).jacobianBoundaryXEnd(...
                 xEnd(1),xEnd(2),dxEnd(1),dxEnd(2), g,k, beta);
- else
-            gSegBoundaryEnd = parms.phase(i).jacobianBoundaryXEndFake(...
-                xEnd(1),xEnd(2),dxEnd(1),dxEnd(2), g,k, beta);
- end
+
             sparseB = sparse(gSegBoundaryEnd);
             [SegI_B,SegJ_B,SegV_B] = find(sparseB);
 
@@ -77,13 +63,8 @@ end
             gJ((1:shiftInd)+oldInd,1) = SegJ_B+(parms.nVarSeg)*(parms.phase(i).x0knotNumber-1 + parms.phase(i).knotNumber-1);                
             
             gV((1:shiftInd)+oldInd,1) = SegV_B;
-            
-            oldInd = oldInd+shiftInd;                
-    
 
-  
-            
-            
+            oldInd = oldInd+shiftInd;            
  
     end
     

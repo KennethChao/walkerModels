@@ -18,13 +18,7 @@ shiftIndex = 0;
         dxEnd = dx(:,end);  
             
   
-tFlight = boundaryConstTFlight(xEnd(1),xEnd(2),dxEnd(1),dxEnd(2),g,k,beta);
-
-        
-
-
-
-
+tFlight = getFlightTime(xEnd(1),xEnd(2),dxEnd(1),dxEnd(2),g,k,beta);
 
 
 for i = 1:parms.phaseNum
@@ -32,17 +26,18 @@ for i = 1:parms.phaseNum
     dxSeg = dx(:,(1:parms.phase(i).knotNumber)+parms.phase(i).x0knotNumber-1);
     
     if isreal(tFlight) && tFlight>0  
-            gSegBoundary0 = parms.phase(i).jacobianBoundaryX0(...
+            gSegBoundary0 = parms.phase(i).jacobianBoundaryCostX0(...
                 x0(1),x0(2),dx0(1),dx0(2), xEnd(1),xEnd(2),dxEnd(1),dxEnd(2), g, k, beta);
             
-            gSegBoundaryEnd = parms.phase(i).jacobianBoundaryXEnd(...
+            gSegBoundaryEnd = parms.phase(i).jacobianBoundaryCostXEnd(...
                 x0(1),x0(2),dx0(1),dx0(2), xEnd(1),xEnd(2),dxEnd(1),dxEnd(2), g,k, beta);
     else
-            gSegBoundaryEnd = parms.phase(i).jacobianBoundaryXEndFake(...
+            gSegBoundary0 = parms.phase(i).jacobianBoundaryCostX0Dummy(...
+                x0(1),x0(2),dx0(1),dx0(2), xEnd(1),xEnd(2),dxEnd(1),dxEnd(2), g, k, beta);    
+
+            gSegBoundaryEnd = parms.phase(i).jacobianBoundaryCostXEndDummy(...
                 x0(1),x0(2),dx0(1),dx0(2), xEnd(1),xEnd(2),dxEnd(1),dxEnd(2), g,k, beta);            
             
-            gSegBoundary0 = parms.phase(i).jacobianBoundaryX0Fake(...
-                x0(1),x0(2),dx0(1),dx0(2), xEnd(1),xEnd(2),dxEnd(1),dxEnd(2), g, k, beta);    
     end
     
     gcost(end-i+1) = sum(parms.phase(i).jacobianCostH(xSeg(1,:),xSeg(2,:),dxSeg(1,:),dxSeg(2,:),h(i), g));

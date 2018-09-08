@@ -7,9 +7,13 @@ beta = parms.beta;
 
 %% State in Cartesian space at the start of the stance phase
 xStance0 = [x(:,1);dx(:,1)];
+xStanceEnd = [x(:,parms.phase(1).knotNumber);dx(:,parms.phase(1).knotNumber)];
 
+tFlight = getFlightTime(xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),g,k,beta);
 
-    c = boundaryConst(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
+if isreal(tFlight) && tFlight>0
+
+    c = boundaryCost(xStance0(1),xStance0(2),xStance0(3),xStance0(4)
         parms.g,parms.k,parms.beta );
 
 

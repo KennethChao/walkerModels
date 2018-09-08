@@ -10,17 +10,17 @@ beta = parms.beta;
 xStance0 = [x(:,1);dx(:,1)];
 xStanceEnd = [x(:,parms.phase(1).knotNumber);dx(:,parms.phase(1).knotNumber)];
 
-tFlight = boundaryConstTFlight(xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),g,k,beta);
+tFlight = getFlightTime(xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),g,k,beta);
 
 if isreal(tFlight) && tFlight>0
 
-    cBoundary = boundaryConstSingle(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
+    cBoundary = boundaryCost(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
         xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),....
         parms.g,parms.k,parms.beta );
 
 else
     
-    cBoundary = boundaryConstSingleFake(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
+    cBoundary = boundaryCostDummy(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
         xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),....
         parms.g,parms.k,parms.beta );
     

@@ -19,7 +19,7 @@ function g = gconstBoundaryPattern(parms)
 %             parms.phase(i).jacobianBoundaryX0 = @jacobianBoundaryConstX0;
 %             parms.phase(i).jacobianBoundaryXEnd = @jacobianBoundaryConstXEnd;
 
-            gSegBoundary0 = parms.phase(i).jacobianBoundaryX0Pattern();
+            gSegBoundary0 = parms.phase(i).jacobianBoundaryConstX0Pattern();
 
             sparseB = sparse(gSegBoundary0);
             [SegI_B,SegJ_B,SegV_B] = find(sparseB);
@@ -35,20 +35,20 @@ function g = gconstBoundaryPattern(parms)
             oldInd = oldInd+shiftInd;
 
 %%          
-            gSegBoundaryEnd = parms.phase(i).jacobianBoundaryXEndPattern();
-
-            sparseB = sparse(gSegBoundaryEnd);
-            [SegI_B,SegJ_B,SegV_B] = find(sparseB);
-
-            shiftInd = length(SegI_B);
-
-            gI((1:shiftInd)+oldInd,1) = SegI_B;
-
-            gJ((1:shiftInd)+oldInd,1) = SegJ_B+(parms.nVarSeg)*(parms.phase(i).x0knotNumber-1 + parms.phase(i).knotNumber-1);                
-            
-            gV((1:shiftInd)+oldInd,1) = SegV_B;
-
-            oldInd = oldInd+shiftInd;            
+%             gSegBoundaryEnd = parms.phase(i).jacobianBoundaryXEndPattern();
+% 
+%             sparseB = sparse(gSegBoundaryEnd);
+%             [SegI_B,SegJ_B,SegV_B] = find(sparseB);
+% 
+%             shiftInd = length(SegI_B);
+% 
+%             gI((1:shiftInd)+oldInd,1) = SegI_B;
+% 
+%             gJ((1:shiftInd)+oldInd,1) = SegJ_B+(parms.nVarSeg)*(parms.phase(i).x0knotNumber-1 + parms.phase(i).knotNumber-1);                
+%             
+%             gV((1:shiftInd)+oldInd,1) = SegV_B;
+% 
+%             oldInd = oldInd+shiftInd;            
             
     end
     

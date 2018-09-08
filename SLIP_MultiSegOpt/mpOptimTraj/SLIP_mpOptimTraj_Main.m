@@ -29,21 +29,21 @@ addpath('./helperFunctions')
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 %% Parameter Set
-parms.g = 0.46;
+parms.g = 0.66;
 parms.beta = 72 / 180 * pi;
-parms.k = 16;
+parms.k = 20;
 
-parms.delta0 = 0.1;
+parms.delta = 0.1392;
 
 
-parms.weightBoundary = 1e2;
+parms.weightBoundary = 1e1;
 %% Sys
 parms.ndof = 2;
 parms.nVarSeg = parms.ndof * 3;
-parms.nBoundaryConst = 3;
+parms.nBoundaryConst = 1;
 
 %% Opt
-parms.phase(1).knotNumber = 41;
+parms.phase(1).knotNumber = 5;
 % parms.phase(2).knotNumber = 21;
 
 totalKnotNumber = 0;
@@ -78,15 +78,16 @@ parms.phase(1).jacobianCostH = @jacobianCostStanceH;
 
 % Boundary Constraints
 
-parms.phase(1).jacobianBoundaryX0 = @jacobianBoundaryConstXS0Single;
-parms.phase(1).jacobianBoundaryXEnd = @jacobianBoundaryConstXSEndSingle;
-parms.phase(1).jacobianBoundaryX0Pattern = @jacobianBoundaryConstXS0SinglePattern;
-parms.phase(1).jacobianBoundaryXEndPattern = @jacobianBoundaryConstXSEndSinglePattern;
+parms.phase(1).jacobianBoundaryCostX0 = @jacobianBoundaryCostX0;
+parms.phase(1).jacobianBoundaryCostXEnd = @jacobianBoundaryCostXEnd;
 
-parms.phase(1).jacobianBoundaryX0Fake = @jacobianBoundaryConstXS0SingleFake;
-parms.phase(1).jacobianBoundaryXEndFake = @jacobianBoundaryConstXSEndSingleFake;
-parms.phase(1).jacobianBoundaryX0PatternFake = @jacobianBoundaryConstXS0SinglePatternFake;
-parms.phase(1).jacobianBoundaryXEndPatternFake = @jacobianBoundaryConstXSEndSinglePatternFake;
+parms.phase(1).jacobianBoundaryCostX0Dummy = @jacobianBoundaryCostX0Dummy;
+parms.phase(1).jacobianBoundaryCostXEndDummy = @jacobianBoundaryCostXEndDummy;
+
+
+parms.phase(1).jacobianBoundaryConstX0 = @jacobianBoundaryConstX0;
+parms.phase(1).jacobianBoundaryConstX0Pattern = @jacobianBoundaryConstX0Pattern;
+
 
 
 % Bounds
@@ -182,6 +183,15 @@ figure()
 plot(dx','DisplayName','dx')
 figure()
 plot(ddx','DisplayName','ddx')
+
+
+xStance0Polar = [x(:,1);dx(:,1)];
+
+[x0Start, z0Start, xd0Start,  zd0Start] = polar2CartesianSLIP(xStance0Polar(1), xStance0Polar(2), xStance0Polar(3), xStance0Polar(4));
+    
+    velVec = [xd0Start, -zd0Start];
+    deltaNew = atan2(velVec(2), velVec(1))
+    
 
 %         else
 %%%%% THE KEY LINE:
@@ -284,6 +294,12 @@ ub(1) = 1;
 % 
 lb(2) = parms.beta;
 ub(2) = parms.beta;
+
+% lb(3) = -1 * cos(parms.beta-parms.delta);
+% ub(3) = -1 * cos(parms.beta-parms.delta);
+% % 
+% lb(4) = 1 * sin(parms.beta-parms.delta);
+% ub(4) = 1 * sin(parms.beta-parms.delta);
 end %function end
 
 function [clb, cub] = constBounds(parms)
@@ -303,14 +319,15 @@ cubDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
 % tol = 1e-2;
 % clbBoundary = -tol*ones(parms.nBoundaryConst, 1);
 % cubBoundary = tol*ones(parms.nBoundaryConst, 1);
-
+clbBoundary = 0.2;
+cubBoundary = inf;
 % cubBoundary(end) = inf;
 
-% clb = [clbKine; clbDym; clbBoundary];
-% cub = [cubKine; cubDym; cubBoundary];
+clb = [clbKine; clbDym; clbBoundary];
+cub = [cubKine; cubDym; cubBoundary];
 
-clb = [clbKine; clbDym];
-cub = [cubKine; cubDym];
+% clb = [clbKine; clbDym];
+% cub = [cubKine; cubDym];
 
 % clb = clbBoundary;
 % cub = cubBoundary;
@@ -323,7 +340,7 @@ function c = constAll(xVec, parms)
 c0 = constKineHSM(x, dx, ddx, h, parms);
 c1 = constDym(x, dx, ddx, parms);
 c2 = constBoundary(x, dx, parms);
-c = [c0 c1];
+c = [c0 c1 c2];
 % c = [c2;];
 end %function end
 
@@ -331,16 +348,16 @@ function g = gconstAll(xVec, parms)
 [x, dx, ddx, h] = extractState(xVec, parms);
 g0=gconstKineHSM(x, dx, ddx, h, parms);
 g1=gconstDym(x,dx,ddx,parms);
-% g2=gconstBoundary(x,dx,ddx,parms);
-g = [g0;g1];%g1;g2;g3
+g2=gconstBoundary(x,dx,ddx,parms);
+g = [g0;g1;g2];%g1;g2;g3
 % g = [g2];%g1;g2;g3
 end %function end
 %
 function Pattern = GP(parms)
 G0 = gconstKineHSMPattern(parms);
 G1 = gconstDymPattern(parms);
-% G2 = gconstBoundaryPattern(parms);
-Pattern = [G0;G1];
+G2 = gconstBoundaryPattern(parms);
+Pattern = [G0;G1;G2];
 % Pattern = G2;
 end
 function xVec = state2FreeVariableVector(x, dx, ddx, h, parms)
@@ -395,12 +412,12 @@ x2 = [];
 x = [x1, x2];
 
 % dx
-dx = [0.01*ones(1, parms.totalKnotNumber);
-        -0.01*ones(1, parms.totalKnotNumber)
+dx = [0.1*ones(1, parms.totalKnotNumber);
+        -0.1*ones(1, parms.totalKnotNumber)
     ];
 % ddx
-ddx = [0.01*ones(1, parms.totalKnotNumber);
-        -0.01*ones(1, parms.totalKnotNumber)
+ddx = [0.0*ones(1, parms.totalKnotNumber);
+        0.00*ones(1, parms.totalKnotNumber)
     ];
 
 

@@ -33,16 +33,16 @@ for i = 1:parms.phaseNum
     
     if isreal(tFlight) && tFlight>0  
             gSegBoundary0 = parms.phase(i).jacobianBoundaryX0(...
-                x0(1),x0(2),dx0(1),dx0(2), xEnd(1),xEnd(2),dxEnd(1),dxEnd(2), g, k, beta);
+                x0(1),x0(2),dx0(1),dx0(2), g, k, beta);
             
             gSegBoundaryEnd = parms.phase(i).jacobianBoundaryXEnd(...
-                x0(1),x0(2),dx0(1),dx0(2), xEnd(1),xEnd(2),dxEnd(1),dxEnd(2), g,k, beta);
+                xEnd(1),xEnd(2),dxEnd(1),dxEnd(2), g,k, beta);
     else
             gSegBoundaryEnd = parms.phase(i).jacobianBoundaryXEndFake(...
-                x0(1),x0(2),dx0(1),dx0(2), xEnd(1),xEnd(2),dxEnd(1),dxEnd(2), g,k, beta);            
+                xEnd(1),xEnd(2),dxEnd(1),dxEnd(2), g,k, beta);            
             
             gSegBoundary0 = parms.phase(i).jacobianBoundaryX0Fake(...
-                x0(1),x0(2),dx0(1),dx0(2), xEnd(1),xEnd(2),dxEnd(1),dxEnd(2), g, k, beta);    
+                x0(1),x0(2),dx0(1),dx0(2), g, k, beta);    
     end
     
     gcost(end-i+1) = sum(parms.phase(i).jacobianCostH(xSeg(1,:),xSeg(2,:),dxSeg(1,:),dxSeg(2,:),h(i), g));
@@ -50,11 +50,11 @@ for i = 1:parms.phaseNum
     for j = (1:parms.phase(i).knotNumber )
         gSeg = parms.phase(i).jacobianCostX(xSeg(1,j),xSeg(2,j),dxSeg(1,j),dxSeg(2,j),h(i), g);
         if j==1
-            gcost((1:parms.ndof*3) + shiftIndex) = gSeg + parms.weightBoundary*sum(gSegBoundary0);
+            
         elseif j == parms.phase(i).knotNumber
-            gcost((1:parms.ndof*3) + shiftIndex) = gSeg + parms.weightBoundary*sum(gSegBoundaryEnd);
+            
         else
-            gcost((1:parms.ndof*3) + shiftIndex) = gSeg;
+            gcost((1:parms.ndof*3) + shiftIndex) = g
         end
         shiftIndex = shiftIndex + parms.ndof*3;
     end

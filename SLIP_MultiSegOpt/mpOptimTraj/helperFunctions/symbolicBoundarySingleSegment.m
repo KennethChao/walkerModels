@@ -65,8 +65,9 @@ deltaNew = atan2(velVecF(2), velVecF(1));
 %% State in Cartesian space at the end of the flight phase
 
 %boundary Condition
-cBoundary = simplify([  (velVecS(1)^2+velVecS(2)^2) - 1,...
-                        velVecF'-velVecS']); %v0 = 1                    
+cBoundary = simplify([  (lEnd -1)^2,...
+                        ((velVecS(1)^2+velVecS(2)^2) - 1)^2,...
+                        (velVecF'-velVecS').^2]); %v0 = 1                    
                     
                     
 c = cBoundary
@@ -87,7 +88,7 @@ jacobianStance0Pattern = jacobianStance0;
 jacobianStance0Pattern(jacobianStance0Pattern~=0) = 1;
 
 
-variableVector = [l0, theta0, l0d, theta0d, g,k, beta];
+% variableVector = [l0, theta0, l0d, theta0d, g,k, beta];
 matlabFunction(jacobianStance0,'File','jacobianBoundaryConstXS0Single','Vars',variableVector);
 matlabFunction(jacobianStance0Pattern,'File','jacobianBoundaryConstXS0SinglePattern');
 
@@ -102,7 +103,7 @@ jacobianStanceEnd = simplify(jacobian(c,xStack));
 jacobianStanceEndPattern = jacobianStanceEnd;
 jacobianStanceEndPattern(jacobianStanceEndPattern~=0) = 1;
 
-variableVector = [lEnd, thetaEnd, lEndd, thetaEndd, g,k, beta];
+% variableVector = [lEnd, thetaEnd, lEndd, thetaEndd,  g,k, beta];
 matlabFunction(jacobianStanceEnd,'File','jacobianBoundaryConstXSEndSingle','Vars',variableVector);
 matlabFunction(jacobianStanceEndPattern,'File','jacobianBoundaryConstXSEndSinglePattern');
 
@@ -112,13 +113,14 @@ matlabFunction(jacobianStanceEndPattern,'File','jacobianBoundaryConstXSEndSingle
 velVecFFake = 5*[xSEndd; zSEndd];
 
 %boundary Condition
-cBoundaryFake = simplify([  (velVecS(1)^2+velVecS(2)^2) - 1,...
-                        velVecFFake'-velVecS']); %v0 = 1                    
+cBoundaryFake = simplify([  (lEnd -1)^2,...
+                            ((velVecS(1)^2+velVecS(2)^2) - 1)^2,...
+                            (velVecFFake'-velVecS').^2]); %v0 = 1                    
                     
                     
 c = cBoundaryFake
 
-variableVector = [l0, theta0, l0d, theta0d, lEnd, thetaEnd, lEndd, thetaEndd, g,k, beta];
+% variableVector = [l0, theta0, l0d, theta0d, lEnd, thetaEnd, g,k, beta];
 matlabFunction(c,'File','boundaryConstSingleFake','Vars',variableVector);
 
 %% the start of stance phase
@@ -134,7 +136,7 @@ jacobianStance0Pattern = jacobianStance0;
 jacobianStance0Pattern(jacobianStance0Pattern~=0) = 1;
 
 
-variableVector = [l0, theta0, l0d, theta0d, g,k, beta];
+% variableVector = [l0, theta0, l0d, theta0d,   g,k, beta];
 matlabFunction(jacobianStance0,'File','jacobianBoundaryConstXS0SingleFake','Vars',variableVector);
 matlabFunction(jacobianStance0Pattern,'File','jacobianBoundaryConstXS0SinglePatternFake');
 
@@ -149,7 +151,7 @@ jacobianStanceEnd = simplify(jacobian(c,xStack));
 jacobianStanceEndPattern = jacobianStanceEnd;
 jacobianStanceEndPattern(jacobianStanceEndPattern~=0) = 1;
 
-variableVector = [lEnd, thetaEnd, lEndd, thetaEndd, g,k, beta];
+% variableVector = [lEnd, thetaEnd, lEndd, thetaEndd,  g,k, beta];
 matlabFunction(jacobianStanceEnd,'File','jacobianBoundaryConstXSEndSingleFake','Vars',variableVector);
 matlabFunction(jacobianStanceEndPattern,'File','jacobianBoundaryConstXSEndSinglePatternFake');
 

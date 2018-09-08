@@ -3,6 +3,7 @@ function cost = costFun(x,dx,h,parms)
 %
 cost = 0;
 g = parms.g;
+g = parms.g;
 k = parms.k;
 beta = parms.beta;
 
@@ -14,13 +15,13 @@ tFlight = boundaryConstTFlight(xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStance
 
 if isreal(tFlight) && tFlight>0
 
-    cBoundary = boundaryConstSingle(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
+    cBounda = boundaryConstSingle(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
         xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),....
         parms.g,parms.k,parms.beta );
 
 else
     
-    cBoundary = boundaryConstSingleFake(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
+    c = boundaryConstSingleFake(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
         xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),....
         parms.g,parms.k,parms.beta );
     
@@ -40,5 +41,5 @@ for i = 1:parms.phaseNum
        
 %     shiftIndex = shiftIndex + parms.phase(i).knotNumber;
 end
-cost = cost+parms.weightBoundary*sum(cBoundary);
+cost = cost;
 end

@@ -35,15 +35,13 @@ parms.k = 16;
 
 parms.delta0 = 0.1;
 
-
-parms.weightBoundary = 1e2;
 %% Sys
 parms.ndof = 2;
 parms.nVarSeg = parms.ndof * 3;
 parms.nBoundaryConst = 3;
 
 %% Opt
-parms.phase(1).knotNumber = 41;
+parms.phase(1).knotNumber = 21;
 % parms.phase(2).knotNumber = 21;
 
 totalKnotNumber = 0;
@@ -164,8 +162,8 @@ options.ipopt.mu_strategy = 'adaptive';
 options.ipopt.print_info_string = 'yes';
 % options.ipopt.linear_solver = 'ma57';
 % options.ipopt.honor_original_bounds = 'no';
-% options.ipopt.derivative_test       = 'first-order';
-options.ipopt.max_iter = 1500;
+options.ipopt.derivative_test       = 'first-order';
+options.ipopt.max_iter = 1;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                           Solve!                                        %
@@ -300,38 +298,29 @@ clbDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
 cubDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
 
 % Bounds of Boundary Constraints
-% tol = 1e-2;
-% clbBoundary = -tol*ones(parms.nBoundaryConst, 1);
-% cubBoundary = tol*ones(parms.nBoundaryConst, 1);
+tol = 1e-2;
+clbBoundary = -tol*ones(parms.nBoundaryConst, 1);
+cubBoundary = tol*ones(parms.nBoundaryConst, 1);
 
 % cubBoundary(end) = inf;
 
-% clb = [clbKine; clbDym; clbBoundary];
-% cub = [cubKine; cubDym; cubBoundary];
+clb = [clbKine; clbDym; clbBoundary];
+cub = [cubKine; cubDym; cubBoundary];
 
-clb = [clbKine; clbDym];
-cub = [cubKine; cubDym];
+% clb = [clbKine; clbDym];
+% cub = [cubKine; cubDym];
 
 % clb = clbBoundary;
 % cub = cubBoundary;
 
 end %function end
 
-function c = constAll(xVec, parms)
-[x, dx, ddx, h] = extractState(xVec, parms);
-
-c0 = constKineHSM(x, dx, ddx, h, parms);
-c1 = constDym(x, dx, ddx, parms);
-c2 = constBoundary(x, dx, parms);
-c = [c0 c1];
-% c = [c2;];
-end %function end
 
 function g = gconstAll(xVec, parms)
 [x, dx, ddx, h] = extractState(xVec, parms);
 g0=gconstKineHSM(x, dx, ddx, h, parms);
 g1=gconstDym(x,dx,ddx,parms);
-% g2=gconstBoundary(x,dx,ddx,parms);
+g2=gconstBoundary(x,dx,ddx,parms);
 g = [g0;g1];%g1;g2;g3
 % g = [g2];%g1;g2;g3
 end %function end
@@ -339,7 +328,7 @@ end %function end
 function Pattern = GP(parms)
 G0 = gconstKineHSMPattern(parms);
 G1 = gconstDymPattern(parms);
-% G2 = gconstBoundaryPattern(parms);
+G2 = gconstBoundaryPattern(parms);
 Pattern = [G0;G1];
 % Pattern = G2;
 end

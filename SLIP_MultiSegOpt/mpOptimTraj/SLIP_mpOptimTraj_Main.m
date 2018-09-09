@@ -29,21 +29,22 @@ addpath('./helperFunctions')
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 %% Parameter Set
-parms.g = 0.66;
+parms.g = 0.46;
 parms.beta = 72 / 180 * pi;
 parms.k = 20;
 
-parms.delta = 0.1392;
+parms.delta = 0.537;
 
 
-parms.weightBoundary = 1e1;
+parms.weightBoundary = 1;
+parms.weightLagrangian = 1;
 %% Sys
 parms.ndof = 2;
 parms.nVarSeg = parms.ndof * 3;
 parms.nBoundaryConst = 1;
 
 %% Opt
-parms.phase(1).knotNumber = 5;
+parms.phase(1).knotNumber =51;
 % parms.phase(2).knotNumber = 21;
 
 totalKnotNumber = 0;
@@ -93,7 +94,7 @@ parms.phase(1).jacobianBoundaryConstX0Pattern = @jacobianBoundaryConstX0Pattern;
 % Bounds
 parms.phase(1).xlb = [0, parms.beta];
 parms.phase(1).dxlb = [-inf, -inf];
-parms.phase(1).ddxlb = [-inf, -inf];
+parms.phase(1).ddxlb = [0, -inf];
 parms.phase(1).hlb = 1e-2;
 
 parms.phase(1).xub = [1, pi];
@@ -153,8 +154,10 @@ options.cu = cub;
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %              Create an initial guess for the trajectory                 %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
-xVec = initialGuess(parms);
-[x, dx, ddx, h] = extractState(xVec, parms);
+% xVec = initialGuess(parms);
+data = load('xUnstableInitialGuess.mat','-mat','xVec')
+% 
+% [x, dx, ddx, h] = extractState(data.xVec, parms);
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                           Options:                                      %
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -163,7 +166,8 @@ options.ipopt.tol = 1e-4;
 options.ipopt.mu_strategy = 'adaptive';
 
 options.ipopt.print_info_string = 'yes';
-% options.ipopt.linear_solver = 'ma57';
+options.ipopt.linear_solver = 'ma57';
+% options.ipopt.warm_start_init_point= 'yes'
 % options.ipopt.honor_original_bounds = 'no';
 % options.ipopt.derivative_test       = 'first-order';
 options.ipopt.max_iter = 1500;
@@ -173,6 +177,8 @@ options.ipopt.max_iter = 1500;
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %         if optPars.flag_IPOPT==1
 xVec = initialGuess(parms);
+% data = load('xUnstableInitialGuess.mat','-mat','xVec');
+% xVec =  data.xVec
 [x_Flat2, ~] = ipopt(xVec,funcs,options);
 
 [x, dx, ddx, h] = extractState(x_Flat2, parms);
@@ -192,7 +198,7 @@ xStance0Polar = [x(:,1);dx(:,1)];
     velVec = [xd0Start, -zd0Start];
     deltaNew = atan2(velVec(2), velVec(1))
     
-
+cost(x_Flat2)
 %         else
 %%%%% THE KEY LINE:
 % soln = optimTraj(problem);
@@ -281,6 +287,13 @@ for i = 1:parms.phaseNum
         ub(1, (1:parms.ndof)+(j - 1)*parms.nVarSeg+shiftIndex) = parms.phase(i).xub;
         ub(1, (1:parms.ndof)+(j - 1)*parms.nVarSeg+parms.ndof+shiftIndex) = parms.phase(i).dxub;
         ub(1, (1:parms.ndof)+(j - 1)*parms.nVarSeg+parms.ndof*2+shiftIndex) = parms.phase(i).ddxub;
+        
+        if j ==parms.phase(i).knotNumber
+            lb(1, (1:parms.ndof)+(j - 1)*parms.nVarSeg+parms.ndof+shiftIndex) = [0,0];            
+            ub(1, (1)+(j - 1)*parms.nVarSeg+shiftIndex) = 1;
+            lb(1, (1)+(j - 1)*parms.nVarSeg+shiftIndex) = 1;
+        end
+        
     end
     shiftIndex = shiftIndex + parms.phase(i).knotNumber * parms.nVarSeg;
 end
@@ -319,8 +332,8 @@ cubDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
 % tol = 1e-2;
 % clbBoundary = -tol*ones(parms.nBoundaryConst, 1);
 % cubBoundary = tol*ones(parms.nBoundaryConst, 1);
-clbBoundary = 0.2;
-cubBoundary = inf;
+clbBoundary = 1e-6;
+cubBoundary = pi/2;
 % cubBoundary(end) = inf;
 
 clb = [clbKine; clbDym; clbBoundary];
@@ -399,7 +412,7 @@ end
 function xVec = initialGuess(parms)
 % h
 % h = [0.2, 0.2];
-h = [0.2];
+h = [1e-5];
 x1 = [linspace(1, 1, parms.phase(1).knotNumber); ...
     linspace(parms.beta, parms.beta*2, parms.phase(1).knotNumber);];
 
@@ -412,12 +425,12 @@ x2 = [];
 x = [x1, x2];
 
 % dx
-dx = [0.1*ones(1, parms.totalKnotNumber);
-        -0.1*ones(1, parms.totalKnotNumber)
+dx = [-0.1*ones(1, parms.totalKnotNumber);
+        0.5*ones(1, parms.totalKnotNumber)
     ];
 % ddx
-ddx = [0.0*ones(1, parms.totalKnotNumber);
-        0.00*ones(1, parms.totalKnotNumber)
+ddx = [-0.1*ones(1, parms.totalKnotNumber);
+        0.1*ones(1, parms.totalKnotNumber)
     ];
 
 

@@ -40,5 +40,5 @@ for i = 1:parms.phaseNum
        
 %     shiftIndex = shiftIndex + parms.phase(i).knotNumber;
 end
-cost = cost+parms.weightBoundary*sum(cBoundary);
+cost = parms.weightLagrangian*cost+parms.weightBoundary*sum(cBoundary);
 end

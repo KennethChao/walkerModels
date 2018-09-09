@@ -49,7 +49,7 @@ zFEndd = zSEndd - tFlightEnd*g;
 xFEndd = xSEndd;
 
 
-velVecF = [xFEndd; zFEndd];
+velVecF = [xFEndd; -zFEndd];
 deltaNew = atan2(velVecF(2), velVecF(1));
 %% State in Cartesian space at the end of the flight phase
 % xStanceEnd = [x(1, parms.phase(1).knotNumber), ...

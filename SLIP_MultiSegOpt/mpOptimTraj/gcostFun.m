@@ -40,10 +40,10 @@ for i = 1:parms.phaseNum
             
     end
     
-    gcost(end-i+1) = sum(parms.phase(i).jacobianCostH(xSeg(1,:),xSeg(2,:),dxSeg(1,:),dxSeg(2,:),h(i), g));
+    gcost(end-i+1) = parms.weightLagrangian*sum(parms.phase(i).jacobianCostH(xSeg(1,:),xSeg(2,:),dxSeg(1,:),dxSeg(2,:),h(i), g));
 
     for j = (1:parms.phase(i).knotNumber )
-        gSeg = parms.phase(i).jacobianCostX(xSeg(1,j),xSeg(2,j),dxSeg(1,j),dxSeg(2,j),h(i), g);
+        gSeg = parms.weightLagrangian*parms.phase(i).jacobianCostX(xSeg(1,j),xSeg(2,j),dxSeg(1,j),dxSeg(2,j),h(i), g);
         if j==1
             gcost((1:parms.ndof*3) + shiftIndex) = gSeg + parms.weightBoundary*sum(gSegBoundary0);
         elseif j == parms.phase(i).knotNumber

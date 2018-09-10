@@ -30,21 +30,21 @@ addpath('./helperFunctions')
 
 %% Parameter Set
 parms.g = 0.46;
-parms.beta = 72 / 180 * pi;
-parms.k = 20;
+parms.beta = 74 / 180 * pi;
+parms.k = 20.22;
 
 parms.delta = 0.537;
 
 
-parms.weightBoundary = 1;
-parms.weightLagrangian = 1;
+parms.weightBoundary = 1e1;
+parms.weightLagrangian =1e-2;
 %% Sys
 parms.ndof = 2;
 parms.nVarSeg = parms.ndof * 3;
 parms.nBoundaryConst = 1;
 
 %% Opt
-parms.phase(1).knotNumber =51;
+parms.phase(1).knotNumber =31;
 % parms.phase(2).knotNumber = 21;
 
 totalKnotNumber = 0;
@@ -65,7 +65,7 @@ end
 parms.totalKnotNumber = totalKnotNumber;
 parms.totaHSMCnstNumber = totaHSMCnstNumber;
 parms.phaseNum = length(parms.phase);
-parms.totalVarNumber = parms.totalKnotNumber * parms.nVarSeg + parms.phaseNum;
+parms.totalVarNumber = parms.totalKnotNumber * parms.nVarSeg + parms.phaseNum+1;
 
 % Dym
 parms.phase(1).dymFunc = @dymStanceDimensionless;
@@ -169,8 +169,8 @@ options.ipopt.print_info_string = 'yes';
 options.ipopt.linear_solver = 'ma57';
 % options.ipopt.warm_start_init_point= 'yes'
 % options.ipopt.honor_original_bounds = 'no';
-% options.ipopt.derivative_test       = 'first-order';
-options.ipopt.max_iter = 1500;
+options.ipopt.derivative_test       = 'first-order';
+options.ipopt.max_iter = 1;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                           Solve!                                        %
@@ -181,7 +181,7 @@ xVec = initialGuess(parms);
 % xVec =  data.xVec
 [x_Flat2, ~] = ipopt(xVec,funcs,options);
 
-[x, dx, ddx, h] = extractState(x_Flat2, parms);
+[x, dx, ddx, h, sigma] = extractState(x_Flat2, parms);
 
 figure()
 plot(x','DisplayName','x')
@@ -298,9 +298,11 @@ for i = 1:parms.phaseNum
     shiftIndex = shiftIndex + parms.phase(i).knotNumber * parms.nVarSeg;
 end
 for i = (1:length(parms.phase))
-    lb(1, end-i+1) = parms.phase(i).hlb;
-    ub(1, end-i+1) = parms.phase(i).hub;
+    lb(1, end-i) = parms.phase(i).hlb;
+    ub(1, end-i) = parms.phase(i).hub;
 end
+
+
 
 lb(1) = 1;
 ub(1) = 1;
@@ -308,11 +310,15 @@ ub(1) = 1;
 lb(2) = parms.beta;
 ub(2) = parms.beta;
 
-% lb(3) = -1 * cos(parms.beta-parms.delta);
-% ub(3) = -1 * cos(parms.beta-parms.delta);
-% % 
-% lb(4) = 1 * sin(parms.beta-parms.delta);
-% ub(4) = 1 * sin(parms.beta-parms.delta);
+lb(3) = -1 * cos(parms.beta-parms.delta);
+ub(3) = -1 * cos(parms.beta-parms.delta);
+% 
+lb(4) = 1 * sin(parms.beta-parms.delta);
+ub(4) = 1 * sin(parms.beta-parms.delta);
+
+lb(end) = 0;
+ub(end) = 20;
+
 end %function end
 
 function [clb, cub] = constBounds(parms)
@@ -373,9 +379,9 @@ G2 = gconstBoundaryPattern(parms);
 Pattern = [G0;G1;G2];
 % Pattern = G2;
 end
-function xVec = state2FreeVariableVector(x, dx, ddx, h, parms)
+function xVec = state2FreeVariableVector(x, dx, ddx, h, sigma, parms)
 
-xVec = zeros(parms.totalKnotNumber*parms.nVarSeg+length(parms.phase), 1);
+xVec = zeros(parms.totalVarNumber, 1);
 for i = 1:parms.totalKnotNumber
     xSegment = [x(:, i); ...
         dx(:, i); ...
@@ -388,11 +394,11 @@ end
 % xVec(end-1) = h(1);
 % xVec(end) = h(1);
 for i = 1:length(parms.phase)
-     xVec(end-i+1) = h(i);
+     xVec(end-i) = h(i);
 end
-
+    xVec(end) = sigma;
 end
-function [x, dx, ddx, h] = extractState(aVec, parms)
+function [x, dx, ddx, h, sigma] = extractState(aVec, parms)
 x = zeros(parms.ndof, parms.totalKnotNumber);
 dx = zeros(parms.ndof, parms.totalKnotNumber);
 ddx = zeros(parms.ndof, parms.totalKnotNumber);
@@ -404,9 +410,10 @@ for i = 1:parms.totalKnotNumber
 end
 
 for i = 1:length(parms.phase)
-     h(i) = aVec(end-i+1);
+     h(i) = aVec(end-i);
 end
 
+    sigma = aVec(end);
 end
 
 function xVec = initialGuess(parms)
@@ -433,7 +440,7 @@ ddx = [-0.1*ones(1, parms.totalKnotNumber);
         0.1*ones(1, parms.totalKnotNumber)
     ];
 
-
-xVec = state2FreeVariableVector(x, dx, ddx, h, parms);
+sigma = 10;
+xVec = state2FreeVariableVector(x, dx, ddx, h, sigma, parms);
 
 end

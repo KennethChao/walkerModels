@@ -61,7 +61,7 @@ function g = gconstPatternKineHSM(parms) %x, dx, ddx, h,
                                    SegI_Kh+(nRow)*(iter-1)];
 
         gJ((1:shiftInd)+oldInd,1) = [SegJ_K + (parms.nVarSeg)*((iter-1 )*2 + (i-1));...
-                                       (parms.totalVarNumber-i+1)*ones((size(SegI_Kh,1)),1)];
+                                       (parms.totalVarNumber-i)*ones((size(SegI_Kh,1)),1)];
 
         gV((1:shiftInd)+oldInd,1) = [SegV_K;...
                                    SegV_Kh];

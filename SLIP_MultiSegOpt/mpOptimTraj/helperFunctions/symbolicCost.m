@@ -12,7 +12,7 @@ xStancePolar = [l;theta;ld;thetad];
 
 [xStart, zStart, xdStart,  zdStart] = polar2CartesianSLIP(xStancePolar(1), xStancePolar(2), xStancePolar(3), xStancePolar(4));
 
-costStance = simplify((xdStart^2 + zdStart^2 + g*zStart)*h);
+costStance = simplify((g*zStart)*h); %xdStart^2 + zdStart^2 + 
 
 
 variableVector = [l, theta, ld, thetad, h, g];

@@ -1,30 +1,30 @@
-function cost = costFun(x,dx,h,parms)
+function cost = costFun(x,dx,h, sigma,parms)
 % cost = costFun(u)
 %
 cost = 0;
 g = parms.g;
-k = parms.k;
-beta = parms.beta;
+% k = parms.k;
+% beta = parms.beta;
 
 %% State in Cartesian space at the start of the stance phase
-xStance0 = [x(:,1);dx(:,1)];
-xStanceEnd = [x(:,parms.phase(1).knotNumber);dx(:,parms.phase(1).knotNumber)];
-
-tFlight = getFlightTime(xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),g,k,beta);
-
-if isreal(tFlight) && tFlight>0
-
-    cBoundary = boundaryCost(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
-        xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),....
-        parms.g,parms.k,parms.beta );
-
-else
-    
-    cBoundary = boundaryCostDummy(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
-        xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),....
-        parms.g,parms.k,parms.beta );
-    
-end
+% xStance0 = [x(:,1);dx(:,1)];
+% xStanceEnd = [x(:,parms.phase(1).knotNumber);dx(:,parms.phase(1).knotNumber)];
+% 
+% tFlight = getFlightTime(xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),g,k,beta);
+% 
+% if isreal(tFlight) && tFlight>0
+%     tFlight
+%     cBoundary = boundaryCost(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
+%         xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),....
+%         parms.g,parms.k,parms.beta );
+% 
+% else
+%     
+%     cBoundary = boundaryCostDummy(xStance0(1),xStance0(2),xStance0(3),xStance0(4),...
+%         xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),....
+%         parms.g,parms.k,parms.beta );
+%     
+% end
 %%
 for i = 1:parms.phaseNum
     xSeg = x(:,(1:parms.phase(i).knotNumber)+parms.phase(i).x0knotNumber-1);
@@ -40,5 +40,5 @@ for i = 1:parms.phaseNum
        
 %     shiftIndex = shiftIndex + parms.phase(i).knotNumber;
 end
-cost = parms.weightLagrangian*cost+parms.weightBoundary*sum(cBoundary);
+cost = parms.weightLagrangian*cost+parms.weightPeriodic*sigma^2;
 end

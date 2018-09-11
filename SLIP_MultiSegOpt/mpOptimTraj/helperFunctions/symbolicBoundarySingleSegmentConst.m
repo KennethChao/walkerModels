@@ -65,7 +65,8 @@ deltaNew = atan2(velVecF(2), velVecF(1));
 %% State in Cartesian space at the end of the flight phase
 
 %boundary Condition
-cBoundary = simplify([deltaOld]); %v0 = 1                    
+cBoundary = simplify([ deltaOld,...
+                       ((velVecS(1)^2+velVecS(2)^2) - 1)^2 ]); %v0 = 1                    
                     
                     
 c = cBoundary;

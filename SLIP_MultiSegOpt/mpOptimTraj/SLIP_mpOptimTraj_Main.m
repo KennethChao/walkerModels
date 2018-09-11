@@ -29,22 +29,25 @@ addpath('./helperFunctions')
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 %% Parameter Set
-parms.g = 0.46;
-parms.beta = 74 / 180 * pi;
-parms.k = 20.22;
+parms.g = 0.69;
+parms.beta = 72 / 180 * pi;
+parms.k = 18.74;
 
-parms.delta = 0.537;
+parms.delta = 0.1074;
 
 
-parms.weightBoundary = 1e1;
-parms.weightLagrangian =1e-2;
+% parms.weightBoundary = 1e1;
+parms.weightLagrangian =1e1;
+parms.weightPeriodic = 1e3;
+
+parms.penaltyMethod = true;
 %% Sys
 parms.ndof = 2;
 parms.nVarSeg = parms.ndof * 3;
-parms.nBoundaryConst = 1;
+parms.nBoundaryConst = 2;
 
 %% Opt
-parms.phase(1).knotNumber =31;
+parms.phase(1).knotNumber =81;
 % parms.phase(2).knotNumber = 21;
 
 totalKnotNumber = 0;
@@ -84,6 +87,9 @@ parms.phase(1).jacobianBoundaryCostXEnd = @jacobianBoundaryCostXEnd;
 
 parms.phase(1).jacobianBoundaryCostX0Dummy = @jacobianBoundaryCostX0Dummy;
 parms.phase(1).jacobianBoundaryCostXEndDummy = @jacobianBoundaryCostXEndDummy;
+
+parms.phase(1).jacobianBoundaryCostX0Pattern = @jacobianBoundaryCostX0Pattern;
+parms.phase(1).jacobianBoundaryCostXEndPattern = @jacobianBoundaryCostXEndPattern;
 
 
 parms.phase(1).jacobianBoundaryConstX0 = @jacobianBoundaryConstX0;
@@ -169,8 +175,8 @@ options.ipopt.print_info_string = 'yes';
 options.ipopt.linear_solver = 'ma57';
 % options.ipopt.warm_start_init_point= 'yes'
 % options.ipopt.honor_original_bounds = 'no';
-options.ipopt.derivative_test       = 'first-order';
-options.ipopt.max_iter = 1;
+% options.ipopt.derivative_test       = 'first-order';
+options.ipopt.max_iter = 10000;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                           Solve!                                        %
@@ -258,15 +264,16 @@ cost(x_Flat2)
 % ylabel('torque (Nm)')
 % title('Hip Torque')
 function c = costFunction(xVec, parms)
-[x, dx, ddx, h] = extractState(xVec, parms);
+[x, dx, ddx, h, sigma] = extractState(xVec, parms);
 %
-c = costFun(x,dx,h,parms);
+c = costFun(x,dx,h, sigma,parms);
 end %function end
 
 function g = gcostFunction(xVec, parms)
-[x, dx, ddx, h] = extractState(xVec, parms);
+[x, dx, ddx, h, sigma] = extractState(xVec, parms);
 %
-g = gcostFun(x,dx,h,parms);
+g = gcostFun(x,dx,h,sigma, parms);
+
 end %function end
 
 
@@ -310,14 +317,14 @@ ub(1) = 1;
 lb(2) = parms.beta;
 ub(2) = parms.beta;
 
-lb(3) = -1 * cos(parms.beta-parms.delta);
-ub(3) = -1 * cos(parms.beta-parms.delta);
-% 
-lb(4) = 1 * sin(parms.beta-parms.delta);
-ub(4) = 1 * sin(parms.beta-parms.delta);
+% lb(3) = -1 * cos(parms.beta-parms.delta);
+% ub(3) = -1 * cos(parms.beta-parms.delta);
+% % 
+% lb(4) = 1 * sin(parms.beta-parms.delta);
+% ub(4) = 1 * sin(parms.beta-parms.delta);
 
 lb(end) = 0;
-ub(end) = 20;
+ub(end) = inf;
 
 end %function end
 
@@ -325,6 +332,8 @@ function [clb, cub] = constBounds(parms)
 
 %%
 % Bounds of Kinematic Constraints
+
+
 nHSM = 2;
 relativeDegree = 2;
 clbKine = zeros(parms.totaHSMCnstNumber*parms.ndof*nHSM*relativeDegree, 1);
@@ -338,13 +347,21 @@ cubDym = zeros((parms.totalKnotNumber)*parms.ndof, 1);
 % tol = 1e-2;
 % clbBoundary = -tol*ones(parms.nBoundaryConst, 1);
 % cubBoundary = tol*ones(parms.nBoundaryConst, 1);
-clbBoundary = 1e-6;
-cubBoundary = pi/2;
+clbBoundary = [0; 0];
+cubBoundary = [pi/2; 0];
 % cubBoundary(end) = inf;
+if parms.penaltyMethod
+clbPeriodic = [0; 0];
+cubPeriodic = [0; 0];
 
+clb = [clbKine; clbDym; clbBoundary; clbPeriodic];
+cub = [cubKine; cubDym; cubBoundary; cubPeriodic];
+% clb = [clbPeriodic];
+% cub = [cubPeriodic];
+else
 clb = [clbKine; clbDym; clbBoundary];
-cub = [cubKine; cubDym; cubBoundary];
-
+cub = [cubKine; cubDym; cubBoundary];    
+end
 % clb = [clbKine; clbDym];
 % cub = [cubKine; cubDym];
 
@@ -354,29 +371,52 @@ cub = [cubKine; cubDym; cubBoundary];
 end %function end
 
 function c = constAll(xVec, parms)
-[x, dx, ddx, h] = extractState(xVec, parms);
+[x, dx, ddx, h, sigma] = extractState(xVec, parms);
 
 c0 = constKineHSM(x, dx, ddx, h, parms);
 c1 = constDym(x, dx, ddx, parms);
 c2 = constBoundary(x, dx, parms);
-c = [c0 c1 c2];
+
+if parms.penaltyMethod
+    c3 = constPeriodic(x, dx, sigma, parms);
+    c = [c0 c1 c2 c3];
+%     c = c3;
+else
+    c = [c0 c1 c2];    
+end
+
 % c = [c2;];
 end %function end
 
 function g = gconstAll(xVec, parms)
-[x, dx, ddx, h] = extractState(xVec, parms);
+[x, dx, ddx, h, sigma] = extractState(xVec, parms);
 g0=gconstKineHSM(x, dx, ddx, h, parms);
 g1=gconstDym(x,dx,ddx,parms);
 g2=gconstBoundary(x,dx,ddx,parms);
-g = [g0;g1;g2];%g1;g2;g3
-% g = [g2];%g1;g2;g3
+
+if parms.penaltyMethod
+    g3 = gconstPeriodic(x, dx, sigma, parms);
+    g = [g0;g1;g2;g3];%g1;g2;g3
+% %     g = g3;
+else
+    g = [g0;g1;g2];%g1;g2;g3
+end
+
 end %function end
 %
 function Pattern = GP(parms)
 G0 = gconstKineHSMPattern(parms);
 G1 = gconstDymPattern(parms);
 G2 = gconstBoundaryPattern(parms);
-Pattern = [G0;G1;G2];
+
+if parms.penaltyMethod
+    G3 = gconstPeriodicPattern(parms);
+    Pattern = [G0;G1;G2;G3]; 
+%     Pattern = G3;
+else
+    Pattern = [G0;G1;G2];
+end
+
 % Pattern = G2;
 end
 function xVec = state2FreeVariableVector(x, dx, ddx, h, sigma, parms)
@@ -419,7 +459,7 @@ end
 function xVec = initialGuess(parms)
 % h
 % h = [0.2, 0.2];
-h = [1e-5];
+h = [1e-3];
 x1 = [linspace(1, 1, parms.phase(1).knotNumber); ...
     linspace(parms.beta, parms.beta*2, parms.phase(1).knotNumber);];
 
@@ -440,7 +480,7 @@ ddx = [-0.1*ones(1, parms.totalKnotNumber);
         0.1*ones(1, parms.totalKnotNumber)
     ];
 
-sigma = 10;
+sigma = 30;
 xVec = state2FreeVariableVector(x, dx, ddx, h, sigma, parms);
 
 end

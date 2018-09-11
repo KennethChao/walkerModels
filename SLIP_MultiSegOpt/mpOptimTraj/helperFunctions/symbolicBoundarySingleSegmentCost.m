@@ -30,12 +30,12 @@ xStanceEnd = [xSEnd; xSEndd; zSEnd; zSEndd];
 
 % For legit time
 
-r = roots([-1/2*g, zSEndd, sin(beta)-zSEnd]);
+r = roots([-1/2*g, zSEndd, sin(theta0)-zSEnd]);
 
 tFlightEnd = r(2);
 
 
-variableVector = [lEnd, thetaEnd, lEndd, thetaEndd, g,k, beta];
+variableVector = [lEnd, thetaEnd, lEndd, thetaEndd, theta0, g];
 matlabFunction(tFlightEnd,'File','getFlightTime','Vars',variableVector);
 
 
@@ -51,7 +51,10 @@ deltaNew = atan2(velVecF(2), velVecF(1));
 %boundary Condition
 cBoundary = simplify([  ...%(lEnd -1)^2,...
                         ...((velVecS(1)^2+velVecS(2)^2) - 1)^2,
-                        (velVecF'-velVecS').^2]); %v0 = 1                    
+                        (velVecF'-velVecS').^2
+                        ...((velVecS(1)^2+velVecS(2)^2) -(velVecF(1)^2+velVecF(2)^2))^2,...
+                        ...deltaNew-deltaOld]); %v0 = 1                    
+                        ]);
                     
                     
 c = cBoundary
@@ -95,7 +98,7 @@ matlabFunction(jacobianStanceEndPattern,'File','jacobianBoundaryCostXEndPattern'
 
 
 %%
-velVecFDummy = 5*[xSEndd; zSEndd];
+velVecFDummy = 1*[xSEndd; zSEndd];
 
 %boundary Condition
 cBoundaryFake = simplify([  ...%(lEnd -1)^2,...

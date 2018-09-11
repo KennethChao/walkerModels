@@ -3,7 +3,7 @@ function cost = costFun(x,dx,h, sigma,parms)
 %
 cost = 0;
 g = parms.g;
-% k = parms.k;
+k = parms.k;
 % beta = parms.beta;
 
 %% State in Cartesian space at the start of the stance phase
@@ -36,9 +36,8 @@ for i = 1:parms.phaseNum
 %     else
 %         dCartesianState = dState;
 %     end
-    cost = cost + sum(parms.phase(i).costFunc(xSeg(1,:),xSeg(2,:),dxSeg(1,:),dxSeg(2,:),h(i), g));
+    cost = cost + sum(parms.phase(i).costFunc(xSeg(1,:),xSeg(2,:),dxSeg(1,:),dxSeg(2,:),h(i), g, k));
        
 %     shiftIndex = shiftIndex + parms.phase(i).knotNumber;
 end
-cost = parms.weightLagrangian*cost+parms.weightPeriodic*sigma^2;
 end

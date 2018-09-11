@@ -36,7 +36,7 @@ xStanceEnd = [xSEnd; xSEndd; zSEnd; zSEndd];
 
 % For legit time
 
-r = roots([-1/2*g, zSEndd, sin(beta)-zSEnd]);
+r = roots([-1/2*g, zSEndd, sin(theta0)-zSEnd]);
 
 tFlightEnd = r(2);
 

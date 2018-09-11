@@ -29,9 +29,9 @@ addpath('./helperFunctions')
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 %% Parameter Set
-parms.g = 0.69;
+parms.g = 0.46;
 parms.beta = 72 / 180 * pi;
-parms.k = 18.74;
+parms.k = 16.31;
 
 parms.delta = 0.1074;
 
@@ -47,7 +47,7 @@ parms.nVarSeg = parms.ndof * 3;
 parms.nBoundaryConst = 2;
 
 %% Opt
-parms.phase(1).knotNumber =81;
+parms.phase(1).knotNumber =31;
 % parms.phase(2).knotNumber = 21;
 
 totalKnotNumber = 0;
@@ -175,8 +175,8 @@ options.ipopt.print_info_string = 'yes';
 options.ipopt.linear_solver = 'ma57';
 % options.ipopt.warm_start_init_point= 'yes'
 % options.ipopt.honor_original_bounds = 'no';
-% options.ipopt.derivative_test       = 'first-order';
-options.ipopt.max_iter = 10000;
+options.ipopt.derivative_test       = 'first-order';
+options.ipopt.max_iter = 1;
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 %                           Solve!                                        %
@@ -203,8 +203,9 @@ xStance0Polar = [x(:,1);dx(:,1)];
     
     velVec = [xd0Start, -zd0Start];
     deltaNew = atan2(velVec(2), velVec(1))
-    
+    norm(velVec)
 cost(x_Flat2)
+cnst(x_Flat2)
 %         else
 %%%%% THE KEY LINE:
 % soln = optimTraj(problem);
@@ -351,8 +352,8 @@ clbBoundary = [0; 0];
 cubBoundary = [pi/2; 0];
 % cubBoundary(end) = inf;
 if parms.penaltyMethod
-clbPeriodic = [0; 0];
-cubPeriodic = [0; 0];
+clbPeriodic = [-inf; -inf;0;0];
+cubPeriodic = [0; 0; inf; inf];
 
 clb = [clbKine; clbDym; clbBoundary; clbPeriodic];
 cub = [cubKine; cubDym; cubBoundary; cubPeriodic];
@@ -397,7 +398,7 @@ g2=gconstBoundary(x,dx,ddx,parms);
 if parms.penaltyMethod
     g3 = gconstPeriodic(x, dx, sigma, parms);
     g = [g0;g1;g2;g3];%g1;g2;g3
-% %     g = g3;
+%     g = g3;
 else
     g = [g0;g1;g2];%g1;g2;g3
 end
@@ -459,7 +460,7 @@ end
 function xVec = initialGuess(parms)
 % h
 % h = [0.2, 0.2];
-h = [1e-3];
+h = [1e-5];
 x1 = [linspace(1, 1, parms.phase(1).knotNumber); ...
     linspace(parms.beta, parms.beta*2, parms.phase(1).knotNumber);];
 

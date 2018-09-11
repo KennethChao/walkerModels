@@ -25,5 +25,5 @@ else
     
 end
 
-c = cBoundary-sigma;
+c = [cBoundary-sigma cBoundary];
 end

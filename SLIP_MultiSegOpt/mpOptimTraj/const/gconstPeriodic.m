@@ -128,10 +128,13 @@ for i = 1:parms.phaseNum
             gJ((1:shiftInd)+oldInd,1) = [parms.totalVarNumber;parms.totalVarNumber];
             gV((1:shiftInd)+oldInd,1) = [-1;-1];
             
+            gV2 = gV;
+            gV2((1:shiftInd)+oldInd,1) = [0;0];
             oldInd = oldInd+shiftInd;   
 %     end
-    
-    gcost = sparse(gI(1:oldInd,1),gJ(1:oldInd,1),gV(1:oldInd,1),parms.nBoundaryConst,parms.totalVarNumber);
+            
+    gcost = [sparse(gI(1:oldInd,1),gJ(1:oldInd,1),gV(1:oldInd,1),2,parms.totalVarNumber);
+            sparse(gI(1:oldInd,1),gJ(1:oldInd,1),gV2(1:oldInd,1),2,parms.totalVarNumber)];
 
 % end
 

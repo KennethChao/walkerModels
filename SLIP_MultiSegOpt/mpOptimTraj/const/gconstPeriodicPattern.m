@@ -100,7 +100,8 @@ for i = 1:parms.phaseNum
             
             oldInd = oldInd+shiftInd;   
     
-    g = sparse(gI(1:oldInd,1),gJ(1:oldInd,1),gV(1:oldInd,1),parms.nBoundaryConst,parms.totalVarNumber);
+    g = [sparse(gI(1:oldInd,1),gJ(1:oldInd,1),gV(1:oldInd,1),2,parms.totalVarNumber);
+        sparse(gI(1:oldInd,1),gJ(1:oldInd,1),gV(1:oldInd,1),2,parms.totalVarNumber)];
 
 % end
 

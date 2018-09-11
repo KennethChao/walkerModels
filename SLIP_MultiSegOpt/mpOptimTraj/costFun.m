@@ -40,4 +40,5 @@ for i = 1:parms.phaseNum
        
 %     shiftIndex = shiftIndex + parms.phase(i).knotNumber;
 end
+cost = parms.weightLagrangian*(cost+10)+parms.weightPeriodic*sigma;
 end

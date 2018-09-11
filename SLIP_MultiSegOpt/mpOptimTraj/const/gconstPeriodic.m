@@ -47,7 +47,7 @@ shiftIndex = 0;
         dxEnd = dx(:,end);  
             
   
-tFlight = getFlightTime(xEnd(1),xEnd(2),dxEnd(1),dxEnd(2),g,k,beta);
+tFlight = getFlightTime(xEnd(1),xEnd(2),dxEnd(1),dxEnd(2),x0(2) ,g);
 
 
 for i = 1:parms.phaseNum
@@ -128,13 +128,10 @@ for i = 1:parms.phaseNum
             gJ((1:shiftInd)+oldInd,1) = [parms.totalVarNumber;parms.totalVarNumber];
             gV((1:shiftInd)+oldInd,1) = [-1;-1];
             
-            gV2 = gV;
-            gV2((1:shiftInd)+oldInd,1) = [0;0];
             oldInd = oldInd+shiftInd;   
 %     end
             
-    gcost = [sparse(gI(1:oldInd,1),gJ(1:oldInd,1),gV(1:oldInd,1),2,parms.totalVarNumber);
-            sparse(gI(1:oldInd,1),gJ(1:oldInd,1),gV2(1:oldInd,1),2,parms.totalVarNumber)];
+    gcost = sparse(gI(1:oldInd,1),gJ(1:oldInd,1),gV(1:oldInd,1),2,parms.totalVarNumber);
 
 % end
 

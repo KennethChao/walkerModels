@@ -10,7 +10,7 @@ beta = parms.beta;
 xStance0 = [x(:,1);dx(:,1)];
 xStanceEnd = [x(:,parms.phase(1).knotNumber);dx(:,parms.phase(1).knotNumber)];
 
-tFlight = getFlightTime(xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4),g,k,beta);
+tFlight = getFlightTime(xStanceEnd(1),xStanceEnd(2),xStanceEnd(3),xStanceEnd(4), xStance0(2),g);
 
 if isreal(tFlight) && tFlight>0
 %     tFlight
@@ -25,5 +25,5 @@ else
     
 end
 
-c = [cBoundary-sigma cBoundary];
+c = cBoundary-sigma;
 end

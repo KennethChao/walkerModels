@@ -17,19 +17,23 @@ for k = 1:optParms.searchingVarLength
         trauncatedStableSolution = removeRepeatedFixedPointsSLIP(result.stableData(:, :,k));    
     elseif strcmp(dataType,'delta')
         trauncatedUnstableSolution = removeRepeatedFixedPointsSLIP(result.unstableSolution(:, :,k));
+        trauncatedUnstableData = removeRepeatedFixedPointsSLIP(result.unstableData(:, :,k));    
         trauncatedStableSolution = removeRepeatedFixedPointsSLIP(result.stableSolution(:, :,k));        
+        trauncatedStableData = removeRepeatedFixedPointsSLIP(result.stableData(:, :,k));    
     end
 
     hold on
     
     % Plot dots of fixed point solutions
     for i = 1: size(trauncatedUnstableSolution,1)
-        plot(optParms.kVec, trauncatedUnstableSolution(i, :), 'ro','MarkerSize',5,'MarkerFaceColor' , [1 0 0] );
+        plot(optParms.kVec, trauncatedUnstableSolution(i, :), 'ro','MarkerSize',7,'MarkerFaceColor' , [1 0 0] );
+%         scatter(optParms.kVec,trauncatedUnstableSolution(i, :),30,trauncatedUnstableData(i, :),'filled')
     end
     for i = 1: size(trauncatedStableSolution,1)
-        plot(optParms.kVec, trauncatedStableSolution(i, :), 'bo','MarkerSize',5,'MarkerFaceColor' , [0 0 1] );
+%         plot(optParms.kVec, trauncatedStableSolution(i, :), 'bo','MarkerSize',5,'MarkerFaceColor' , [0 0 1] );
+          scatter(optParms.kVec,trauncatedStableSolution(i, :),70,trauncatedStableData(i, :),'filled')
     end
-    
+    caxis([-1,1])
     % Sorting fixed points with the specified starting point option
     reshapedFixedPoints  = reshapeFixedPointsSLIP(trauncatedStableSolution,trauncatedUnstableSolution,optParms.kVec,optParms.deltaMax,startingPointOption);
 

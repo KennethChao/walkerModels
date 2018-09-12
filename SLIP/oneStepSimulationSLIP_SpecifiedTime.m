@@ -1,5 +1,4 @@
-
-function result = oneStepSimulationSLIP(delta0, parms)
+function result = oneStepSimulationSLIP_SpecifiedTime(delta0,t2, parms)
 %ONESTEPSIMULATIONSLIP run a one step simulation of SLIP
 %   With an initial condition 'delta0' and parameter set 'parms', run a one
 %   step simulation using ode45.
@@ -26,11 +25,11 @@ delta = delta0;
 % Ode solver setup
 optionsStance = odeset('Event', @eventFcnLiftOffSLIP, 'RelTol', 1.e-8);
 dymStance = @(t, x) dymModelStanceDimensionless(t, x, parms); %dymModelStanceDimensionless
-optionsFlight = odeset('Event', @(t, x)eventFcnTouchDownSLIP(t, x, beta), 'RelTol', 1.e-8);
+optionsFlight = odeset('RelTol', 1.e-8);
 dymFlight = @(t, a) dymModelFlightDimensionless(t, a, parms);
 
 
-if strcmp(mode, 'fixedPointOpt') || strcmp(mode, 'checkDutyFactor') || strcmp(mode, 'dataCollection')
+if strcmp(mode, 'fixedPointOpt') || strcmp(mode, 'checkDutyFactor')
     iterNumb = 1;
 elseif strcmp(mode, 'perturbedSimulation')
     perturbation = 1e-4;
@@ -75,11 +74,9 @@ for i = 1:iterNumb
     x0 = [y0, yd0];
     
     % Solve ode
-    if yd0 < 0
-        x2 = x0 * 1e3;
-    else
-        [t, x2, te2, ae2, ie2] = ode45(dymFlight, tspan, x0, optionsFlight); %#ok<ASGLU> % Runge-Kutta 4th/5th order ODE solver
-    end
+    tspan2 = 0:0.01:t2;
+        [t, x2] = ode45(dymFlight, tspan2, x0, optionsFlight); %#ok<ASGLU> % Runge-Kutta 4th/5th order ODE solver
+%     end
     
     % Get states of the next step
     velVec = [xd0, -x2(end, 2)];
@@ -98,10 +95,6 @@ if strcmp(mode, 'fixedPointOpt')
     diffDelta = deltaNew - delta;
     diffBeta = 1 - norm(velVec);
     result = (diffDelta)^2 + (diffBeta)^2;
-elseif strcmp(mode, 'dataCollection')
-    result.te = te;
-    result.te2 = te2;    
-    
 elseif strcmp(mode, 'checkDutyFactor')
     result = te / (te + te2);
 elseif strcmp(mode, 'perturbedSimulation')

@@ -25,8 +25,8 @@ tic
 % betaVec = 72/ 180*pi;
 
 % Parameter set for SLIP vs. SLIPPER comparison
-betaVec = (66:2:74) / 180 * pi;
-gVec = 0.2;
+% betaVec = (66:2:74) / 180 * pi;
+% gVec = 0.2;
 
 % Parameter set for result validation with reference
 % betaVec = (66:2:74) / 180 * pi;
@@ -52,6 +52,10 @@ gVec = 0.2;
 % mph2msVec = (1:3)*4.4704; % g from 20 to 40 mph
 % gVec = 9.81./(mph2msVec.^2)
 % betaVec = 72/ 180 * pi;
+
+gVec = 0.46;
+betaVec = 72/180*pi;
+
 
 %% User option
 % If true, the result will only collect the fixed-points with duty factor>0.25
@@ -129,7 +133,7 @@ for k = 1:optParms.searchingVarLength
     unstableSolutionAbsEigenValueBuffer = nan * zeros(optParms.samplingNumbDelta, optParms.samplingNumbK);
     
     for i = 1:optParms.samplingNumbK
-        parfor j = 1:optParms.samplingNumbDelta
+        for j = 1:optParms.samplingNumbDelta
             parms = {};
             parms.g = optParms.g(k);
             parms.beta = optParms.beta(k);

@@ -24,7 +24,7 @@ for k = 1:optParms.searchingVarLength
         trauncatedStableData = removeRepeatedFixedPointsSLIP(result.stableData(:, :,k));    
     end
 
-    hold on
+%     hold on
     index = isnan(trauncatedStableSolution);
     trauncatedStableSolution(index)=[];
     optParms.kVec(index) = [];
@@ -37,7 +37,11 @@ iterationNumber = length(trauncatedStableSolution);
 
 robustCost = nan(size(trauncatedStableSolution));
 
-for i = 1:10
+
+
+
+
+for i = 1:iterationNumber
     delta0 = trauncatedStableSolution(i);
     optParms.k = optParms.kVec(i);
     optParms.mode = 'dataCollection';
@@ -46,9 +50,9 @@ for i = 1:10
     
     totalTime = result.te + result.te2
     
-    tInterval = 0.05*totalTime;
+    tInterval = 0.2*totalTime;
     
-    timeStack = linspace(totalTime-tInterval, totalTime+tInterval,10) - result.te;
+    timeStack = linspace(totalTime-tInterval, totalTime+tInterval,20) - result.te;
     
     cost = 0;
     for j = 1:length(timeStack)
@@ -57,6 +61,33 @@ for i = 1:10
         result = oneStepSimulationSLIP_SpecifiedTime(delta0,t2, optParms);
         cost = cost +result;
     end
-    robustCost(i)=cost/tInterval;
+    robustCost(i)=cost;
 end
 plot(robustCost)
+
+disturbance = 0.1*rand(1,200)-0.05;
+
+surviveSteps = nan(size(trauncatedStableSolution));
+for i = 1:iterationNumber
+    delta0 = trauncatedStableSolution(i);
+    optParms.k = optParms.kVec(i);
+    optParms.mode = 'robustnessTest';
+    
+    result = oneStepPerturbedSimulationSLIP(delta0,disturbance, optParms);
+    surviveSteps(i) = result;
+%     totalTime = result.te + result.te2
+    
+%     tInterval = 0.05*totalTime;
+    
+%     timeStack = linspace(totalTime-tInterval, totalTime+tInterval,10) - result.te;
+    
+%     cost = 0;
+%     for j = 1:length(timeStack)
+%         optParms.mode = 'fixedPointOpt';
+%         t2 = timeStack(j);
+%         result = oneStepSimulationSLIP_SpecifiedTime(delta0,t2, optParms);
+%         cost = cost +result;
+%     end
+%     robustCost(i)=cost/tInterval;
+end
+

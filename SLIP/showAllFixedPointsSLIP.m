@@ -182,3 +182,22 @@ xlabel('$\tilde{k}$','Interpreter','latex')
 ylabel('$\delta^*$','Interpreter','latex')
 axis([10 20 0 0.5])
 daspect([10, 1, 1])
+
+%%
+hold on
+% h1=   figure();
+
+set(h1,'DefaultTextFontName','Liberation Serif','DefaultTextFontSize',18,...
+'DefaultAxesFontName','Liberation Serif','DefaultAxesFontSize',18,...
+'DefaultLineLineWidth',1,'DefaultLineMarkerSize',7.75)
+
+ydataType = 'delta_Fixed';
+startingPointOption = 'minDelta';
+
+plotAllFixedPointsSLIP('fixedPointData_Varing_none_091218_1135.mat', ydataType, startingPointOption);
+
+text(3,3,'$\tilde{g} = 0.46, \beta = [66^o, 68^o, 70^o, 72^o, 74^o]$','Interpreter','latex','FontSize',12)
+xlabel('$\tilde{k}$','Interpreter','latex')
+ylabel('$\delta^*$','Interpreter','latex')
+axis([10 20 0 0.5])
+daspect([10, 1, 1])

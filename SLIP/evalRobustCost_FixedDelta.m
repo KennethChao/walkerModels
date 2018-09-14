@@ -4,7 +4,7 @@
 %
 close all
 % Load data
-data = load('fixedPointData_Varing_none_091118_1519.mat');
+data = load('fixedPointData_Varing_none_091218_1135.mat');
 dataType = 'delta';
 
 optParms = data.optParms;
@@ -42,7 +42,8 @@ robustCost = nan(size(trauncatedStableSolution));
 
 
 for i = 1:iterationNumber
-    delta0 = trauncatedStableSolution(i);
+    delta0 = optParms.delta
+    optParms.beta = trauncatedStableSolution(i);
     optParms.k = optParms.kVec(i);
     optParms.mode = 'dataCollection';
     
@@ -50,7 +51,7 @@ for i = 1:iterationNumber
     
     totalTime = result.te + result.te2
     
-    tInterval = 0.2;
+    tInterval = 0.1;
     
     timeStack = linspace(totalTime-tInterval, totalTime+tInterval,20) - result.te;
     
@@ -65,11 +66,12 @@ for i = 1:iterationNumber
 end
 plot(robustCost)
 
-disturbance = 0.05*rand(1,200)-0.025;
+disturbance = 0.3*rand(1,200)-0.15;
 
 surviveSteps = nan(size(trauncatedStableSolution));
 for i = 1:iterationNumber
-    delta0 = trauncatedStableSolution(i);
+    delta0 = optParms.delta
+    optParms.beta = trauncatedStableSolution(i);
     optParms.k = optParms.kVec(i);
     optParms.mode = 'robustnessTest';
     
@@ -91,3 +93,5 @@ for i = 1:iterationNumber
 %     robustCost(i)=cost/tInterval;
 end
 
+figure()
+plot(surviveSteps)

@@ -177,7 +177,7 @@ startingPointOption = 'minNorm';
 
 plotAllFixedPointsSLIP('fixedPointData_Varing_beta_091418_0129.mat', ydataType, startingPointOption);
 
-text(14,0.55,'$\tilde{g} = 0.46, \beta = [71^o, 71.5^o, 72^o, 72.5^o, 73^o]$','Interpreter','latex','FontSize',12)
+text(14,0.55,'$\tilde{g} = 0.46, \beta = [71^o, 71.5^o, 72^o, 72.5^o, 74^o]$','Interpreter','latex','FontSize',12)
 xlabel('$\tilde{k}$','Interpreter','latex')
 ylabel('$\delta^*$','Interpreter','latex')
 axis([12 21 0 0.5])

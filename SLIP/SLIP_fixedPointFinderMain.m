@@ -53,9 +53,10 @@ tic
 % gVec = 9.81./(mph2msVec.^2)
 % betaVec = 72/ 180 * pi;
 
+% gVec = 0.46;
+% betaVec = 72/180*pi;
 gVec = 0.46;
-betaVec = 72/180*pi;
-
+betaVec = [71 71.5 72 72.5 73]/180*pi;
 
 %% User option
 % If true, the result will only collect the fixed-points with duty factor>0.25
@@ -63,15 +64,15 @@ optParms.checkDutyFactor = false;
 
 %% Sampling number and range
 % Range of dimensionless stiffness
-optParms.kMin = 1;
-optParms.kMax = 25;
+optParms.kMin = 12;
+optParms.kMax = 21;
 
 % Range of COM velocity direction (radius)
 optParms.deltaMin = 0;
 optParms.deltaMax = 1.2;
 
 % Sampling number
-optParms.samplingNumbK = optParms.kMax * 3;
+optParms.samplingNumbK = optParms.kMax * 24;
 optParms.samplingNumbDelta = 6;
 
 % Range of parameters for plotting

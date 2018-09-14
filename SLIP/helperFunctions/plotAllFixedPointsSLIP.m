@@ -25,8 +25,6 @@ for k = 1:optParms.searchingVarLength
     hold on
     
     % Plot dots of fixed point solutions
-    
-    
     if (~strcmp(dataType,'delta_Fixed'))
         
         for i = 1: size(trauncatedUnstableSolution,1)

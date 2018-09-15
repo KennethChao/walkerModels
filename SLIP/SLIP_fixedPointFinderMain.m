@@ -53,10 +53,10 @@ tic
 % gVec = 9.81./(mph2msVec.^2)
 % betaVec = 72/ 180 * pi;
 
-% gVec = 0.46;
-% betaVec = 72/180*pi;
 gVec = 0.46;
-betaVec = [71 71.5 72 72.5 73]/180*pi;
+betaVec = 72/180*pi;
+% gVec = 0.46;
+% betaVec = [71 71.5 72 72.5 73]/180*pi;
 
 %% User option
 % If true, the result will only collect the fixed-points with duty factor>0.25
@@ -72,7 +72,7 @@ optParms.deltaMin = 0;
 optParms.deltaMax = 1.2;
 
 % Sampling number
-optParms.samplingNumbK = optParms.kMax * 24;
+optParms.samplingNumbK = optParms.kMax * 3;
 optParms.samplingNumbDelta = 6;
 
 % Range of parameters for plotting

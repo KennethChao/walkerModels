@@ -4,7 +4,7 @@
 %
 close all
 % Load data
-data = load('fixedPointData_Varing_none_091118_1519.mat');
+data = load('fixedPointData_Varing_none_091418_1109.mat');
 dataType = 'delta';
 
 optParms = data.optParms;
@@ -36,10 +36,11 @@ end
 iterationNumber = length(trauncatedStableSolution);
 
 robustCost = nan(size(trauncatedStableSolution));
-
-
-
-
+data = load('perturbationABuffer_0914.mat','disturbanceBuffer');
+robustCostBuffer = [];
+disturbanceBuffer = data.disturbanceBuffer;
+surviveStepsBuffer = [];
+for k = 1:10
 
 for i = 1:iterationNumber
     delta0 = trauncatedStableSolution(i);
@@ -50,7 +51,7 @@ for i = 1:iterationNumber
     
     totalTime = result.te + result.te2
     
-    tInterval = 0.2;
+    tInterval = 0.15;
     
     timeStack = linspace(totalTime-tInterval, totalTime+tInterval,20) - result.te;
     
@@ -63,9 +64,11 @@ for i = 1:iterationNumber
     end
     robustCost(i)=cost;
 end
-plot(robustCost)
+robustCostBuffer = [robustCostBuffer;robustCost];
 
-disturbance = 0.05*rand(1,200)-0.025;
+% disturbance = 0.08*rand(1,200)-0.04;
+disturbance = disturbanceBuffer(k,:)
+% disturbanceBuffer = [disturbanceBuffer;disturbance];
 
 surviveSteps = nan(size(trauncatedStableSolution));
 for i = 1:iterationNumber
@@ -89,5 +92,11 @@ for i = 1:iterationNumber
 %         cost = cost +result;
 %     end
 %     robustCost(i)=cost/tInterval;
+    surviveStepsBuffer = [surviveStepsBuffer;surviveSteps];
 end
 
+end
+figure()
+plot(mean(robustCostBuffer))
+figure()
+plot(nanmean(surviveStepsBuffer))

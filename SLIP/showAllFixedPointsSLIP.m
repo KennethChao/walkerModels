@@ -166,38 +166,106 @@ addpath('./result/fastRunning');
 % daspect([15, 1, 1])
 %%
 
-h1=   figure();
-
-set(h1,'DefaultTextFontName','Liberation Serif','DefaultTextFontSize',18,...
-'DefaultAxesFontName','Liberation Serif','DefaultAxesFontSize',18,...
-'DefaultLineLineWidth',1,'DefaultLineMarkerSize',7.75)
-
-ydataType = 'delta';
-startingPointOption = 'minNorm';
-
-plotAllFixedPointsSLIP('fixedPointData_Varing_beta_091418_0129.mat', ydataType, startingPointOption);
-
-text(14,0.55,'$\tilde{g} = 0.46, \beta = [71^o, 71.5^o, 72^o, 72.5^o, 73^o]$','Interpreter','latex','FontSize',12)
-xlabel('$\tilde{k}$','Interpreter','latex')
-ylabel('$\delta^*$','Interpreter','latex')
-axis([12 21 0 0.5])
-daspect([10, 1, 1])
+% h1=   figure();
+% 
+% set(h1,'DefaultTextFontName','Liberation Serif','DefaultTextFontSize',18,...
+% 'DefaultAxesFontName','Liberation Serif','DefaultAxesFontSize',18,...
+% 'DefaultLineLineWidth',1,'DefaultLineMarkerSize',7.75)
+% 
+% ydataType = 'delta';
+% startingPointOption = 'minNorm';
+% 
+% plotAllFixedPointsSLIP('fixedPointData_Varing_beta_091418_0129.mat', ydataType, startingPointOption);
+% 
+% text(14,0.55,'$\tilde{g} = 0.46, \beta = [71^o, 71.5^o, 72^o, 72.5^o, 73^o]$','Interpreter','latex','FontSize',12)
+% xlabel('$\tilde{k}$','Interpreter','latex')
+% ylabel('$\delta^* (rad)$','Interpreter','latex')
+% axis([12 21 0 0.5])
+% daspect([10, 1, 1])
 
 %%
-hold on
+% data = load('perturbationResultA_0914.mat');
+% robustCostBuffer = data.robustCostBuffer;
+% surviveStepsBuffer = data.surviveStepsBuffer;
+% 
+% meanStepNumbers = nanmean(surviveStepsBuffer);
+% meanRobustCost = mean(robustCostBuffer);
+% h2=   figure();
+% 
+% set(h2,'DefaultTextFontName','Liberation Serif','DefaultTextFontSize',18,...
+% 'DefaultAxesFontName','Liberation Serif','DefaultAxesFontSize',18,...
+% 'DefaultLineLineWidth',1,'DefaultLineMarkerSize',7.75)
+% yyaxis left
+% plot(1:8,meanStepNumbers((end-7):end),'linewidth',2)
+% ax1 = gca; % current axes
+% % ax1.XColor = 'r';
+% % ax1.YColor = 'r';
+% 
+% xlabel('Node number','Interpreter','latex')
+% 
+% ylabel('Number of gait periodicity','Interpreter','latex')
+% axis([1 8 0 30])
+% % daspect([10, 1, 1])
+% yyaxis right
+% 
+% % ax1_pos = ax1.Position; % position of first axes
+% % ax2 = axes('Position',ax1_pos,...
+% %     'YAxisLocation','right',...
+% %     'Color','none');
+% plot(1:8,100*meanRobustCost((end-7):end),'-.','linewidth',2)
+% yyaxis right
+% ylabel('Robust Cost','Interpreter','latex')
+% axis([1 8 3.460 3.56])
+% xticks([1:8])
+% hold on
 % h1=   figure();
+% 
+% set(h1,'DefaultTextFontName','Liberation Serif','DefaultTextFontSize',18,...
+% 'DefaultAxesFontName','Liberation Serif','DefaultAxesFontSize',18,...
+% 'DefaultLineLineWidth',1,'DefaultLineMarkerSize',7.75)
+% 
+% ydataType = 'delta_Fixed';
+% startingPointOption = 'minDelta';
+% 
+% plotAllFixedPointsSLIP('fixedPointData_Varing_none_091218_1135.mat', ydataType, startingPointOption);
+% 
+% text(3,3,'$\tilde{g} = 0.46, \beta = [66^o, 68^o, 70^o, 72^o, 74^o]$','Interpreter','latex','FontSize',12)
+% xlabel('$\tilde{k}$','Interpreter','latex')
+% ylabel('$\delta^*$','Interpreter','latex')
+% axis([10 20 0 0.5])
+% daspect([10, 1, 1])
+%%
 
-set(h1,'DefaultTextFontName','Liberation Serif','DefaultTextFontSize',18,...
+data = load('perturbationResultB_0914.mat');
+robustCostBuffer = data.robustCostBuffer;
+surviveStepsBuffer = data.surviveStepsBuffer;
+
+meanStepNumbers = nanmean(surviveStepsBuffer);
+meanRobustCost = mean(robustCostBuffer);
+h2=   figure();
+
+set(h2,'DefaultTextFontName','Liberation Serif','DefaultTextFontSize',18,...
 'DefaultAxesFontName','Liberation Serif','DefaultAxesFontSize',18,...
 'DefaultLineLineWidth',1,'DefaultLineMarkerSize',7.75)
+yyaxis left
+plot(1:8,meanStepNumbers((end-7):end),'linewidth',2)
+ax1 = gca; % current axes
+% ax1.XColor = 'r';
+% ax1.YColor = 'r';
 
-ydataType = 'delta_Fixed';
-startingPointOption = 'minDelta';
+xlabel('Node number','Interpreter','latex')
 
-plotAllFixedPointsSLIP('fixedPointData_Varing_none_091218_1135.mat', ydataType, startingPointOption);
+ylabel('Number of gait periodicity','Interpreter','latex')
+axis([1 8 15 20])
+% daspect([10, 1, 1])
+yyaxis right
 
-text(3,3,'$\tilde{g} = 0.46, \beta = [66^o, 68^o, 70^o, 72^o, 74^o]$','Interpreter','latex','FontSize',12)
-xlabel('$\tilde{k}$','Interpreter','latex')
-ylabel('$\delta^*$','Interpreter','latex')
-axis([10 20 0 0.5])
-daspect([10, 1, 1])
+% ax1_pos = ax1.Position; % position of first axes
+% ax2 = axes('Position',ax1_pos,...
+%     'YAxisLocation','right',...
+%     'Color','none');
+plot(1:8,100*meanRobustCost((end-7):end),'-.','linewidth',2)
+yyaxis right
+ylabel('Robust Cost','Interpreter','latex')
+axis([1 8 3.5 3.6])
+xticks([1:8])

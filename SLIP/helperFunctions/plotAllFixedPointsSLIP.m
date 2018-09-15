@@ -31,7 +31,7 @@ for k = 1:optParms.searchingVarLength
             plot(optParms.kVec, trauncatedUnstableSolution(i, :), 'ro','MarkerSize',7,'MarkerFaceColor' , [1 0 0] );
     %         scatter(optParms.kVec,trauncatedUnstableSolution(i, :),30,trauncatedUnstableData(i, :),'filled')
         end
-        for i = 1: size(trauncatedStableSolution,1)
+        for i = 1: size(trauncatedStableData,1)
     %         plot(optParms.kVec, trauncatedStableSolution(i, :), 'bo','MarkerSize',5,'MarkerFaceColor' , [0 0 1] );
               scatter(optParms.kVec,trauncatedStableSolution(i, :),70,trauncatedStableData(i, :),'filled')
         end        

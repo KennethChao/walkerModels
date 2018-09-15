@@ -63,15 +63,15 @@ optParms.checkDutyFactor = false;
 
 %% Sampling number and range
 % Range of dimensionless stiffness
-optParms.kMin = 17;
-optParms.kMax = 18;
+optParms.kMin = 16.5;
+optParms.kMax = 18.5;
 
 % Range of COM velocity direction (radius)
 optParms.betaMin = 70/180*pi;
 optParms.betaMax = 75/180*pi;
 
 % Sampling number
-optParms.samplingNumbK = optParms.kMax * 3;
+optParms.samplingNumbK = 8;optParms.kMax * 3;
 optParms.samplingNumBeta =2;
 
 % Range of parameters for plotting

@@ -4,7 +4,7 @@
 %
 close all
 % Load data
-data = load('fixedPointData_Varing_none_091418_1822.mat');
+data = load('fixedPointData_Varing_none_091418_1109.mat');
 dataType = 'delta';
 
 optParms = data.optParms;
@@ -37,17 +37,13 @@ iterationNumber = length(trauncatedStableSolution);
 
 robustCost = nan(size(trauncatedStableSolution));
 
-% data = load('perturbationABuffer_0914.mat','disturbanceBuffer');
 robustCostBuffer = [];
 disturbanceBuffer = [];
-% disturbanceBuffer = data.disturbanceBuffer;
-surviveStepsBuffer = [];
-for k = 1:10
-
+surviveStepsBuffer =
+for j = 1:10
 
 for i = 1:iterationNumber
-    delta0 = optParms.delta
-    optParms.beta = trauncatedStableSolution(i);
+    delta0 = trauncatedStableSolution(i);
     optParms.k = optParms.kVec(i);
     optParms.mode = 'dataCollection';
     
@@ -68,22 +64,17 @@ for i = 1:iterationNumber
     end
     robustCost(i)=cost;
 end
-% plot(robustCost)
-
 robustCostBuffer = [robustCostBuffer;robustCost];
-disturbance = 0.1*rand(1,200)-0.05;
 
-% disturbance = disturbanceBuffer(k,:)
-disturbanceBuffer = [disturbanceBuffer;disturbance];
+disturbance = 0.08*rand(1,200)-0.04;
 
-    
-    
+disturbanceBuffer = [robustCostBuffer;disturbance];
+
 surviveSteps = nan(size(trauncatedStableSolution));
 for i = 1:iterationNumber
-    delta0 = optParms.delta
-    optParms.beta = trauncatedStableSolution(i);
+    delta0 = trauncatedStableSolution(i);
     optParms.k = optParms.kVec(i);
-    optParms.mode = 'robustnessTest'; 
+    optParms.mode = 'robustnessTest';
     
     result = oneStepPerturbedSimulationSLIP(delta0,disturbance, optParms);
     surviveSteps(i) = result;
@@ -101,11 +92,9 @@ for i = 1:iterationNumber
 %         cost = cost +result;
 %     end
 %     robustCost(i)=cost/tInterval;
+end
 
-    surviveStepsBuffer = [surviveStepsBuffer;surviveSteps];
-end
 end
 figure()
-plot(mean(robustCostBuffer))
-figure()
-plot(nanmean(surviveStepsBuffer))
+plot(robustCost)
+plot(surviveSteps)

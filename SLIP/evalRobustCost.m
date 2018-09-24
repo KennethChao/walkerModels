@@ -4,6 +4,8 @@
 %
 close all
 % Load data
+addpath('./helperFunctions')
+addpath('./result')
 data = load('fixedPointData_Varing_none_091418_1109.mat');
 dataType = 'delta';
 
